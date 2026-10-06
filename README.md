@@ -31,15 +31,22 @@ npm run dev                  # start the backend first (see backend/README.md)
 
 ## Scripts
 
-| Script            | What it does                          |
-|-------------------|---------------------------------------|
-| `npm run dev`     | dev server (port 3000)                |
-| `npm run build`   | production build                      |
-| `npm run lint`    | eslint                                |
-| `npm run typecheck` | `tsc --noEmit`                      |
-| `npm test`        | placeholder (wired in a later task)   |
-| `npm run test:e2e`| placeholder (playwright, later task)  |
-| `npm run api:types` | placeholder (OpenAPI types, P0.5)   |
+| Script              | What it does                              |
+| ------------------- | ----------------------------------------- |
+| `npm run dev`       | dev server (port 3000)                    |
+| `npm run build`     | production build                          |
+| `npm run lint`      | eslint                                    |
+| `npm run typecheck` | `tsc --noEmit`                            |
+| `npm test`          | unit / component tests (vitest)           |
+| `npm run test:e2e`  | e2e smoke (playwright, chromium)          |
+| `npm run api:types` | regenerate API types from backend OpenAPI |
+
+## E2E
+
+```bash
+npx playwright install chromium   # once: download the browser (CI uses --with-deps)
+npm run test:e2e                  # starts the dev server automatically
+```
 
 ## Layout
 

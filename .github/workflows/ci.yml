@@ -1,6 +1,6 @@
-# Frontend CI — lint + typecheck + tests + build (no backend dependency:
-// the committed src/lib/api/schema.d.ts lets the build compile standalone,
-// and unit tests mock fetch).
+# Frontend CI — lint + typecheck + tests + build + e2e (no backend dependency:
+# the committed src/lib/api/schema.d.ts lets the build compile standalone,
+# unit tests mock fetch, and the Phase 0 e2e smoke covers the static home).
 name: ci
 
 on:
@@ -24,3 +24,5 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
