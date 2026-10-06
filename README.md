@@ -15,6 +15,20 @@ npm ci
 npm run dev      # http://localhost:3000
 ```
 
+## Pointing to the local API
+
+The web talks to the backend API via `API_BASE_URL` (server-side) and
+`NEXT_PUBLIC_API_BASE_URL` (browser-side). Both default to the local API;
+no database services are defined here (infrastructure lives in `backend/`).
+
+```bash
+cp .env.example .env.local    # once: create your local env file (never commit it)
+# .env.example already points both variables at http://localhost:3001/api/v1
+npm run dev                  # start the backend first (see backend/README.md)
+```
+
+> Never put secrets in `NEXT_PUBLIC_*` variables — they are exposed to the browser.
+
 ## Scripts
 
 | Script            | What it does                          |
