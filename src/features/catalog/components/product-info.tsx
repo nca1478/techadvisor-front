@@ -1,8 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import type { ProductDetail } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
@@ -43,12 +43,13 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
       </Stack>
 
       <Stack gap="sm">
-        <Button size="lg" disabled title={messages.addToCartUnavailable}>
-          {product.inStock ? messages.addToCart : messages.outOfStock}
-        </Button>
-        <Text variant="caption" tone="muted">
-          {messages.addToCartUnavailable}
-        </Text>
+        <AddToCartButton
+          productId={product.id}
+          disabled={!product.inStock}
+          label={messages.addToCart}
+          addedLabel={messages.addToCartAdded}
+          errorLabel={messages.addToCartError}
+        />
       </Stack>
 
       <Stack gap="sm">

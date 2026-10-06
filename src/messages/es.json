@@ -15,7 +15,8 @@
     "featured": "Destacados",
     "categories": "Categorías",
     "viewAll": "Ver todos los productos",
-    "skipToContent": "Saltar al contenido"
+    "skipToContent": "Saltar al contenido",
+    "cart": "Carrito"
   },
   "catalog": {
     "title": "Productos",
@@ -44,7 +45,8 @@
     "inStock": "En stock",
     "availableUnits": "{count} disponibles",
     "addToCart": "Agregar al carrito",
-    "addToCartUnavailable": "El carrito llega en P1.11 — agregar está deshabilitado por ahora.",
+    "addToCartAdded": "Agregado al carrito",
+    "addToCartError": "No se pudo agregar este producto al carrito.",
     "specsTitle": "Especificaciones",
     "descriptionTitle": "Descripción",
     "backToList": "Volver a productos",
@@ -54,5 +56,105 @@
     "homeCategoriesTitle": "Compra por categoría",
     "homeCategoriesSubtitle": "Explora el catálogo por categoría.",
     "homeEmpty": "El catálogo está vacío por ahora."
+  },
+  "auth": {
+    "loginTitle": "Iniciar sesión",
+    "loginSubtitle": "Bienvenido de nuevo. Inicia sesión para pagar y ver tus pedidos.",
+    "registerTitle": "Crear una cuenta",
+    "registerSubtitle": "Una cuenta para pagar, ver pedidos y comprar más rápido.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre (opcional)",
+    "loginSubmit": "Iniciar sesión",
+    "registerSubmit": "Crear cuenta",
+    "invalidEmail": "Ingresa un correo válido.",
+    "passwordMin": "La contraseña debe tener al menos 10 caracteres.",
+    "required": "Este campo es obligatorio.",
+    "loginLink": "Iniciar sesión",
+    "registerLink": "Crear cuenta",
+    "logout": "Cerrar sesión",
+    "account": "Cuenta ({email})"
+  },
+  "cart": {
+    "title": "Carrito",
+    "subtitle": "Revisa las cantidades antes de pagar. Los totales vienen del servidor.",
+    "loading": "Cargando carrito…",
+    "loadError": "No se pudo cargar el carrito.",
+    "retry": "Reintentar",
+    "empty": "Tu carrito está vacío.",
+    "browseProducts": "Ver productos",
+    "updateError": "No se pudo actualizar el carrito",
+    "line": {
+      "remove": "Quitar",
+      "increase": "Aumentar cantidad",
+      "decrease": "Disminuir cantidad",
+      "quantity": "Cantidad",
+      "insufficientStock": "No hay suficiente stock para esta cantidad."
+    },
+    "summary": {
+      "title": "Resumen",
+      "items": "{count} artículos",
+      "total": "Total",
+      "checkout": "Ir a pagar",
+      "continueShopping": "Seguir comprando"
+    }
+  },
+  "checkout": {
+    "title": "Pagar",
+    "subtitle": "Dirección de envío y pago con Stripe (modo de prueba).",
+    "loginRequired": "Inicia sesión para completar tu compra.",
+    "loginLink": "Ir a iniciar sesión",
+    "emptyCart": "Tu carrito está vacío, no hay nada que pagar.",
+    "browseProducts": "Ver productos",
+    "shippingTitle": "Dirección de envío",
+    "summaryTitle": "Resumen del pedido",
+    "itemsLabel": "{count} artículos",
+    "totalLabel": "Total",
+    "payWithStripe": "Pagar con Stripe",
+    "stripeNote": "Serás redirigido al Checkout alojado de Stripe. Ningún dato de tarjeta pasa por esta tienda.",
+    "genericError": "Algo salió mal",
+    "form": {
+      "fullName": "Nombre completo",
+      "line1": "Dirección línea 1",
+      "line2": "Dirección línea 2 (opcional)",
+      "city": "Ciudad",
+      "region": "Provincia / región (opcional)",
+      "postalCode": "Código postal (opcional)",
+      "country": "País",
+      "countryPlaceholder": "Selecciona un país",
+      "phone": "Teléfono (opcional)",
+      "required": "Este campo es obligatorio.",
+      "invalidCountry": "Selecciona un país de la lista."
+    }
+  },
+  "status": {
+    "loading": "Cargando pedido…",
+    "processingTitle": "Procesando el pago",
+    "processingBody": "Tu pago se está confirmando. Esta página se actualiza sola — no pagues dos veces.",
+    "paidTitle": "Pago confirmado",
+    "paidBody": "¡Gracias! Tu pedido está confirmado y en preparación.",
+    "cancelledTitle": "Pago no completado",
+    "cancelledBody": "Este pedido no fue pagado. Puedes intentarlo de nuevo mientras espera el pago.",
+    "unknownTitle": "Pedido no encontrado",
+    "unknownBody": "No pudimos encontrar este pedido. Puede pertenecer a otra cuenta.",
+    "stillProcessing": "Esperando la confirmación del pago…",
+    "payAgain": "Pagar de nuevo",
+    "backHome": "Volver al inicio",
+    "viewProducts": "Ver productos",
+    "summaryTitle": "Resumen del pedido",
+    "itemsLabel": "{count} artículos",
+    "totalLabel": "Total",
+    "orderLabel": "Pedido {id}"
+  },
+  "account": {
+    "title": "Mis pedidos",
+    "subtitle": "Pedidos de esta cuenta, del más reciente al más antiguo.",
+    "loginRequired": "Inicia sesión para ver tus pedidos.",
+    "loginLink": "Ir a iniciar sesión",
+    "empty": "Aún no tienes pedidos.",
+    "browseProducts": "Ver productos",
+    "viewOrder": "Ver",
+    "orderLabel": "Pedido {id}",
+    "resolving": "Localizando pedido…"
   }
 }

@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import en from '@/messages/en.json';
 import type { ProductListItem } from '@/lib/api/catalog';
+import { CartProvider } from '@/features/cart/cart-context';
 import { ProductCard } from './product-card';
 
 function product(overrides: Partial<ProductListItem> = {}): ProductListItem {
@@ -35,49 +36,56 @@ function product(overrides: Partial<ProductListItem> = {}): ProductListItem {
 
 const messages = en.catalog;
 
-describe('ProductCard', () => {
-  it('renders the name, formatted price and in-stock badge', () => {
-    render(
+const emptyCart = {
+  id: 'cart-1',
+  currency: 'USD',
+  locale: 'en',
+  items: [],
+  totalAmount: 0,
+  itemCount: 0,
+};
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+/** ProductCard embeds AddToCartButton, which reads the cart context. */
+function renderCard(productOverrides: Partial<ProductListItem> = {}) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((): Promise<Response> =>
+      Promise.resolve(new Response(JSON.stringify(emptyCart), { status: 200 })),
+    ),
+  );
+  render(
+    <CartProvider>
       <ProductCard
-        product={product()}
+        product={product(productOverrides)}
         locale="en"
         currency="USD"
         messages={messages}
         detailHref="/en/productos/test-laptop-15"
-      />,
-    );
+      />
+    </CartProvider>,
+  );
+}
+
+describe('ProductCard', () => {
+  it('renders the name, formatted price and in-stock badge', () => {
+    renderCard();
     expect(screen.getByText('Test Laptop 15')).toBeVisible();
     expect(screen.getByText('$1,299.00')).toBeVisible();
     expect(screen.getByText(messages.inStock)).toBeVisible();
   });
 
   it('marks out-of-stock products clearly with a disabled action', () => {
-    render(
-      <ProductCard
-        product={product({ inStock: false, availableQuantity: 0 })}
-        locale="en"
-        currency="USD"
-        messages={messages}
-        detailHref="/en/productos/test-laptop-15"
-      />,
-    );
+    renderCard({ inStock: false, availableQuantity: 0 });
     expect(screen.getByText(messages.outOfStock)).toBeVisible();
     expect(screen.getByRole('button', { name: messages.addToCart })).toBeDisabled();
   });
 
   it('falls back to the product name when alt is missing and to the placeholder without images', () => {
-    render(
-      <ProductCard
-        product={product({
-          imageUrl: null,
-          imageAlt: null,
-        })}
-        locale="en"
-        currency="USD"
-        messages={messages}
-        detailHref="/en/productos/test-laptop-15"
-      />,
-    );
+    renderCard({ imageUrl: null, imageAlt: null });
     const image = screen.getByAltText('Test Laptop 15');
     expect(image).toHaveAttribute('src', expect.stringContaining('placeholder') as string);
   });

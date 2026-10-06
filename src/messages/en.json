@@ -15,7 +15,8 @@
     "featured": "Featured",
     "categories": "Categories",
     "viewAll": "View all products",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "cart": "Cart"
   },
   "catalog": {
     "title": "Products",
@@ -44,7 +45,8 @@
     "inStock": "In stock",
     "availableUnits": "{count} available",
     "addToCart": "Add to cart",
-    "addToCartUnavailable": "Cart checkout arrives in P1.11 — adding is disabled for now.",
+    "addToCartAdded": "Added to cart",
+    "addToCartError": "Could not add this product to the cart.",
     "specsTitle": "Specifications",
     "descriptionTitle": "Description",
     "backToList": "Back to products",
@@ -54,5 +56,105 @@
     "homeCategoriesTitle": "Shop by category",
     "homeCategoriesSubtitle": "Browse the catalog by category.",
     "homeEmpty": "The catalog is empty for now."
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "loginSubtitle": "Welcome back. Sign in to check out and see your orders.",
+    "registerTitle": "Create an account",
+    "registerSubtitle": "One account for checkout, orders and faster purchases.",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name (optional)",
+    "loginSubmit": "Sign in",
+    "registerSubmit": "Create account",
+    "invalidEmail": "Enter a valid email address.",
+    "passwordMin": "Password must be at least 10 characters.",
+    "required": "This field is required.",
+    "loginLink": "Sign in",
+    "registerLink": "Create account",
+    "logout": "Sign out",
+    "account": "Account ({email})"
+  },
+  "cart": {
+    "title": "Cart",
+    "subtitle": "Review quantities before checking out. Totals come from the server.",
+    "loading": "Loading cart…",
+    "loadError": "The cart could not be loaded.",
+    "retry": "Try again",
+    "empty": "Your cart is empty.",
+    "browseProducts": "Browse products",
+    "updateError": "Could not update the cart",
+    "line": {
+      "remove": "Remove",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity",
+      "quantity": "Quantity",
+      "insufficientStock": "Not enough stock for this quantity."
+    },
+    "summary": {
+      "title": "Summary",
+      "items": "{count} items",
+      "total": "Total",
+      "checkout": "Go to checkout",
+      "continueShopping": "Continue shopping"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Shipping address and payment via Stripe (test mode).",
+    "loginRequired": "Sign in to complete your purchase.",
+    "loginLink": "Go to sign in",
+    "emptyCart": "Your cart is empty, so there is nothing to check out.",
+    "browseProducts": "Browse products",
+    "shippingTitle": "Shipping address",
+    "summaryTitle": "Order summary",
+    "itemsLabel": "{count} items",
+    "totalLabel": "Total",
+    "payWithStripe": "Pay with Stripe",
+    "stripeNote": "You will be redirected to hosted Stripe Checkout. No card data touches this store.",
+    "genericError": "Something went wrong",
+    "form": {
+      "fullName": "Full name",
+      "line1": "Address line 1",
+      "line2": "Address line 2 (optional)",
+      "city": "City",
+      "region": "State / region (optional)",
+      "postalCode": "Postal code (optional)",
+      "country": "Country",
+      "countryPlaceholder": "Select a country",
+      "phone": "Phone (optional)",
+      "required": "This field is required.",
+      "invalidCountry": "Select a country from the list."
+    }
+  },
+  "status": {
+    "loading": "Loading order…",
+    "processingTitle": "Processing payment",
+    "processingBody": "Your payment is being confirmed. This page updates automatically — do not pay twice.",
+    "paidTitle": "Payment confirmed",
+    "paidBody": "Thank you! Your order is confirmed and being prepared.",
+    "cancelledTitle": "Payment not completed",
+    "cancelledBody": "This order was not paid. You can try again while it waits for payment.",
+    "unknownTitle": "Order not found",
+    "unknownBody": "We could not find this order. It may belong to another account.",
+    "stillProcessing": "Waiting for payment confirmation…",
+    "payAgain": "Pay again",
+    "backHome": "Back to home",
+    "viewProducts": "Browse products",
+    "summaryTitle": "Order summary",
+    "itemsLabel": "{count} items",
+    "totalLabel": "Total",
+    "orderLabel": "Order {id}"
+  },
+  "account": {
+    "title": "My orders",
+    "subtitle": "Orders for this account, newest first.",
+    "loginRequired": "Sign in to see your orders.",
+    "loginLink": "Go to sign in",
+    "empty": "You have no orders yet.",
+    "browseProducts": "Browse products",
+    "viewOrder": "View",
+    "orderLabel": "Order {id}",
+    "resolving": "Resolving order…"
   }
 }

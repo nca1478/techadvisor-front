@@ -1,9 +1,9 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { primaryImage } from '@/lib/api/catalog';
 import type { ProductListItem } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -44,9 +44,14 @@ export function ProductCard({ product, locale, currency, messages, detailHref }:
             <Badge tone="destructive">{messages.outOfStock}</Badge>
           )}
         </Stack>
-        <Button size="sm" variant="secondary" disabled title={messages.addToCartUnavailable}>
-          {messages.addToCart}
-        </Button>
+        <AddToCartButton
+          size="sm"
+          productId={product.id}
+          disabled={!product.inStock}
+          label={messages.addToCart}
+          addedLabel={messages.addToCartAdded}
+          errorLabel={messages.addToCartError}
+        />
       </Stack>
     </Card>
   );
