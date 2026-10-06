@@ -17,6 +17,13 @@ function remotePatterns(): { protocol: 'https'; hostname: string }[] {
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: remotePatterns(),
+    // The seed hosts (placehold.co) serve `image/svg+xml`. Next.js refuses to
+    // optimize SVGs by default (embedded scripts are an XSS vector), so the
+    // catalog cards/detail error at runtime without this. SVGs here come from
+    // static generator hosts, never from user uploads, and scripts inside
+    // them are neutralized with the strict CSP below (ADR 0006, amendment).
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

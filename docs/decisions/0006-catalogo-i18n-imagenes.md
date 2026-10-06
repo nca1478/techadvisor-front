@@ -101,3 +101,17 @@ carrito. Así se cumple el criterio sin simular una compra.
 - Añadir un host de imágenes = actualizar `IMAGE_REMOTE_HOSTS`, sin código.
 - Un tercer idioma = nuevo `src/messages/<locale>.json` + entrada en `LOCALES`
   (y `supportedLocales` del backend); sin cambios de lógica.
+
+## Amendment 2026-10-06 — SVG remotos en `next/image`
+
+Los hosts del seed (`placehold.co`) sirven las imágenes como `image/svg+xml`
+y el optimizador de Next.js las rechaza por defecto (`dangerouslyAllowSVG is
+disabled`), lo que rompía tarjetas y galería en runtime. Decisión: activar
+`dangerouslyAllowSVG: true` con
+`contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"`
+en `next.config.ts` (recomendación literal de la doc de `next/image` en
+`node_modules/next/dist/docs/.../02-components/image.md`). Es seguro aquí
+porque los SVG vienen de generadores estáticos, nunca de subidas de usuarios,
+y la CSP neutraliza scripts embebidos (`contentDispositionType` ya es
+`attachment` por defecto). No se usa `unoptimized` para no perder la
+optimización de las fotos reales (raster) del CDN.
