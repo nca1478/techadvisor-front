@@ -1,27 +1,154 @@
 @import "tailwindcss";
 
+/*
+ * TechAdvisor design tokens (ADR 0005).
+ * Semantic colors live in :root so every theme (including the future dark
+ * theme) overrides plain CSS variables; @theme inline maps them to Tailwind
+ * utilities (bg-background, text-foreground, border-border, ...).
+ * This file is the ONLY place where raw color values may appear.
+ */
+
 :root {
+  color-scheme: light;
+
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #f6f7f9;
+  --foreground: #13171c;
+  --muted-foreground: #475569;
+  --border: #dde1e7;
+
+  --primary: #174ea6;
+  --primary-hover: #123d82;
+  --primary-subtle: #e8eefb;
+  --primary-foreground: #ffffff;
+
+  --accent: #0f766e;
+  --accent-hover: #0c5f59;
+  --accent-foreground: #ffffff;
+
+  --ring: #174ea6;
+
+  --success: #15803d;
+  --success-subtle: #e7f4ec;
+  --success-foreground: #ffffff;
+
+  --warning: #b45309;
+  --warning-subtle: #fbf0e0;
+  --warning-foreground: #ffffff;
+
+  --destructive: #b91c1c;
+  --destructive-subtle: #fbeaea;
+  --destructive-foreground: #ffffff;
+}
+
+/*
+ * Dark theme: structure ready, NOT implemented yet (no toggle, no switching).
+ * Do not reference [data-theme="dark"] until the dark-mode task lands.
+ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #0f1319;
+  --surface: #171d26;
+  --foreground: #eef1f5;
+  --muted-foreground: #a7b1bd;
+  --border: #2a3340;
+
+  --primary: #6b9bff;
+  --primary-hover: #8db2ff;
+  --primary-subtle: #1a2c4e;
+  --primary-foreground: #0b1526;
+
+  --accent: #3ec9bb;
+  --accent-hover: #62d4c8;
+  --accent-foreground: #07322e;
+
+  --ring: #8db2ff;
+
+  --success: #4ade80;
+  --success-subtle: #123a24;
+  --success-foreground: #06230f;
+
+  --warning: #fbbf24;
+  --warning-subtle: #3d2c0c;
+  --warning-foreground: #331c02;
+
+  --destructive: #f87171;
+  --destructive-subtle: #431314;
+  --destructive-foreground: #3a0a0a;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Typefaces are provided by next/font (src/app/fonts.ts); system fallbacks
+     keep text readable if the webfont fails to load. */
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* Locked radii and shadows: components must use these, never raw values. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-sm: 0 1px 2px rgb(19 23 28 / 0.06);
+  --shadow-md: 0 4px 12px rgb(19 23 28 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(19 23 28 / 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
 }
