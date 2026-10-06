@@ -8,5 +8,6 @@ export { Input, type InputProps } from './input';
 export { Link, type LinkProps } from './link';
 export { MediaFrame, type MediaFrameProps } from './media-frame';
 export { Section, type SectionProps, type SectionSpacing } from './section';
+export { Select, type SelectProps } from './select';
 export { Stack, type StackProps } from './stack';
 export { Text, type TextProps } from './text';

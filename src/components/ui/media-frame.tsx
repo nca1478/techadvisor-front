@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 import { cn } from './cn';
 
 const RATIOS = {
@@ -9,12 +12,14 @@ const RATIOS = {
 } as const;
 
 export interface MediaFrameProps {
-  src: string;
+  src: string | null;
   /** Alternative text is mandatory: decorative images must pass alt="". */
   alt: string;
   ratio?: keyof typeof RATIOS;
   rounded?: 'sm' | 'md' | 'lg';
   priority?: boolean;
+  /** Local placeholder shown when `src` is empty or fails to load. */
+  fallbackSrc?: string;
   className?: string;
 }
 
@@ -26,7 +31,9 @@ const ROUNDED = {
 
 /**
  * Fixed-aspect-ratio image frame (prevents layout shift). Images are cropped
- * centered with object-cover on a surface background while loading.
+ * centered with object-cover on a surface background while loading. When `src`
+ * is missing or the remote image fails, `fallbackSrc` is shown instead so
+ * product cards never render an empty frame.
  */
 export function MediaFrame({
   src,
@@ -34,8 +41,12 @@ export function MediaFrame({
   ratio = 'square',
   rounded = 'md',
   priority = false,
+  fallbackSrc = '/placeholder.svg',
   className,
 }: MediaFrameProps) {
+  const [failed, setFailed] = useState(false);
+  const effectiveSrc = src && !failed ? src : fallbackSrc;
+
   return (
     <div
       className={cn(
@@ -46,12 +57,15 @@ export function MediaFrame({
       )}
     >
       <Image
-        src={src}
+        src={effectiveSrc}
         alt={alt}
         fill
         sizes="(max-width: 768px) 50vw, 25vw"
         className="object-cover"
         priority={priority}
+        onError={() => {
+          setFailed(true);
+        }}
       />
     </div>
   );

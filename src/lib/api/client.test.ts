@@ -1,5 +1,5 @@
-import { createApiClient } from './client.js';
-import { ApiError } from './errors.js';
+import { createApiClient } from './client';
+import { ApiError } from './errors';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

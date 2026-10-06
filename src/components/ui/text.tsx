@@ -18,6 +18,8 @@ export interface TextProps {
   variant?: keyof typeof VARIANTS;
   tone?: keyof typeof TONES;
   className?: string;
+  /** ARIA live-region role (`status`, `alert`) for loading/error copy. */
+  role?: 'status' | 'alert';
   children: ReactNode;
 }
 
@@ -27,8 +29,13 @@ export function Text({
   variant = 'body',
   tone = 'default',
   className,
+  role,
   children,
 }: TextProps) {
   const Tag = as;
-  return <Tag className={cn(VARIANTS[variant], TONES[tone], className)}>{children}</Tag>;
+  return (
+    <Tag role={role} className={cn(VARIANTS[variant], TONES[tone], className)}>
+      {children}
+    </Tag>
+  );
 }

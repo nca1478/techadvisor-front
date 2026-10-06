@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { components } from './schema.js';
-import { type ApiClient, createApiClient } from './client.js';
+import type { components } from './schema';
+import { type ApiClient, createApiClient } from './client';
 
 export type PublicConfig = components['schemas']['PublicConfigResponseDto'];
 

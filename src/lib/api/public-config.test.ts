@@ -1,5 +1,5 @@
-import { createApiClient } from './client.js';
-import { getPublicConfig } from './public-config.js';
+import { createApiClient } from './client';
+import { getPublicConfig } from './public-config';
 
 const backendConfig = {
   baseCurrency: 'USD',

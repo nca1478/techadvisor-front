@@ -1,4 +1,4 @@
-import { ApiError, isUniformErrorBody } from './errors.js';
+import { ApiError, isUniformErrorBody } from './errors';
 
 export interface ApiClientOptions {
   /** Defaults to NEXT_PUBLIC_API_BASE_URL (browser) or API_BASE_URL (server). */

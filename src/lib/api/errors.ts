@@ -1,4 +1,4 @@
-import type { components } from './schema.js';
+import type { components } from './schema';
 
 export type UniformErrorBody = components['schemas']['ErrorResponseDto'];
 
