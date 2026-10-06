@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node -e \"console.log('TODO(P0): playwright e2e not wired yet')\"",
-    "api:types": "node -e \"console.log('TODO(P0.5): generate types from backend OpenAPI')\""
+    "api:types": "node scripts/api-types.mjs"
   },
   "dependencies": {
     "next": "16.3.8",
@@ -35,6 +35,7 @@
     "husky": "^9.1.7",
     "jsdom": "^30.1.2",
     "lint-staged": "^17.6.0",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.9",
     "tailwindcss": "^4",
     "typescript": "^5",

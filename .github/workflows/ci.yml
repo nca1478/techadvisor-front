@@ -1,0 +1,26 @@
+# Frontend CI — lint + typecheck + tests + build (no backend dependency:
+// the committed src/lib/api/schema.d.ts lets the build compile standalone,
+// and unit tests mock fetch).
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
