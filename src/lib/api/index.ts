@@ -1,4 +1,36 @@
 export { createAuthApi, type AuthApi, type AuthPayload, type AuthUser } from './auth';
+export {
+  ADMIN_ORDER_TRANSITIONS,
+  adminNextStatuses,
+  availableUnits,
+  isLowStock,
+  LOW_STOCK_THRESHOLD,
+  toAdminQuery,
+} from './admin';
+export type {
+  AdjustInventoryRequest,
+  AdminBrand,
+  AdminCategory,
+  AdminInventory,
+  AdminInventoryMovement,
+  AdminOrder,
+  AdminOrderItem,
+  AdminOrderList,
+  AdminOrderListQuery,
+  AdminOrderStatus,
+  AdminPrice,
+  AdminProduct,
+  AdminProductImage,
+  AdminProductImageInput,
+  AdminProductList,
+  AdminProductListQuery,
+  AdminProductStatus,
+  AdminProductTranslation,
+  CreateProductRequest,
+  ReplaceProductImagesRequest,
+  SpecField,
+  UpdateProductRequest,
+} from './admin';
 export type { LoginRequest, RefreshRequest, RegisterRequest, TokenPair } from './auth';
 export { createCartApi, type AddCartItem, type Cart, type CartApi, type CartItem } from './cart';
 export type { UpdateCartItem } from './cart';

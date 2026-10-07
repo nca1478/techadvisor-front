@@ -77,6 +77,7 @@ export default async function LocaleLayout({
                   registerLabel={messages.auth.registerLink}
                   logoutLabel={messages.auth.logout}
                   accountLabel={messages.auth.account}
+                  adminLabel={messages.nav.admin}
                 />
                 <LocaleCurrencyControls
                   locale={locale}

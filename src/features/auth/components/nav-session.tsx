@@ -14,12 +14,14 @@ export function NavSession({
   registerLabel,
   logoutLabel,
   accountLabel,
+  adminLabel,
 }: {
   locale: string;
   loginLabel: string;
   registerLabel: string;
   logoutLabel: string;
   accountLabel: string;
+  adminLabel: string;
 }) {
   const { status, user, logout } = useSession();
 
@@ -34,6 +36,11 @@ export function NavSession({
   if (status === 'authenticated' && user) {
     return (
       <span className="inline-flex items-center gap-3">
+        {user.role === 'ADMIN' ? (
+          <Link href={`/${locale}/admin`} variant="muted">
+            {adminLabel}
+          </Link>
+        ) : null}
         <Link href={`/${locale}/cuenta`} variant="muted">
           {accountLabel.replace('{email}', user.email)}
         </Link>

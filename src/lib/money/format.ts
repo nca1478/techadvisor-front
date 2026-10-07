@@ -18,7 +18,7 @@ export function formatPrice(amountMinor: number, currency: string, locale: strin
  * (JPY, KRW, ...) use 0. Kept minimal for the supported list (USD, EUR);
  * extend when the backend adds more currencies.
  */
-function currencyFractionDigits(currency: string): number {
+export function currencyFractionDigits(currency: string): number {
   const ZERO_DECIMAL = new Set([
     'BIF',
     'CLP',
