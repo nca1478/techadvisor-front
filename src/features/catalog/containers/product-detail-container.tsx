@@ -9,6 +9,7 @@ import { createApiClient } from '@/lib/api/client';
 import { createCatalogApi } from '@/lib/api/catalog';
 import type { Locale } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n/index';
+import { productJsonLd } from '@/lib/seo/site';
 import { CatalogError } from '../components/catalog-states';
 import { ProductGallery } from '../components/product-gallery';
 import { ProductInfo } from '../components/product-info';
@@ -69,6 +70,19 @@ export async function ProductDetailContainer({
           </Grid>
         </Stack>
       </Section>
+      {/* schema.org Product: name/image/price+currency/availability from the API. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            productJsonLd({
+              product,
+              locale,
+              path: `/${locale}/productos/${slug}`,
+            }),
+          ),
+        }}
+      />
     </Container>
   );
 }

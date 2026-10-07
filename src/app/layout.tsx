@@ -3,8 +3,10 @@ import { headers } from 'next/headers';
 import './globals.css';
 import { fontMono, fontSans } from './fonts';
 import { normalizeLocale } from '@/lib/i18n/config';
+import { siteUrl } from '@/lib/seo/site';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: 'TechAdvisor',
   description: 'Tech ecommerce with a RAG-powered shopping advisor.',
 };

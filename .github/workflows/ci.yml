@@ -1,6 +1,7 @@
-# Frontend CI — lint + typecheck + tests + build + e2e (no backend dependency:
-# the committed src/lib/api/schema.d.ts lets the build compile standalone,
-# unit tests mock fetch, and the Phase 0 e2e smoke covers the static home).
+# Frontend CI — lint + typecheck + tests + build, then Playwright e2e.
+# The e2e job has no backend dependency: the suite points API_BASE_URL at the
+# contract-shaped mock (`e2e/mock-backend.mjs`, see ADR 0010), so neither the
+# real API nor Stripe is ever contacted.
 name: ci
 
 on:
@@ -24,5 +25,18 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

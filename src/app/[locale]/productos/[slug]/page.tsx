@@ -12,6 +12,12 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
+// ISR for product pages (see docs/decisions/0009-seo-isr.md): rendered on
+// demand and revalidated every 5 minutes. Price/stock staleness is bounded
+// and harmless here — the cart and checkout always read live data.
+export const revalidate = 300;
+export const dynamicParams = true;
+
 type QueryParams = Record<string, string | string[] | undefined>;
 
 interface DetailPageProps {
@@ -31,17 +37,39 @@ export async function generateMetadata({ params }: DetailPageProps): Promise<Met
   const { locale, slug } = route;
   const messages = await getDictionary(locale);
   const languages = Object.fromEntries(LOCALES.map((code) => [code, `/${code}/productos/${slug}`]));
+  const url = `/${locale}/productos/${slug}`;
   try {
     const product = await createCatalogApi(createApiClient()).productDetail(slug, locale);
+    const title = `${product.name} — ${messages.common.techAdvisor}`;
+    const description = product.description.slice(0, 160);
+    const firstImage = product.images.at(0)?.url ?? null;
+    const images =
+      typeof firstImage === 'string' && firstImage.length > 0 ? [{ url: firstImage }] : undefined;
     return {
-      title: `${product.name} — ${messages.common.techAdvisor}`,
-      description: product.description.slice(0, 160),
-      alternates: { canonical: `/${locale}/productos/${slug}`, languages },
+      title,
+      description,
+      alternates: { canonical: url, languages },
+      openGraph: {
+        title,
+        description,
+        url,
+        siteName: messages.common.techAdvisor,
+        locale,
+        alternateLocale: LOCALES.filter((code) => code !== locale),
+        type: 'website',
+        ...(images ? { images } : {}),
+      },
+      twitter: {
+        card: images ? 'summary_large_image' : 'summary',
+        title,
+        description,
+        ...(images ? { images: images.map((image) => image.url) } : {}),
+      },
     };
   } catch {
     return {
       title: messages.catalog.title,
-      alternates: { canonical: `/${locale}/productos/${slug}`, languages },
+      alternates: { canonical: url, languages },
     };
   }
 }

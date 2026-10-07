@@ -39,10 +39,22 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   if (locale === null) return {};
   const messages = await getDictionary(locale);
   const languages = Object.fromEntries(LOCALES.map((code) => [code, `/${code}/productos`]));
+  const title = `${messages.catalog.title} — ${messages.common.techAdvisor}`;
+  const description = messages.catalog.subtitle;
   return {
-    title: `${messages.catalog.title} — ${messages.common.techAdvisor}`,
-    description: messages.catalog.subtitle,
+    title,
+    description,
     alternates: { canonical: `/${locale}/productos`, languages },
+    openGraph: {
+      title,
+      description,
+      url: `/${locale}/productos`,
+      siteName: messages.common.techAdvisor,
+      locale,
+      alternateLocale: LOCALES.filter((code) => code !== locale),
+      type: 'website',
+    },
+    twitter: { card: 'summary', title, description },
   };
 }
 
