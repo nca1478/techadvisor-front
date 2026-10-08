@@ -1,84 +1,86 @@
 # TechAdvisor — Frontend
 
-Next.js (App Router) web for the TechAdvisor tech ecommerce (B2C).
-Runs on port **3000** and talks to the backend API via `API_BASE_URL` /
-`NEXT_PUBLIC_API_BASE_URL` (wired in a later task).
+Web Next.js (App Router) para el ecommerce B2C de tecnología TechAdvisor.
+Corre en el puerto **3000** y habla con la API del backend vía
+`API_BASE_URL` / `NEXT_PUBLIC_API_BASE_URL` (conectado en una tarea posterior).
 
-> Source of truth: [`../AGENTS.md`](../AGENTS.md).
-> Note: `AGENTS.md` in this folder is auto-generated Next.js vendor guidance;
-> the product spec lives in the root `AGENTS.md`.
+> Fuente de verdad: [`../AGENTS.md`](../AGENTS.md).
+> Nota: el `AGENTS.md` de esta carpeta es guía vendor autogenerada de Next.js;
+> la especificación del producto vive en el `AGENTS.md` de la raíz.
 
-## Run
+## Ejecución
 
 ```bash
 npm ci
 npm run dev      # http://localhost:3000
 ```
 
-## Pointing to the local API
+## Apuntar a la API local
 
-The web talks to the backend API via `API_BASE_URL` (server-side) and
-`NEXT_PUBLIC_API_BASE_URL` (browser-side). Both default to the local API;
-no database services are defined here (infrastructure lives in `backend/`).
+La web habla con la API del backend vía `API_BASE_URL` (lado servidor) y
+`NEXT_PUBLIC_API_BASE_URL` (lado navegador). Ambas apuntan por defecto a la
+API local; aquí no hay servicios de base de datos (la infraestructura vive en
+`backend/`).
 
 ```bash
-cp .env.example .env.local    # once: create your local env file (never commit it)
-# .env.example already points both variables at http://localhost:3001/api/v1
-npm run dev                  # start the backend first (see backend/README.md)
+cp .env.example .env.local    # una vez: crea tu env local (nunca lo commitees)
+# .env.example ya apunta ambas variables a http://localhost:3001/api/v1
+npm run dev                  # arranca primero el backend (ver backend/README.md)
 ```
 
-> Never put secrets in `NEXT_PUBLIC_*` variables — they are exposed to the browser.
+> Nunca pongas secretos en variables `NEXT_PUBLIC_*` — quedan expuestas en el navegador.
 
 ## Scripts
 
-| Script              | What it does                              |
+| Script              | Qué hace                              |
 | ------------------- | ----------------------------------------- |
-| `npm run dev`       | dev server (port 3000)                    |
-| `npm run build`     | production build                          |
+| `npm run dev`       | servidor de desarrollo (puerto 3000)                    |
+| `npm run build`     | build de producción                          |
 | `npm run lint`      | eslint                                    |
 | `npm run typecheck` | `tsc --noEmit`                            |
-| `npm test`          | unit / component tests (vitest)           |
-| `npm run test:e2e`  | e2e smoke (playwright, chromium)          |
-| `npm run api:types` | regenerate API types from backend OpenAPI |
+| `npm test`          | tests unitarios / de componentes (vitest)           |
+| `npm run test:e2e`  | smoke e2e (playwright, chromium)          |
+| `npm run api:types` | regenera los tipos de la API desde el OpenAPI del backend |
 
 ## E2E
 
 ```bash
-npx playwright install chromium   # once: download the browser (CI uses --with-deps)
-npm run test:e2e                  # mock API: no backend, no Stripe needed
+npx playwright install chromium   # una vez: descarga el navegador (CI usa --with-deps)
+npm run test:e2e                  # API simulada: sin backend ni Stripe
 ```
 
-The suite (`e2e/`) runs against a contract-shaped mock backend by default
-(`e2e/mock-backend.mjs`, started automatically by `playwright.config.ts`):
-SSR pages and the `/api/*` BFF proxies both point at it, and the mock
-simulates the payment confirmation (`POST /payments/checkout` flips the
-order to `PAID` and returns a same-origin `checkoutUrl`). Covered flows:
-full purchase (register → search/filter → cart → checkout → paid order),
-SEO metadata/JSON-LD/sitemap/robots, and the static home smoke. Rationale
-in `docs/decisions/0010-e2e-mock-estrategia.md`; SEO/ISR strategy in
+La suite (`e2e/`) corre por defecto contra un backend simulado con forma de
+contrato (`e2e/mock-backend.mjs`, arrancado automáticamente por
+`playwright.config.ts`): tanto las páginas SSR como los proxies BFF `/api/*`
+apuntan a él, y el mock simula la confirmación del pago (`POST
+/payments/checkout` pasa la orden a `PAID` y devuelve un `checkoutUrl`
+mismo-origen). Flujos cubiertos: compra completa (registro →
+búsqueda/filtrado → carrito → checkout → orden pagada), metadata
+SEO/JSON-LD/sitemap/robots y el smoke del home estático. Justificación en
+`docs/decisions/0010-e2e-mock-estrategia.md`; estrategia SEO/ISR en
 `docs/decisions/0009-seo-isr.md`.
 
-### E2E against the real backend (local)
+### E2E contra el backend real (local)
 
 ```bash
-# 1. Backend infra + API (from backend/):
+# 1. Infra + API del backend (desde backend/):
 docker compose up -d && npm run start:dev
-# 2. Stripe test mode with the CLI (from backend/, see backend/README.md):
+# 2. Stripe en modo test con el CLI (desde backend/, ver backend/README.md):
 stripe listen --forward-to localhost:3001/api/v1/payments/webhook
-# 3. Frontend e2e without the mock (from frontend/):
+# 3. E2E del frontend sin el mock (desde frontend/):
 E2E_REAL=1 npm run test:e2e
 ```
 
-In real-backend mode the checkout redirects to hosted Stripe Checkout
-(test keys): complete the payment with a test card (e.g. `4242 4242 4242
-4242`), and the order reaches `PAID` only via the webhook — the flow then
-depends on timing (webhook delivery + the 2.5 s status polling), so it can
-take a minute. `E2E_REAL=1` reuses your `.env.local` API URLs; the mock
-mode overrides them automatically.
+En modo backend real el checkout redirige al Stripe Checkout alojado (claves
+de test): completa el pago con una tarjeta de prueba (p. ej. `4242 4242 4242
+4242`), y la orden llega a `PAID` solo vía el webhook — el flujo entonces
+depende de tiempos (entrega del webhook + el polling de estado de 2.5 s), así
+que puede tardar un minuto. `E2E_REAL=1` reutiliza las URLs de API de tu
+`.env.local`; el modo mock las sobrescribe automáticamente.
 
-## Layout
+## Estructura
 
-- `src/app/` — routes (App Router)
-- `src/features/` — feature modules (catalog, cart, checkout, advisor, account)
-- `src/components/ui/` — generic presentational components (no fetching here)
-- `src/lib/api/` — API client + types generated from the backend OpenAPI
+- `src/app/` — rutas (App Router)
+- `src/features/` — módulos de funcionalidad (catalog, cart, checkout, advisor, account)
+- `src/components/ui/` — componentes presentacionales genéricos (sin fetching aquí)
+- `src/lib/api/` — cliente API + tipos generados desde el OpenAPI del backend
