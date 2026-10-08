@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { Component, useState, type ReactNode } from 'react';
 import { cn } from './cn';
 
 const RATIOS = {
@@ -30,10 +30,39 @@ const ROUNDED = {
 } as const;
 
 /**
+ * Catches synchronous render errors thrown by `next/image` (e.g. a remote
+ * hostname missing from `images.remotePatterns`, or a malformed `src`).
+ * The `onError` handler below only fires for async load failures, so without
+ * this boundary a single unconfigured host crashes the whole page instead of
+ * showing the placeholder. Renders `fallback` (always a local image, hence
+ * safe). The parent passes `key={effectiveSrc}` so the boundary resets when
+ * the source changes.
+ */
+class ImageErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true };
+  }
+
+  componentDidCatch(): void {
+    // Intentionally silent: the fallback UI already signals the missing image.
+  }
+
+  render(): ReactNode {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
+/**
  * Fixed-aspect-ratio image frame (prevents layout shift). Images are cropped
  * centered with object-cover on a surface background while loading. When `src`
- * is missing or the remote image fails, `fallbackSrc` is shown instead so
- * product cards never render an empty frame.
+ * is missing, fails to load, or is rejected by `next/image` (unconfigured
+ * remote host), `fallbackSrc` is shown instead so product cards never render
+ * an empty frame — and never crash the page.
  */
 export function MediaFrame({
   src,
@@ -56,17 +85,31 @@ export function MediaFrame({
         className,
       )}
     >
-      <Image
-        src={effectiveSrc}
-        alt={alt}
-        fill
-        sizes="(max-width: 768px) 50vw, 25vw"
-        className="object-cover"
-        priority={priority}
-        onError={() => {
-          setFailed(true);
-        }}
-      />
+      <ImageErrorBoundary
+        key={effectiveSrc}
+        fallback={
+          <Image
+            src={fallbackSrc}
+            alt={alt}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover"
+            priority={priority}
+          />
+        }
+      >
+        <Image
+          src={effectiveSrc}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 50vw, 25vw"
+          className="object-cover"
+          priority={priority}
+          onError={() => {
+            setFailed(true);
+          }}
+        />
+      </ImageErrorBoundary>
     </div>
   );
 }

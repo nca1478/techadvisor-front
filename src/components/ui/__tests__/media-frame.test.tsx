@@ -23,4 +23,14 @@ describe('MediaFrame', () => {
     );
     expect(screen.getByAltText('Neutral placeholder').parentElement).toHaveClass(expectedClass);
   });
+
+  it('does not crash on a remote product image URL (speedlogic.com.co regression)', () => {
+    render(
+      <MediaFrame
+        src="https://speedlogic.com.co/wp-content/uploads/2025/05/33385.1.png"
+        alt="Speedlogic product"
+      />,
+    );
+    expect(screen.getByAltText('Speedlogic product')).toBeInTheDocument();
+  });
 });
