@@ -22,6 +22,14 @@ function ImagePreview({
   messages: Dictionary['admin']['images'];
 }) {
   const [broken, setBroken] = useState(false);
+  const [lastUrl, setLastUrl] = useState(url);
+  if (lastUrl !== url) {
+    // A new URL deserves a fresh load attempt: typing char-by-char fires
+    // `onError` for intermediate values, which must not stick once the URL
+    // is complete.
+    setLastUrl(url);
+    setBroken(false);
+  }
   if (url.trim() === '' || broken) {
     return (
       <Text variant="small" tone="muted" role={url.trim() === '' ? undefined : 'alert'}>
@@ -35,6 +43,10 @@ function ImagePreview({
       src={url}
       alt={alt === '' ? messages.preview : alt}
       loading="lazy"
+      // Some image hosts reject hotlinking (403 when the browser sends our
+      // origin as Referer). Omitting it makes the preview load while keeping
+      // the admin page itself unchanged.
+      referrerPolicy="no-referrer"
       onError={() => {
         setBroken(true);
       }}
