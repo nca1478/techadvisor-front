@@ -8,6 +8,8 @@ const SIZES = {
 
 export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'id'> {
   label: string;
+  /** Visually hides the label (kept for screen readers) — for compact bars. */
+  labelHidden?: boolean;
   size?: keyof typeof SIZES;
   error?: string;
   hint?: string;
@@ -22,6 +24,7 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
  */
 export function Select({
   label,
+  labelHidden = false,
   size = 'md',
   error,
   hint,
@@ -36,7 +39,10 @@ export function Select({
 
   return (
     <div className="flex w-full flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label
+        htmlFor={id}
+        className={labelHidden ? 'sr-only' : 'text-sm font-medium text-foreground'}
+      >
         {label}
       </label>
       <select

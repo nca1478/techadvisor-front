@@ -36,4 +36,22 @@ describe('Select', () => {
     fireEvent.change(control, { target: { value: 'price_asc' } });
     expect(onChange).toHaveBeenCalled();
   });
+
+  it('keeps the label accessible when visually hidden', () => {
+    render(
+      <Select
+        label="Language"
+        labelHidden
+        name="locale"
+        value="es"
+        options={[
+          { value: 'es', label: 'ES' },
+          { value: 'en', label: 'EN' },
+        ]}
+        onChange={() => {}}
+      />,
+    );
+    expect(screen.getByLabelText('Language')).toBeVisible();
+    expect(screen.getByText('Language')).toHaveClass('sr-only');
+  });
 });

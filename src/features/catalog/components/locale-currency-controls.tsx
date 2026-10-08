@@ -13,7 +13,7 @@ export interface SiteHeaderControlsProps {
   currencyLabel: string;
 }
 
-/** Presentational header controls: locale + currency selectors (client). */
+/** Compact header controls: locale + currency selectors (client). */
 export function LocaleCurrencyControls({
   locale,
   currencies,
@@ -26,24 +26,32 @@ export function LocaleCurrencyControls({
 
   return (
     <Stack direction="horizontal" gap="sm" align="center">
-      <Select
-        label={languageLabel}
-        name="locale"
-        value={locale}
-        options={LOCALES.map((code) => ({ value: code, label: code.toUpperCase() }))}
-        onChange={(event) => {
-          switchLocale(event.target.value as Locale);
-        }}
-      />
-      <Select
-        label={currencyLabel}
-        name="currency"
-        value={current}
-        options={currencies.map((code) => ({ value: code, label: code }))}
-        onChange={(event) => {
-          switchCurrency(event.target.value);
-        }}
-      />
+      <div className="w-20">
+        <Select
+          label={languageLabel}
+          labelHidden
+          size="sm"
+          name="locale"
+          value={locale}
+          options={LOCALES.map((code) => ({ value: code, label: code.toUpperCase() }))}
+          onChange={(event) => {
+            switchLocale(event.target.value as Locale);
+          }}
+        />
+      </div>
+      <div className="w-24">
+        <Select
+          label={currencyLabel}
+          labelHidden
+          size="sm"
+          name="currency"
+          value={current}
+          options={currencies.map((code) => ({ value: code, label: code }))}
+          onChange={(event) => {
+            switchCurrency(event.target.value);
+          }}
+        />
+      </div>
     </Stack>
   );
 }
