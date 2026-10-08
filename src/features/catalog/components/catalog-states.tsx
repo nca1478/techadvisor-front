@@ -11,19 +11,7 @@ export interface StateMessageProps {
   onRetry?: () => void;
 }
 
-/** Presentational loading / empty / error states (role-aware). */
-export function CatalogLoading({ message }: { message: string }) {
-  return (
-    <Card>
-      <Stack gap="sm" align="center">
-        <Text tone="muted" role="status">
-          {message}
-        </Text>
-      </Stack>
-    </Card>
-  );
-}
-
+/** Presentational empty / error states (role-aware). */
 export function CatalogEmpty({ title, message }: StateMessageProps) {
   return (
     <Card>

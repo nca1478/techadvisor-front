@@ -1,6 +1,6 @@
 export { CategoryGrid } from './category-grid';
 export { CategoryNav } from './category-nav';
-export { CatalogEmpty, CatalogError, CatalogLoading } from './catalog-states';
+export { CatalogEmpty, CatalogError } from './catalog-states';
 export { DetailSkeleton } from './detail-skeleton';
 export { HomeSkeleton, type SkeletonMessage } from './home-skeleton';
 export { ListingSkeleton } from './listing-skeleton';
