@@ -58,6 +58,28 @@
     "homeCategoriesSubtitle": "Explora el catálogo por categoría.",
     "homeEmpty": "El catálogo está vacío por ahora."
   },
+  "search": {
+    "label": "Buscar productos",
+    "placeholder": "Busca con tus palabras…",
+    "suggestionsLabel": "Sugerencias",
+    "suggestionsLoading": "Buscando…",
+    "noSuggestions": "Sin sugerencias por ahora.",
+    "viewAllResults": "Ver todos los resultados",
+    "title": "Buscar",
+    "subtitle": "Pregunta con tus palabras: necesidades, usos, características.",
+    "resultsFor": "{count} resultados para «{query}»",
+    "empty": "Ningún producto coincide con esta búsqueda. Prueba con otras palabras.",
+    "loadError": "No se pudo completar la búsqueda.",
+    "degradedNotice": "Resultados rápidos (solo texto) mientras la búsqueda semántica no está disponible.",
+    "categoryLabel": "Categoría",
+    "allCategories": "Todas las categorías",
+    "maxPriceLabel": "Precio máximo",
+    "maxPricePlaceholder": "p. ej. 800",
+    "maxPriceInvalid": "Ingresa un precio válido de 0 o más.",
+    "applyFilters": "Aplicar",
+    "clearFilters": "Limpiar filtros",
+    "evidenceLabel": "Por qué coincide:"
+  },
   "auth": {
     "loginTitle": "Iniciar sesión",
     "loginSubtitle": "Bienvenido de nuevo. Inicia sesión para pagar y ver tus pedidos.",

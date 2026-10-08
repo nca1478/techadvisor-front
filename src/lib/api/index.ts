@@ -66,4 +66,6 @@ export {
   type CreateCheckout,
   type PaymentsApi,
 } from './payments';
+export { createSearchApi, type SearchApi, type SearchParams, type SearchProduct } from './search';
+export type { SearchResponse, SearchResult } from './search';
 export { getPublicConfig, type PublicConfig } from './public-config';

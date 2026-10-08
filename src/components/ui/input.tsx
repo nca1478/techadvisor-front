@@ -8,6 +8,8 @@ const SIZES = {
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'id'> {
   label: string;
+  /** Visually hides the label (kept for screen readers) — for compact bars. */
+  labelHidden?: boolean;
   size?: keyof typeof SIZES;
   error?: string;
   hint?: string;
@@ -17,14 +19,25 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
  * Labelled text input. The label is always rendered and linked via htmlFor;
  * errors are announced with aria-invalid + aria-describedby.
  */
-export function Input({ label, size = 'md', error, hint, className, ...rest }: InputProps) {
+export function Input({
+  label,
+  labelHidden = false,
+  size = 'md',
+  error,
+  hint,
+  className,
+  ...rest
+}: InputProps) {
   const autoId = useId();
   const id = rest.name ?? autoId;
   const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
 
   return (
     <div className="flex w-full flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
+      <label
+        htmlFor={id}
+        className={labelHidden ? 'sr-only' : 'text-sm font-medium text-foreground'}
+      >
         {label}
       </label>
       <input

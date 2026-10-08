@@ -96,3 +96,8 @@ carrito): estructura tÃ­pica de tienda B2C con los siguientes principios.
 - El modo oscuro queda estructurado (`[data-theme="dark"]`) pero sin implementar
   ni interruptor; implementarlo es una tarea futura explÃ­cita.
 - `next/font/google` descarga las fuentes en build (requiere red en build/CI).
+
+## Addendum 2026-10-07 — búsqueda semántica (P2.7)
+
+- Input acepta labelHidden (etiqueta sr-only, asociada vía htmlFor): la barra de búsqueda del header necesita etiqueta accesible sin ruido visual. No cambia la escala ni los tokens.
+- La barra de sugerencias y la página /buscar reutilizan Input, Select, Button, Card, Grid, ProductCard y los estados CatalogLoading/Empty/Error: ninguna vista define estilos propios fuera de utilidades de layout de la escala Tailwind ya usada en el proyecto.

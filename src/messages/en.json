@@ -58,6 +58,28 @@
     "homeCategoriesSubtitle": "Browse the catalog by category.",
     "homeEmpty": "The catalog is empty for now."
   },
+  "search": {
+    "label": "Search products",
+    "placeholder": "Search in your own words…",
+    "suggestionsLabel": "Suggestions",
+    "suggestionsLoading": "Searching…",
+    "noSuggestions": "No suggestions yet.",
+    "viewAllResults": "See all results",
+    "title": "Search",
+    "subtitle": "Ask in your own words: needs, uses, features.",
+    "resultsFor": "{count} results for “{query}”",
+    "empty": "No products matched this search. Try different words.",
+    "loadError": "Search could not be completed.",
+    "degradedNotice": "Fast results (full-text only) while semantic search is unavailable.",
+    "categoryLabel": "Category",
+    "allCategories": "All categories",
+    "maxPriceLabel": "Max price",
+    "maxPricePlaceholder": "e.g. 800",
+    "maxPriceInvalid": "Enter a valid price of 0 or more.",
+    "applyFilters": "Apply",
+    "clearFilters": "Clear filters",
+    "evidenceLabel": "Why this matches:"
+  },
   "auth": {
     "loginTitle": "Sign in",
     "loginSubtitle": "Welcome back. Sign in to check out and see your orders.",

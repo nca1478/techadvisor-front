@@ -8,6 +8,7 @@ import { NavSession } from '@/features/auth/components/nav-session';
 import { SessionProvider } from '@/features/auth/session-context';
 import { CartProvider } from '@/features/cart/cart-context';
 import { LocaleCurrencyControls } from '@/features/catalog/components/locale-currency-controls';
+import { SearchBar } from '@/features/search/components/search-bar';
 import { getPublicConfig } from '@/lib/api/index';
 import { createApiClient } from '@/lib/api/client';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
@@ -88,6 +89,9 @@ export default async function LocaleLayout({
                 />
               </Stack>
             </Stack>
+            <div className="pb-4">
+              <SearchBar locale={locale} messages={messages.search} />
+            </div>
           </Container>
         </header>
         <main id="main-content" className="flex flex-1 flex-col">
