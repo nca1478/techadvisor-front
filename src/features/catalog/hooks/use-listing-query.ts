@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useTransition } from 'react';
 import type { ProductFilterValues } from '../components/product-filters';
 import type { ProductSort } from '@/lib/api/catalog';
 
@@ -49,6 +49,7 @@ export function useListingQuery() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const values = useMemo(
     () => parseListingQuery(new URLSearchParams(searchParams.toString())),
@@ -77,12 +78,14 @@ export function useListingQuery() {
       ) {
         merged.page = 1;
       }
-      router.replace(`${pathname}${serializeListingQuery(merged)}`, { scroll: false });
+      startTransition(() => {
+        router.replace(`${pathname}${serializeListingQuery(merged)}`, { scroll: false });
+      });
     },
     [pathname, router, values],
   );
 
-  return { values, update };
+  return { values, update, isPending };
 }
 
 export { DEFAULT_LIMIT };

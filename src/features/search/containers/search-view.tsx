@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
@@ -61,6 +61,7 @@ export function SearchView({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
   const [category, setCategory] = useState(initialCategory);
   const [maxPriceInput, setMaxPriceInput] = useState(minorToInput(initialMaxPriceMinor, currency));
   const [maxPriceError, setMaxPriceError] = useState<string | undefined>(undefined);
@@ -78,7 +79,10 @@ export function SearchView({
     } else {
       params.delete('maxPrice');
     }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const url = `${pathname}?${params.toString()}`;
+    startTransition(() => {
+      router.replace(url, { scroll: false });
+    });
   }
 
   function handleApply() {
@@ -105,7 +109,10 @@ export function SearchView({
     params.set('q', query);
     params.delete('category');
     params.delete('maxPrice');
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const url = `${pathname}?${params.toString()}`;
+    startTransition(() => {
+      router.replace(url, { scroll: false });
+    });
   }
 
   return (
@@ -142,7 +149,10 @@ export function SearchView({
               }}
             />
           ) : (
-            <>
+            <div
+              aria-busy={isPending || undefined}
+              className={isPending ? 'opacity-60' : undefined}
+            >
               <Text variant="small" tone="muted" role="status">
                 {formatTemplate(messages.search.resultsFor, {
                   count: String(initialData.results.length),
@@ -168,7 +178,7 @@ export function SearchView({
                   detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
                 />
               )}
-            </>
+            </div>
           )}
         </Stack>
       </Section>

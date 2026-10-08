@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { HomeSkeleton } from '@/features/catalog/components/home-skeleton';
 import { HomeContainer } from '@/features/catalog/containers/home-container';
 import { resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { getPublicConfig } from '@/lib/api/index';
@@ -52,5 +54,9 @@ export default async function HomePage({ params, searchParams }: HomePageProps) 
     // Container renders its own error state; keep the base fallback here.
   }
 
-  return <HomeContainer locale={locale} currency={currency} messages={messages} />;
+  return (
+    <Suspense fallback={<HomeSkeleton loadingLabel={messages.common.loading} />}>
+      <HomeContainer locale={locale} currency={currency} messages={messages} />
+    </Suspense>
+  );
 }

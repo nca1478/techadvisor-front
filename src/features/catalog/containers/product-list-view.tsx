@@ -44,7 +44,7 @@ export function ProductListView({
   messages,
   inStockOnly,
 }: ProductListViewProps) {
-  const { values, update } = useListingQuery();
+  const { values, update, isPending } = useListingQuery();
 
   if (loadError || initialData === null) {
     return (
@@ -94,13 +94,18 @@ export function ProductListView({
           {visible.length === 0 ? (
             <CatalogEmpty title={messages.common.emptyTitle} message={messages.catalog.empty} />
           ) : (
-            <ProductCardGrid
-              products={visible}
-              locale={locale}
-              currency={currency}
-              messages={messages.catalog}
-              detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
-            />
+            <div
+              aria-busy={isPending || undefined}
+              className={isPending ? 'opacity-60' : undefined}
+            >
+              <ProductCardGrid
+                products={visible}
+                locale={locale}
+                currency={currency}
+                messages={messages.catalog}
+                detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+              />
+            </div>
           )}
 
           <Pagination

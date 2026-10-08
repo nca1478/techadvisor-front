@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { CatalogLoading } from '@/features/catalog/components/catalog-states';
+import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
 import { ProductListView } from '@/features/catalog/containers/product-list-view';
 import { firstParam, resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { createApiClient } from '@/lib/api/client';
@@ -103,7 +103,7 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
   ]);
 
   return (
-    <Suspense fallback={<CatalogLoading message={messages.common.loading} />}>
+    <Suspense fallback={<ListingSkeleton loadingLabel={messages.common.loading} />}>
       <ProductListView
         initialData={productsResult.status === 'fulfilled' ? productsResult.value : null}
         loadError={productsResult.status === 'rejected'}

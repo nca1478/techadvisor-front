@@ -67,14 +67,15 @@ export default async function LocaleLayout({
               gap="md"
               align="center"
               justify="between"
+              wrap
               className="py-4"
             >
-              <Stack direction="horizontal" gap="md" align="center">
+              <Stack direction="horizontal" gap="md" align="center" wrap>
                 <Text variant="lead" as="span">
                   {messages.common.techAdvisor}
                 </Text>
                 <nav aria-label={messages.common.techAdvisor}>
-                  <Stack direction="horizontal" gap="md" align="center">
+                  <Stack direction="horizontal" gap="md" align="center" wrap>
                     <Link href={`/${locale}`}>{messages.nav.home}</Link>
                     <Link href={`/${locale}/productos`}>{messages.nav.products}</Link>
                     <CartNavLink
@@ -87,7 +88,7 @@ export default async function LocaleLayout({
                   </Stack>
                 </nav>
               </Stack>
-              <Stack direction="horizontal" gap="md" align="center">
+              <Stack direction="horizontal" gap="md" align="center" wrap>
                 <NavSession
                   locale={locale}
                   loginLabel={messages.auth.loginLink}

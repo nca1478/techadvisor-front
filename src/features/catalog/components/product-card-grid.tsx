@@ -38,9 +38,15 @@ export function ProductCardGrid({
   );
 }
 
-export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
+export function ProductGridSkeleton({
+  count = 8,
+  loadingLabel,
+}: {
+  count?: number;
+  loadingLabel: string;
+}) {
   return (
-    <Grid columns="products" gap="md" aria-busy="true" aria-label="Loading products">
+    <Grid columns="products" gap="md" aria-busy="true" aria-label={loadingLabel}>
       {Array.from({ length: count }, (_, index) => (
         <Card key={index} padding="none" aria-hidden="true">
           <div className="aspect-square w-full bg-surface" />

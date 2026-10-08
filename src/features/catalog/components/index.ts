@@ -1,6 +1,8 @@
 export { CategoryGrid } from './category-grid';
 export { CategoryNav } from './category-nav';
 export { CatalogEmpty, CatalogError, CatalogLoading } from './catalog-states';
+export { HomeSkeleton, type SkeletonMessage } from './home-skeleton';
+export { ListingSkeleton } from './listing-skeleton';
 export { HomeAdvisorHero } from './home-advisor-hero';
 export { LocaleCurrencyControls } from './locale-currency-controls';
 export { Pagination } from './pagination';

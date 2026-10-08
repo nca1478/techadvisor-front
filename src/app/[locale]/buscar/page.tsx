@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { CatalogLoading } from '@/features/catalog/components/catalog-states';
+import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton';
 import { firstParam, resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { SearchView } from '@/features/search/containers/search-view';
 import { createApiClient } from '@/lib/api/client';
@@ -88,7 +88,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   ]);
 
   return (
-    <Suspense fallback={<CatalogLoading message={messages.common.loading} />}>
+    <Suspense fallback={<ListingSkeleton loadingLabel={messages.common.loading} />}>
       <SearchView
         initialData={searchResult.status === 'fulfilled' ? searchResult.value : null}
         loadError={q !== '' && searchResult.status === 'rejected'}
