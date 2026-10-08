@@ -10,6 +10,7 @@ import type { Locale } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n/index';
 import { CategoryGrid } from '../components/category-grid';
 import { CatalogError } from '../components/catalog-states';
+import { HomeAdvisorHero } from '../components/home-advisor-hero';
 import { ProductCardGrid } from '../components/product-card-grid';
 
 export interface HomeContainerProps {
@@ -43,6 +44,23 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   const products = featuredResult.value.data.filter((product) => product.inStock).slice(0, 8);
   const categories = categoriesResult.value;
   const listHref = `/${locale}/productos`;
+  const advisorPicks = products.slice(0, 3).map((product) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+  }));
+  const advisorSearchHref = `/${locale}/buscar?q=${encodeURIComponent(messages.catalog.homeAdvisorQuestion)}`;
+  const advisorMessages = {
+    badge: messages.catalog.homeAdvisorBadge,
+    title: messages.catalog.homeAdvisorTitle,
+    question: messages.catalog.homeAdvisorQuestion,
+    answerIntro: messages.catalog.homeAdvisorAnswerIntro,
+    citationLabel: messages.catalog.homeAdvisorCitationLabel,
+    disclaimer: messages.catalog.homeAdvisorDisclaimer,
+    trySearch: messages.catalog.homeAdvisorTrySearch,
+    picksLabel: messages.catalog.homeAdvisorPicksLabel,
+    emptyPicks: messages.catalog.homeAdvisorEmptyPicks,
+  };
 
   return (
     <Container>
@@ -53,6 +71,16 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
             {messages.catalog.homeHeroSubtitle}
           </Text>
         </Stack>
+      </Section>
+
+      <Section spacing="tight">
+        <HomeAdvisorHero
+          locale={locale}
+          searchHref={advisorSearchHref}
+          picks={advisorPicks}
+          detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+          messages={advisorMessages}
+        />
       </Section>
 
       <Section spacing="tight">

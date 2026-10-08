@@ -1,5 +1,6 @@
 export { CategoryGrid } from './category-grid';
 export { CatalogEmpty, CatalogError, CatalogLoading } from './catalog-states';
+export { HomeAdvisorHero } from './home-advisor-hero';
 export { LocaleCurrencyControls } from './locale-currency-controls';
 export { Pagination } from './pagination';
 export { ProductCard } from './product-card';
@@ -11,3 +12,4 @@ export {
 } from './product-filters';
 export { ProductGallery } from './product-gallery';
 export { ProductInfo } from './product-info';
+export { formatSpecValue, humanizeSpecKey } from './spec-labels';

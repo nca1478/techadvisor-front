@@ -93,7 +93,7 @@ export function ProductFilters({
             placeholder={messages.sortNone}
             options={SORT_OPTIONS.map((sort) => ({
               value: sort,
-              label: messages[`sort ${sort}` as keyof Dictionary['catalog']],
+              label: messages[`sort ${sort}`],
             }))}
             onChange={(event) => {
               onChange({ ...values, sort: event.target.value as ProductSort | '' });

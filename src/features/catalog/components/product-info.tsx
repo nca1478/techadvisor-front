@@ -6,6 +6,7 @@ import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import type { ProductDetail } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
+import { formatSpecValue, humanizeSpecKey } from './spec-labels';
 
 export interface ProductInfoProps {
   product: ProductDetail;
@@ -60,11 +61,18 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
       {specs.length > 0 && (
         <Stack gap="sm">
           <Heading level={3}>{messages.specsTitle}</Heading>
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <dl className="overflow-hidden rounded-md border border-border">
             {specs.map(([key, value]) => (
-              <div key={key} className="rounded-md border border-border bg-surface p-4">
-                <dt className="text-xs text-muted-foreground">{key}</dt>
-                <dd className="text-sm font-medium text-foreground">{String(value)}</dd>
+              <div
+                key={key}
+                className="grid grid-cols-2 gap-3 border-b border-border bg-background px-4 py-3 last:border-b-0 odd:bg-surface"
+              >
+                <dt className="text-sm text-muted-foreground">
+                  {humanizeSpecKey(key, messages.specLabels)}
+                </dt>
+                <dd className="text-right text-sm font-medium text-foreground">
+                  {formatSpecValue(key, value)}
+                </dd>
               </div>
             ))}
           </dl>
