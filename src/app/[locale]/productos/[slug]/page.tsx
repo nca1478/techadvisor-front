@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { DetailSkeleton } from '@/features/catalog/components/detail-skeleton';
 import { ProductDetailContainer } from '@/features/catalog/containers/product-detail-container';
 import { resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { getPublicConfig } from '@/lib/api/index';
@@ -94,6 +96,8 @@ export default async function DetailPage({ params, searchParams }: DetailPagePro
 
   // Unknown slugs surface as the locale not-found page in the container.
   return (
-    <ProductDetailContainer slug={slug} locale={locale} currency={currency} messages={messages} />
+    <Suspense fallback={<DetailSkeleton loadingLabel={messages.common.loading} />}>
+      <ProductDetailContainer slug={slug} locale={locale} currency={currency} messages={messages} />
+    </Suspense>
   );
 }

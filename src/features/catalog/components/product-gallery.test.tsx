@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { ProductImage } from '@/lib/api/catalog';
 import { ProductGallery } from './product-gallery';
@@ -30,5 +30,26 @@ describe('ProductGallery', () => {
       'true',
     );
     expect(screen.getByRole('button', { name: 'Side view (2)' })).toBeVisible();
+  });
+
+  it('switches the active image on thumbnail click', () => {
+    render(
+      <ProductGallery
+        productName="Test Laptop"
+        images={[
+          { url: 'https://placehold.co/600x400?text=One', alt: noAlt, position: 0 },
+          { url: 'https://placehold.co/600x400?text=Two', alt: sideAlt, position: 1 },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Side view (2)' }));
+    expect(screen.getByRole('button', { name: 'Side view (2)' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Test Laptop (1)' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 });

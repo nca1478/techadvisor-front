@@ -67,10 +67,10 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
                 key={key}
                 className="grid grid-cols-2 gap-3 border-b border-border bg-background px-4 py-3 last:border-b-0 odd:bg-surface"
               >
-                <dt className="text-sm text-muted-foreground">
+                <dt className="min-w-0 text-sm text-muted-foreground">
                   {humanizeSpecKey(key, messages.specLabels)}
                 </dt>
-                <dd className="text-right text-sm font-medium text-foreground">
+                <dd className="min-w-0 break-words text-right text-sm font-medium text-foreground">
                   {formatSpecValue(key, value)}
                 </dd>
               </div>
