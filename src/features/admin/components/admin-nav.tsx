@@ -6,7 +6,7 @@ import { Stack } from '@/components/ui/stack';
 import { cn } from '@/components/ui/cn';
 import type { Dictionary } from '@/lib/i18n/index';
 
-export type AdminSection = 'dashboard' | 'products' | 'orders' | 'inventory';
+export type AdminSection = 'dashboard' | 'products' | 'orders' | 'inventory' | 'documents';
 
 /** Presentational back-office section nav; active section follows the URL. */
 export function AdminNav({ locale, messages }: { locale: string; messages: Dictionary['admin'] }) {
@@ -16,6 +16,7 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
     { section: 'products', href: `/${locale}/admin/productos`, label: messages.navProducts },
     { section: 'orders', href: `/${locale}/admin/ordenes`, label: messages.navOrders },
     { section: 'inventory', href: `/${locale}/admin/inventario`, label: messages.navInventory },
+    { section: 'documents', href: `/${locale}/admin/documentos`, label: messages.navDocuments },
   ];
   return (
     <nav aria-label={messages.title}>

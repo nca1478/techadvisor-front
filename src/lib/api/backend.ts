@@ -194,3 +194,78 @@ export async function proxyToBackend(request: Request, backendPath: string): Pro
   });
   return toProxiedResponse(result);
 }
+
+/**
+ * Binary-aware variant of `proxyToBackend` for multipart uploads
+ * (e.g. `POST /admin/documents/upload`). Forwards the raw bytes with the
+ * original `content-type` (boundary included) and the caller cookies;
+ * `request.text()` is never used so file bytes survive intact. Includes
+ * the same single refresh-and-retry as `backendFetch`.
+ */
+export async function proxyMultipartToBackend(
+  request: Request,
+  backendPath: string,
+): Promise<NextResponse> {
+  const cookieHeader = request.headers.get('cookie');
+  const tokens = readTokens(cookieHeader);
+  const sid = readSid(cookieHeader);
+  const contentType = request.headers.get('content-type') ?? 'application/octet-stream';
+  const raw = Buffer.from(await request.arrayBuffer());
+
+  async function send(accessToken: string): Promise<Response> {
+    const headers = new Headers({ 'content-type': contentType });
+    if (accessToken) {
+      headers.set('authorization', `Bearer ${accessToken}`);
+    }
+    if (sid) {
+      headers.set('cookie', `sid=${sid}`);
+    }
+    return fetch(`${backendBaseUrl()}${backendPath}`, {
+      method: request.method,
+      headers,
+      body: raw,
+      redirect: 'manual',
+    });
+  }
+
+  const first = await send(tokens.accessToken);
+  if (first.status !== 401 || !tokens.refreshToken) {
+    return toProxiedResponse({
+      status: first.status,
+      body: await parseBody(first),
+      setCookies: collectSetCookies(first),
+    });
+  }
+
+  const refreshRes = await fetch(`${backendBaseUrl()}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+    redirect: 'manual',
+  });
+  const refreshBody = await parseBody(refreshRes);
+  const rotated =
+    refreshRes.ok &&
+    refreshBody !== null &&
+    typeof refreshBody === 'object' &&
+    isTokenPair((refreshBody as Record<string, unknown>)['tokens']);
+  if (!rotated) {
+    return toProxiedResponse({
+      status: first.status,
+      body: await parseBody(first),
+      setCookies: collectSetCookies(first),
+    });
+  }
+  const next = (refreshBody as { tokens: TokenPair }).tokens;
+  const retry = await send(next.accessToken);
+  return toProxiedResponse({
+    status: retry.status,
+    body: await parseBody(retry),
+    setCookies: [
+      ...collectSetCookies(first),
+      ...collectSetCookies(refreshRes),
+      serializeAuthCookie(ACCESS_COOKIE, next.accessToken, ACCESS_MAX_AGE_SEC),
+      serializeAuthCookie(REFRESH_COOKIE, next.refreshToken, REFRESH_MAX_AGE_SEC),
+    ],
+  });
+}

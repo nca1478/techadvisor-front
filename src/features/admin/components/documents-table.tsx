@@ -1,0 +1,139 @@
+import { Button } from '@/components/ui/button';
+import { Stack } from '@/components/ui/stack';
+import { Text } from '@/components/ui/text';
+import { DocumentStatusBadge } from '@/features/admin/components/document-status-badge';
+import type { AdminDocument } from '@/lib/api/admin';
+import { isDocumentProcessing } from '@/lib/api/admin';
+import type { Dictionary } from '@/lib/i18n/index';
+
+function formatChunks(template: string, count: number): string {
+  return template.replace('{count}', String(count));
+}
+
+/**
+ * Presentational corpus table: title/type, status, chunk count, update
+ * date and row actions. Data fetching, polling and mutations live in the
+ * container — this component only renders props.
+ */
+export function DocumentsTable({
+  documents,
+  messages,
+  locale,
+  pendingIds,
+  stoppedIds,
+  onReingest,
+  onDelete,
+}: {
+  documents: AdminDocument[];
+  messages: Dictionary['admin']['documents'];
+  locale: string;
+  /** Rows with an in-flight mutation (buttons disabled). */
+  pendingIds: ReadonlySet<string>;
+  /** Transient rows whose bounded polling gave up (note shown). */
+  stoppedIds: ReadonlySet<string>;
+  onReingest: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  if (documents.length === 0) {
+    return <Text tone="muted">{messages.empty}</Text>;
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="border-b border-border text-left">
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableTitle}
+            </th>
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableType}
+            </th>
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableStatus}
+            </th>
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableChunks}
+            </th>
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableUpdated}
+            </th>
+            <th scope="col" className="px-2 py-2 font-medium">
+              {messages.tableActions}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {documents.map((document) => {
+            const busy = pendingIds.has(document.id);
+            const processing = isDocumentProcessing(document.status);
+            return (
+              <tr key={document.id} className="border-b border-border align-top">
+                <td className="px-2 py-2">
+                  <Stack gap="sm">
+                    <Text className="font-medium">{document.title}</Text>
+                    <Text tone="muted" className="text-xs">
+                      {document.locale}
+                      {document.fileName ? ` · ${document.fileName}` : null}
+                      {document.sourceUrl ? ` · ${document.sourceUrl}` : null}
+                    </Text>
+                    {document.status === 'FAILED' && document.error ? (
+                      <Text role="alert" className="text-xs text-destructive">
+                        {document.error}
+                      </Text>
+                    ) : null}
+                    {processing && stoppedIds.has(document.id) ? (
+                      <Text tone="muted" className="text-xs">
+                        {messages.pollingStopped}
+                      </Text>
+                    ) : null}
+                  </Stack>
+                </td>
+                <td className="px-2 py-2">
+                  {(messages as Record<string, string>)[`type_${document.type}`] ?? document.type}
+                </td>
+                <td className="px-2 py-2">
+                  <Stack gap="sm">
+                    <DocumentStatusBadge status={document.status} messages={messages} />
+                    {processing && !stoppedIds.has(document.id) ? (
+                      <Text tone="muted" className="text-xs" role="status">
+                        {messages.processingNote}
+                      </Text>
+                    ) : null}
+                  </Stack>
+                </td>
+                <td className="px-2 py-2">
+                  {formatChunks(messages.chunksCount, document.chunkCount)}
+                </td>
+                <td className="px-2 py-2">{new Date(document.updatedAt).toLocaleString(locale)}</td>
+                <td className="px-2 py-2">
+                  <Stack direction="horizontal" gap="sm" wrap>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => {
+                        onReingest(document.id);
+                      }}
+                    >
+                      {messages.reingest}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => {
+                        onDelete(document.id);
+                      }}
+                    >
+                      {messages.delete}
+                    </Button>
+                  </Stack>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}

@@ -63,6 +63,31 @@ export const adminHttp = {
   delete: async (path: string): Promise<void> => {
     await request<unknown>(path, { method: 'DELETE' });
   },
+  /**
+   * Multipart upload through the same BFF (`/api/admin/*`). Unlike
+   * `request`, it never sets `content-type`: the browser adds the
+   * multipart boundary itself, and the BFF forwards the raw bytes.
+   */
+  postForm: async <T>(path: string, form: FormData): Promise<T> => {
+    let res: Response;
+    try {
+      res = await fetch(`/api/admin${path}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: form,
+      });
+    } catch (error) {
+      throw new AdminHttpError(
+        0,
+        'NETWORK_ERROR',
+        error instanceof Error ? error.message : 'Network error',
+      );
+    }
+    if (res.status === 204) return undefined as T;
+    const body: unknown = await res.json().catch(() => null);
+    if (!res.ok) throw errorFromBody(res.status, body);
+    return body as T;
+  },
 };
 
 export function adminErrorMessage(error: unknown, fallback: string): string {

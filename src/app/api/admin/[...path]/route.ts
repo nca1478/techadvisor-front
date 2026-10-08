@@ -1,4 +1,4 @@
-import { proxyToBackend } from '@/lib/api/backend';
+import { proxyMultipartToBackend, proxyToBackend } from '@/lib/api/backend';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +21,15 @@ function backendPathOf(request: Request, path: string[]): string {
 
 async function proxyAdmin(request: Request, context: AdminRouteContext) {
   const { path } = await context.params;
-  return proxyToBackend(request, backendPathOf(request, path));
+  const backendPath = backendPathOf(request, path);
+  // Multipart uploads (document files) carry binary bytes: `request.text()`
+  // would corrupt them and the JSON forwarder would drop the boundary, so
+  // they take the binary-preserving proxy instead.
+  const contentType = request.headers.get('content-type') ?? '';
+  if (contentType.startsWith('multipart/')) {
+    return proxyMultipartToBackend(request, backendPath);
+  }
+  return proxyToBackend(request, backendPath);
 }
 
 export async function GET(request: Request, context: AdminRouteContext) {

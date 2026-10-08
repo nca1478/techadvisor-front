@@ -367,6 +367,76 @@ export interface paths {
     patch: operations['AdminController_updateOrderStatus'];
     trace?: never;
   };
+  '/api/v1/admin/documents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List corpus documents (soft-deleted excluded) with status filter */
+    get: operations['AdminDocumentsController_listDocuments'];
+    put?: never;
+    /** Register a document by URL (fetched + ingested server-side) */
+    post: operations['AdminDocumentsController_createFromUrl'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/documents/upload': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload a document file (PDF, HTML, Markdown or plain text) */
+    post: operations['AdminDocumentsController_uploadDocument'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/documents/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a document with chunk count and error detail */
+    get: operations['AdminDocumentsController_getDocument'];
+    put?: never;
+    post?: never;
+    /** Soft-delete a document and remove its chunks from search */
+    delete: operations['AdminDocumentsController_remove'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/documents/{id}/reingest': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Re-run ingestion from the stored source bytes */
+    post: operations['AdminDocumentsController_reingest'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/orders': {
     parameters: {
       query?: never;
@@ -933,6 +1003,66 @@ export interface components {
       /** @example 42 */
       total: number;
       /** @example 3 */
+      totalPages: number;
+    };
+    AdminDocumentDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      id: string;
+      /**
+       * @example MANUAL
+       * @enum {string}
+       */
+      type: 'SPEC_SHEET' | 'MANUAL' | 'FAQ' | 'WARRANTY' | 'REVIEW' | 'POLICY';
+      /** @example Laptop X1 setup manual */
+      title: string;
+      /** @example en */
+      locale: string;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      productId: string | null;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      categoryId: string | null;
+      /** @example https://example.com/manual.pdf */
+      sourceUrl: string | null;
+      /** @example manual */
+      source: string;
+      /**
+       * @example PENDING
+       * @enum {string}
+       */
+      status: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED';
+      /** @example null */
+      error: string | null;
+      /** @example manual.pdf */
+      fileName: string | null;
+      /** @example application/pdf */
+      mimeType: string | null;
+      /** @example 48213 */
+      sizeBytes: number | null;
+      /**
+       * @description Chunks stored for this document.
+       * @example 12
+       */
+      chunkCount: number;
+      /**
+       * Format: date-time
+       * @example 2026-10-08T12:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @example 2026-10-08T12:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    AdminDocumentListDto: {
+      data: components['schemas']['AdminDocumentDto'][];
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      /** @example 7 */
+      total: number;
+      /** @example 1 */
       totalPages: number;
     };
     ShippingAddressDto: {
@@ -2627,6 +2757,297 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminOrderDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_listDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDocumentListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_createFromUrl: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDocumentDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_uploadDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string;
+          title?: string;
+          /** @enum {string} */
+          type: 'SPEC_SHEET' | 'MANUAL' | 'FAQ' | 'WARRANTY' | 'REVIEW' | 'POLICY';
+          /** @example en */
+          locale: string;
+          /** Format: uuid */
+          productId?: string;
+          /** Format: uuid */
+          categoryId?: string;
+        };
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDocumentDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_getDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDocumentDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Document soft-deleted; chunks removed. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminDocumentsController_reingest: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminDocumentDto'];
         };
       };
       /** @description Bad request. */

@@ -23,6 +23,10 @@ export type AdminOrder = components['schemas']['AdminOrderDto'];
 export type AdminOrderList = components['schemas']['AdminOrderListDto'];
 export type AdminOrderItem = components['schemas']['AdminOrderItemDto'];
 export type SpecField = components['schemas']['SpecFieldDto'];
+export type AdminDocument = components['schemas']['AdminDocumentDto'];
+export type AdminDocumentList = components['schemas']['AdminDocumentListDto'];
+export type AdminDocumentStatus = AdminDocument['status'];
+export type AdminDocumentType = AdminDocument['type'];
 
 export type AdminOrderStatus = AdminOrder['status'];
 
@@ -94,6 +98,35 @@ export interface AdminOrderListQuery {
   to?: string;
   page?: number;
   limit?: number;
+}
+
+export interface AdminDocumentListQuery {
+  status?: AdminDocumentStatus;
+  page?: number;
+  limit?: number;
+}
+
+/** Document types accepted by `POST /admin/documents/upload` and by URL. */
+// mantener en sync con backend (`modules/admin/documents/admin-documents.schemas.ts`).
+export const ADMIN_DOCUMENT_TYPES: readonly AdminDocumentType[] = [
+  'SPEC_SHEET',
+  'MANUAL',
+  'FAQ',
+  'WARRANTY',
+  'REVIEW',
+  'POLICY',
+] as const;
+
+export const ADMIN_DOCUMENT_STATUSES: readonly AdminDocumentStatus[] = [
+  'PENDING',
+  'PROCESSING',
+  'READY',
+  'FAILED',
+] as const;
+
+/** Transient ingestion states worth polling for (bounded, see the view). */
+export function isDocumentProcessing(status: string): boolean {
+  return status === 'PENDING' || status === 'PROCESSING';
 }
 
 export function toAdminQuery(query: AdminProductListQuery | AdminOrderListQuery): string {
