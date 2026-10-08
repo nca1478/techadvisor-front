@@ -17,6 +17,8 @@
     "viewAll": "View all products",
     "skipToContent": "Skip to content",
     "cart": "Cart",
+    "cartWithCount": "Cart, {count} items",
+    "allProducts": "All",
     "admin": "Admin"
   },
   "catalog": {
@@ -152,6 +154,7 @@
       "increase": "Increase quantity",
       "decrease": "Decrease quantity",
       "quantity": "Quantity",
+      "productLink": "View product",
       "insufficientStock": "Not enough stock for this quantity."
     },
     "summary": {
@@ -253,6 +256,12 @@
     "status_DELIVERED": "Delivered",
     "status_CANCELLED": "Cancelled",
     "resolving": "Resolving order…"
+  },
+  "footer": {
+    "shopTitle": "Shop",
+    "accountTitle": "Account",
+    "myAccount": "My account",
+    "note": "Tech store with a shopping advisor."
   },
   "admin": {
     "title": "Administration",

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { CartItem } from '@/lib/api/cart';
@@ -9,10 +10,11 @@ export interface CartLineMessages {
   increase: string;
   decrease: string;
   quantity: string;
+  productLink: string;
   insufficientStock: string;
 }
 
-/** Presentational cart line: server-computed prices, qty stepper, remove. */
+/** Presentational cart line: thumbnail, server-computed prices, qty stepper, remove. */
 export function CartLine({
   item,
   currency,
@@ -30,21 +32,31 @@ export function CartLine({
   onUpdateQty: (qty: number) => void;
   onRemove: () => void;
 }) {
+  const imageSrc = typeof item.imageUrl === 'string' ? item.imageUrl : null;
   return (
     <li className="flex flex-col gap-3 rounded-md border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
-      <Stack gap="sm" className="min-w-0">
-        <Text as="span" variant="lead" className="truncate">
-          {item.name}
-        </Text>
-        <Text variant="small" tone="muted">
-          {formatPrice(item.unitPriceAmount, currency, locale)}
-        </Text>
-        {!item.sufficientStock && (
-          <Text variant="small" className="text-destructive" role="alert">
-            {messages.insufficientStock}
+      <div className="flex min-w-0 flex-1 gap-3">
+        <a
+          href={`/${locale}/productos/${item.slug}`}
+          aria-label={messages.productLink}
+          className="w-20 shrink-0 self-start"
+        >
+          <MediaFrame src={imageSrc} alt={item.name} ratio="square" rounded="sm" />
+        </a>
+        <Stack gap="sm" className="min-w-0">
+          <Text as="span" variant="lead" className="truncate">
+            {item.name}
           </Text>
-        )}
-      </Stack>
+          <Text variant="small" tone="muted">
+            {formatPrice(item.unitPriceAmount, currency, locale)}
+          </Text>
+          {!item.sufficientStock && (
+            <Text variant="small" className="text-destructive" role="alert">
+              {messages.insufficientStock}
+            </Text>
+          )}
+        </Stack>
+      </div>
       <Stack direction="horizontal" gap="sm" align="center">
         <Button
           variant="secondary"

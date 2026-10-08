@@ -1,4 +1,5 @@
 export { CategoryGrid } from './category-grid';
+export { CategoryNav } from './category-nav';
 export { CatalogEmpty, CatalogError, CatalogLoading } from './catalog-states';
 export { HomeAdvisorHero } from './home-advisor-hero';
 export { LocaleCurrencyControls } from './locale-currency-controls';

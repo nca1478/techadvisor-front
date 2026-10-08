@@ -17,6 +17,8 @@
     "viewAll": "Ver todos los productos",
     "skipToContent": "Saltar al contenido",
     "cart": "Carrito",
+    "cartWithCount": "Carrito, {count} artículos",
+    "allProducts": "Todos",
     "admin": "Admin"
   },
   "catalog": {
@@ -152,6 +154,7 @@
       "increase": "Aumentar cantidad",
       "decrease": "Disminuir cantidad",
       "quantity": "Cantidad",
+      "productLink": "Ver producto",
       "insufficientStock": "No hay suficiente stock para esta cantidad."
     },
     "summary": {
@@ -253,6 +256,12 @@
     "status_DELIVERED": "Entregado",
     "status_CANCELLED": "Cancelado",
     "resolving": "Localizando pedido…"
+  },
+  "footer": {
+    "shopTitle": "Tienda",
+    "accountTitle": "Cuenta",
+    "myAccount": "Mi cuenta",
+    "note": "Tienda de tecnología con asesor de compras."
   },
   "admin": {
     "title": "Administración",
