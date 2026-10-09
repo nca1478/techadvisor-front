@@ -4,6 +4,7 @@ import { Grid } from '@/components/ui/grid';
 import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
+import { ProductAdvisor } from '@/features/advisor';
 import { ApiError } from '@/lib/api/errors';
 import { createApiClient } from '@/lib/api/client';
 import { createCatalogApi } from '@/lib/api/catalog';
@@ -68,6 +69,14 @@ export async function ProductDetailContainer({
               messages={messages.catalog}
             />
           </Grid>
+          <ProductAdvisor
+            key={product.id}
+            productId={product.id}
+            categorySlug={product.category.slug}
+            locale={locale}
+            supportHref={`/${locale}/cuenta`}
+            messages={messages.advisor}
+          />
         </Stack>
       </Section>
       {/* schema.org Product: name/image/price+currency/availability from the API. */}

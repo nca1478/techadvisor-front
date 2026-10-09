@@ -412,6 +412,54 @@ async function handler(req, res) {
     return;
   }
 
+  // Advisor (fake adapters): cited answer, abstention, rate limit, feedback stub.
+  if (method === 'POST' && path === '/advisor/product-qa') {
+    const product = PRODUCTS.find((candidate) => candidate.id === body.productId);
+    if (!product) {
+      const err = uniformError(404, 'NOT_FOUND', 'Product not found');
+      send(res, err.status, err.body);
+      return;
+    }
+    const question = typeof body.question === 'string' ? body.question : '';
+    if (question.length === 0 || question.length > 1000) {
+      const err = uniformError(400, 'BAD_REQUEST', 'Invalid question');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (question.includes('rate-limit-probe')) {
+      const err = uniformError(429, 'TOO_MANY_REQUESTS', 'Slow down');
+      send(res, err.status, err.body, { 'retry-after': '1' });
+      return;
+    }
+    if (question.includes('no-evidence-probe')) {
+      send(res, 200, {
+        answer: 'No tengo esa información.',
+        citations: [],
+        abstained: true,
+      });
+      return;
+    }
+    send(res, 200, {
+      answer: `El ${product.name} dura hasta 10 horas de batería [1].`,
+      citations: [
+        {
+          n: 1,
+          documentId: 'doc-mock-manual',
+          chunkId: 'chunk-mock-1',
+          title: `${product.name} manual`,
+          snippet: 'La batería dura hasta 10 horas en uso mixto…',
+        },
+      ],
+      abstained: false,
+    });
+    return;
+  }
+
+  if (method === 'POST' && path === '/advisor/feedback') {
+    send(res, 200, { ok: true });
+    return;
+  }
+
   const err = uniformError(404, 'NOT_FOUND', `Mock has no handler for ${method} ${path}`);
   send(res, err.status, err.body);
 }

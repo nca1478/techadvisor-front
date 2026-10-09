@@ -1,3 +1,5 @@
+export { createAdvisorApi, type AdvisorApi, type AdvisorCitation } from './advisor';
+export type { AdvisorFeedbackRequest, FeedbackValue, ProductQaResponse } from './advisor';
 export { createAuthApi, type AuthApi, type AuthPayload, type AuthUser } from './auth';
 export {
   ADMIN_ORDER_TRANSITIONS,
