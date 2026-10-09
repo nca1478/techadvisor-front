@@ -71,7 +71,7 @@ export default async function LocaleLayout({
               className="py-4"
             >
               <Stack direction="horizontal" gap="md" align="center" wrap>
-                <Text variant="lead" as="span" className="text-header-foreground">
+                <Text variant="lead" as="span" tone="header">
                   {messages.common.techAdvisor}
                 </Text>
                 <nav aria-label={messages.common.techAdvisor}>
@@ -133,15 +133,15 @@ export default async function LocaleLayout({
           <Container>
             <Grid columns="three" gap="md" className="py-8">
               <Stack gap="sm">
-                <Text variant="lead" as="span" className="text-header-foreground">
+                <Text variant="lead" as="span" tone="header">
                   {messages.common.techAdvisor}
                 </Text>
-                <Text variant="small" tone="muted" className="text-header-muted">
+                <Text variant="small" tone="headerMuted">
                   {messages.footer.note}
                 </Text>
               </Stack>
               <Stack gap="sm">
-                <Text variant="small" as="p" className="font-medium text-header-foreground">
+                <Text variant="small" as="p" tone="header" className="font-medium">
                   {messages.footer.shopTitle}
                 </Text>
                 <Link href={`/${locale}/productos`} variant="header">
@@ -155,7 +155,7 @@ export default async function LocaleLayout({
                 </Link>
               </Stack>
               <Stack gap="sm">
-                <Text variant="small" as="p" className="font-medium text-header-foreground">
+                <Text variant="small" as="p" tone="header" className="font-medium">
                   {messages.footer.accountTitle}
                 </Text>
                 <Link href={`/${locale}/ingresar`} variant="header">

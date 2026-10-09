@@ -21,6 +21,14 @@ describe('Typography primitives', () => {
     );
     expect(screen.getByText('Caption copy')).toHaveClass('text-xs', 'text-muted-foreground');
   });
+
+  it('resolves header tones to a single color class', () => {
+    const { rerender } = render(<Text tone="header">Header copy</Text>);
+    expect(screen.getByText('Header copy')).toHaveClass('text-header-foreground');
+
+    rerender(<Text tone="headerMuted">Header muted copy</Text>);
+    expect(screen.getByText('Header muted copy')).toHaveClass('text-header-muted');
+  });
 });
 
 describe('Link', () => {

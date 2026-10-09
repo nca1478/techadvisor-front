@@ -27,7 +27,7 @@ export function NavSession({
 
   if (status === 'loading') {
     return (
-      <Text variant="small" tone="muted" aria-hidden="true" className="text-header-muted">
+      <Text variant="small" tone="headerMuted" aria-hidden="true">
         …
       </Text>
     );

@@ -11,6 +11,8 @@ const VARIANTS = {
 const TONES = {
   default: 'text-foreground',
   muted: 'text-muted-foreground',
+  header: 'text-header-foreground',
+  headerMuted: 'text-header-muted',
 } as const;
 
 export interface TextProps {
@@ -23,7 +25,7 @@ export interface TextProps {
   children: ReactNode;
 }
 
-/** Body copy with a closed size scale and two tones (both WCAG AA). */
+/** Body copy with a closed size scale and four tones (all WCAG AA). */
 export function Text({
   as = 'p',
   variant = 'body',
