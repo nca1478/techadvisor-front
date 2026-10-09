@@ -71,9 +71,14 @@ export default async function LocaleLayout({
               className="py-4"
             >
               <Stack direction="horizontal" gap="md" align="center" wrap>
-                <Text variant="lead" as="span" tone="header">
+                <Link
+                  href={`/${locale}`}
+                  variant="header"
+                  className="text-lg leading-relaxed"
+                  ariaLabel={messages.nav.home}
+                >
                   {messages.common.techAdvisor}
-                </Text>
+                </Link>
                 <nav aria-label={messages.common.techAdvisor}>
                   <Stack direction="horizontal" gap="md" align="center" wrap>
                     <Link href={`/${locale}`} variant="header">
