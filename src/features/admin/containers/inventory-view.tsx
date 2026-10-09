@@ -120,7 +120,7 @@ export function InventoryView({
                         {availableUnits(product)}
                       </td>
                       <td className="px-4 py-3">
-                        <Stack direction="horizontal" gap="md">
+                        <Stack direction="horizontal" gap="md" align="center">
                           <Button
                             variant={selected ? 'primary' : 'secondary'}
                             size="sm"
