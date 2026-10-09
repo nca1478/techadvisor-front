@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { type ApiClient, createApiClient } from './client';
 
 // mantener en sync con backend: POST /api/v1/advisor/product-qa
-// (ProductQaResponseDto) y futuro POST /api/v1/advisor/feedback.
-// Tipos locales a propósito: el contrato OpenAPI aún no incluye advisor,
-// así que no se puede generar desde schema.d.ts.
+// (ProductQaResponseDto) y POST /api/v1/advisor/feedback
+// (AdvisorFeedbackResponseDto, stub append-only).
+// Tipos locales a propósito: el contrato OpenAPI ya incluye advisor, pero
+// el BFF valida la forma mínima que el widget necesita.
 
 export interface AdvisorCitation {
   n: number;

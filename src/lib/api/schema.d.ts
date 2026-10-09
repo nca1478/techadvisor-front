@@ -677,6 +677,91 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/reindex': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Start a reindex toward the configured EMBEDDING_MODEL/EMBEDDING_DIM */
+    post: operations['ReindexController_start'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reindex/active': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Show the embedding model currently serving retrieval */
+    get: operations['ReindexController_active'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reindex/jobs/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Report reindex progress (snapshot counters + live off-target count) */
+    get: operations['ReindexController_progress'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reindex/jobs/{id}/activate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Flip retrieval to the reindexed model (only at 100% with zero failures) */
+    post: operations['ReindexController_activate'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reindex/jobs/{id}/resume': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Re-enqueue batches for chunks still off-target */
+    post: operations['ReindexController_resume'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/search': {
     parameters: {
       query?: never;
@@ -688,6 +773,40 @@ export interface paths {
     get: operations['SearchController_searchProducts'];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/advisor/product-qa': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ask the advisor a question about one product (RAG, cited) */
+    post: operations['AdvisorController_answerProductQuestion'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/advisor/feedback': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Record a thumbs up/down vote on an advisor answer (stub) */
+    post: operations['AdvisorController_recordFeedback'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1438,6 +1557,98 @@ export interface components {
       /** @example true */
       received: boolean;
     };
+    ReindexStartDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      jobId: string;
+      /**
+       * @example started
+       * @enum {string}
+       */
+      status: 'started' | 'already-running';
+      /**
+       * @description Model active when the job started.
+       * @example openai/text-embedding-3-small
+       */
+      sourceModel: string;
+      /** @example text-embedding-3-small */
+      targetModel: string;
+      /** @example 1536 */
+      targetDim: number;
+      /** @example embedding */
+      targetColumn: string;
+      /** @example 1200 */
+      totalChunks: number;
+      /** @example 12 */
+      batches: number;
+    };
+    ActiveEmbeddingDto: {
+      /** @example text-embedding-3-small */
+      model: string;
+      /** @example 1536 */
+      dim: number;
+      /** @example embedding */
+      column: string;
+      /**
+       * @example vector
+       * @enum {string}
+       */
+      cast: 'vector' | 'halfvec';
+    };
+    ReindexProgressDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      jobId: string;
+      /**
+       * @example RUNNING
+       * @enum {string}
+       */
+      status: 'RUNNING' | 'COMPLETED';
+      /** @example openai/text-embedding-3-small */
+      sourceModel: string | null;
+      /** @example text-embedding-3-small */
+      targetModel: string;
+      /** @example 1536 */
+      targetDim: number;
+      /** @example embedding */
+      targetColumn: string;
+      /** @example 1200 */
+      totalChunks: number;
+      /** @example 300 */
+      processedChunks: number;
+      /** @example 0 */
+      failedChunks: number;
+      /**
+       * @description 0–100 over the snapshotted set.
+       * @example 25
+       */
+      percent: number;
+      /**
+       * @description Live chunks still missing vectors in the target column (informational; the activation gate covers the snapshotted set).
+       * @example 900
+       */
+      remainingChunks: number;
+      /** @example false */
+      activatable: boolean;
+    };
+    ReindexActivateDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      jobId: string;
+      /** @example false */
+      alreadyActive: boolean;
+      /** @example text-embedding-3-small */
+      model: string;
+      /** @example 1536 */
+      dim: number;
+      /** @example embedding */
+      column: string;
+    };
+    ReindexResumeDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      jobId: string;
+      /** @example 3 */
+      enqueuedBatches: number;
+      /** @example 250 */
+      remaining: number;
+    };
     SearchResultDto: {
       /** @description Product hydrated from SQL. */
       product: components['schemas']['ProductListItemDto'];
@@ -1471,6 +1682,81 @@ export interface components {
        */
       currency: string;
       results: components['schemas']['SearchResultDto'][];
+    };
+    ProductQaCitationDto: {
+      /**
+       * @description 1-based number of the cited chunk ([n] in the answer).
+       * @example 1
+       */
+      n: number;
+      /**
+       * @description Source document id.
+       * @example doc-id
+       */
+      documentId: string;
+      /**
+       * @description Source chunk id.
+       * @example chunk-id
+       */
+      chunkId: string;
+      /**
+       * @description Source document title.
+       * @example X200 manual
+       */
+      title: string;
+      /**
+       * @description Evidence fragment from the cited chunk (truncated).
+       * @example La batería dura hasta 10 horas…
+       */
+      snippet: string;
+    };
+    ProductQaResponseDto: {
+      /**
+       * @description Assistant answer in the request locale, with [n] citation markers.
+       * @example La batería dura hasta 10 horas [1].
+       */
+      answer: string;
+      citations: components['schemas']['ProductQaCitationDto'][];
+      /**
+       * @description True when no sufficient evidence existed: the LLM was not called and the query was recorded for review.
+       * @example false
+       */
+      abstained: boolean;
+    };
+    AdvisorFeedbackRequestDto: {
+      /**
+       * @description Asked-about product id, when the vote comes from a product page.
+       * @example product-id
+       */
+      productId?: string;
+      /**
+       * @description Question (1..1000 chars).
+       * @example ¿Cuánto dura la batería?
+       */
+      question: string;
+      /**
+       * @description Answer the vote refers to (1..20000 chars).
+       * @example La batería dura hasta 10 horas [1].
+       */
+      answer: string;
+      /**
+       * @description Whether the voted answer was an abstention.
+       * @example false
+       */
+      abstained: boolean;
+      /**
+       * @description Vote direction.
+       * @example up
+       * @enum {string}
+       */
+      value: 'up' | 'down';
+    };
+    AdvisorFeedbackResponseDto: {
+      /**
+       * @description True when the vote was recorded.
+       * @example true
+       */
+      ok: boolean;
     };
   };
   responses: never;
@@ -4018,6 +4304,236 @@ export interface operations {
       };
     };
   };
+  ReindexController_start: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReindexStartDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReindexController_active: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ActiveEmbeddingDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReindexController_progress: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReindexProgressDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReindexController_activate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReindexActivateDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReindexController_resume: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReindexResumeDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
   SearchController_searchProducts: {
     parameters: {
       query: {
@@ -4046,6 +4562,120 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['SearchResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdvisorController_answerProductQuestion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ProductQaResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Product not found or not active. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdvisorController_recordFeedback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdvisorFeedbackRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdvisorFeedbackResponseDto'];
         };
       };
       /** @description Bad request. */
