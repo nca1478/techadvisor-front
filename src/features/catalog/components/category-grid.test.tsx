@@ -49,4 +49,37 @@ describe('CategoryGrid', () => {
     );
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('shows a related background photo with the title kept over it', () => {
+    render(
+      <CategoryGrid
+        categories={[category()]}
+        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        title="Compra por categoría"
+        subtitle="Explora el catálogo por categoría."
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Laptops' });
+    const image = link.querySelector('img');
+    expect(image?.getAttribute('src')).toContain('images.unsplash.com');
+    // Decorative photo: the accessible name comes from the link, not the image.
+    expect(image?.getAttribute('alt')).toBe('');
+    expect(link).toHaveTextContent('Laptops');
+  });
+
+  it('falls back to the local placeholder for unknown slugs', () => {
+    render(
+      <CategoryGrid
+        categories={[category({ id: 'c9', name: 'Drones', slug: 'drones' })]}
+        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        title="Compra por categoría"
+        subtitle="Explora el catálogo por categoría."
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Drones' });
+    expect(link.querySelector('img')?.getAttribute('src')).toContain('placeholder.svg');
+    expect(link).toHaveTextContent('Drones');
+  });
 });
