@@ -23,7 +23,7 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
         <Text tone="muted">{subtitle}</Text>
       </Stack>
       <Grid columns="three" gap="md">
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <a
             key={category.id}
             href={hrefFor(category.slug)}
@@ -31,7 +31,13 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
             className="relative block overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
           >
             {/* Decorative photo: the link already exposes the category name. */}
-            <MediaFrame src={categoryImageSrc(category.slug)} alt="" ratio="video" rounded="lg" />
+            <MediaFrame
+              src={categoryImageSrc(category.slug)}
+              alt=""
+              ratio="video"
+              rounded="lg"
+              priority={index === 0}
+            />
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-gradient-to-t from-header/85 via-header/25 to-transparent"

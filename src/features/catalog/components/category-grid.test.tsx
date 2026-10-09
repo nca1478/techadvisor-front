@@ -68,6 +68,23 @@ describe('CategoryGrid', () => {
     expect(link).toHaveTextContent('Laptops');
   });
 
+  it('prioritizes only the first (above-the-fold) photo for LCP', () => {
+    render(
+      <CategoryGrid
+        categories={[category(), category({ id: 'c2', name: 'GPUs', slug: 'gpus' })]}
+        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        title="Compra por categoría"
+        subtitle="Explora el catálogo por categoría."
+      />,
+    );
+
+    const first = screen.getByRole('link', { name: 'Laptops' }).querySelector('img');
+    const second = screen.getByRole('link', { name: 'GPUs' }).querySelector('img');
+    // `priority` renders an eager image (no loading="lazy"); the rest stay lazy.
+    expect(first?.getAttribute('loading')).not.toBe('lazy');
+    expect(second?.getAttribute('loading')).toBe('lazy');
+  });
+
   it('falls back to the local placeholder for unknown slugs', () => {
     render(
       <CategoryGrid
