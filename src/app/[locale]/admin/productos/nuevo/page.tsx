@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { Heading } from '@/components/ui/heading';
@@ -64,16 +65,18 @@ export default async function AdminNewProductPage({ params }: NewProductPageProp
           {messages.admin.loadError}
         </Text>
       ) : (
-        <ProductCreateContainer
-          locale={locale}
-          brands={brands}
-          categories={categories}
-          currencies={config.supportedCurrencies}
-          baseCurrency={config.baseCurrency}
-          locales={config.supportedLocales}
-          defaultLocale={config.defaultLocale}
-          messages={messages}
-        />
+        <Card>
+          <ProductCreateContainer
+            locale={locale}
+            brands={brands}
+            categories={categories}
+            currencies={config.supportedCurrencies}
+            baseCurrency={config.baseCurrency}
+            locales={config.supportedLocales}
+            defaultLocale={config.defaultLocale}
+            messages={messages}
+          />
+        </Card>
       )}
     </Stack>
   );
