@@ -47,10 +47,10 @@ export function DashboardView({
               <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-background">
-                    <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                       {admin.dashboard.tableOrder}
                     </th>
-                    <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                       {admin.dashboard.tableStatus}
                     </th>
                     <th
@@ -75,7 +75,7 @@ export function DashboardView({
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
-                      <td className="px-4 py-3 text-right font-medium tabular-nums">
+                      <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
                         {formatPrice(order.totalAmount, order.currency, locale)}
                       </td>
                     </tr>
@@ -105,7 +105,7 @@ export function DashboardView({
               <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-background">
-                    <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                       {admin.dashboard.tableProduct}
                     </th>
                     <th

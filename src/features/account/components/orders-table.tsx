@@ -35,13 +35,13 @@ export function OrdersTable({
       <table className="w-full min-w-[42rem] border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border bg-background">
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
               {messages.tableOrder}
             </th>
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
               {messages.tableDate}
             </th>
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
               {messages.tableStatus}
             </th>
             <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
@@ -50,7 +50,7 @@ export function OrdersTable({
             <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
               {messages.tableTotal}
             </th>
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
               <span className="sr-only">{messages.tableActions}</span>
             </th>
           </tr>
@@ -58,7 +58,10 @@ export function OrdersTable({
         <tbody>
           {orders.map((order) => (
             <tr key={order.id} className="border-b border-border odd:bg-background last:border-0">
-              <th scope="row" className="px-4 py-3 font-mono text-xs font-normal">
+              <th
+                scope="row"
+                className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
+              >
                 {order.id.slice(0, 8)}…
               </th>
               <td className="px-4 py-3 text-muted-foreground">
@@ -68,7 +71,7 @@ export function OrdersTable({
                 <OrderStatusBadge status={order.status} messages={messages} />
               </td>
               <td className="px-4 py-3 text-right tabular-nums">{order.itemCount}</td>
-              <td className="px-4 py-3 text-right font-medium tabular-nums">
+              <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
                 {formatPrice(order.totalAmount, order.currency, locale)}
               </td>
               <td className="px-4 py-3">
@@ -107,7 +110,7 @@ export function OrderDetail({
         <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
           <thead>
             <tr className="border-b border-border bg-background">
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                 {messages.itemsTitle}
               </th>
               <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
@@ -134,7 +137,7 @@ export function OrderDetail({
                 <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3 text-right font-medium tabular-nums">
+                <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>

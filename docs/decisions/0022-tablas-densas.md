@@ -22,6 +22,14 @@ Se pide acabado denso estilo marketplace sin tocar funcionalidad.
 4. Sin cambios de copy, contratos, rutas ni lógica. Sin estrellitas ni
    adornos: la densidad es la comparabilidad.
 
+## Addendum 2026-10-09 — jerarquía visible
+
+La alineación sola resultó demasiado sutil en revisión visual: se añade
+jerarquía tipográfica sin salir del sistema — totales y disponible en
+`text-base font-bold`, IDs en mono atenuado, encabezados en `text-xs`
+(conservando las mayúsculas originales, nunca ALL-CAPS). Todo sigue
+siendo información, no decoración.
+
 ## Dependencias (verificación obligatoria)
 
 - Context7 disponible en la sesión; solo clases Tailwind existentes y

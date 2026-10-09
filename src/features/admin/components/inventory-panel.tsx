@@ -131,10 +131,10 @@ export function InventoryPanel({
                   >
                     {messages.tableStockAfter}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {messages.tableReason}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {messages.tableDate}
                   </th>
                 </tr>

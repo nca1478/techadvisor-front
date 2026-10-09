@@ -118,13 +118,13 @@ export function AdminProductsView({
             <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-background">
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {products.tableProduct}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {products.tableSku}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {products.tableStatus}
                   </th>
                   <th
@@ -139,7 +139,7 @@ export function AdminProductsView({
                   >
                     {products.tableStock}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     <span className="sr-only">{products.tableActions}</span>
                   </th>
                 </tr>
@@ -169,7 +169,7 @@ export function AdminProductsView({
                         />
                       </Stack>
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
+                    <td className="px-4 py-3 text-right font-medium tabular-nums">
                       {formatPrice(product.priceAmount, product.currency, locale)}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">

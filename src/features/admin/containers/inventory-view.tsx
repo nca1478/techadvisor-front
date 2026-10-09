@@ -64,7 +64,7 @@ export function InventoryView({
             <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-background">
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {inventory.tableProduct}
                   </th>
                   <th
@@ -85,7 +85,7 @@ export function InventoryView({
                   >
                     {inventory.tableAvailable}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     <span className="sr-only">{inventory.tableActions}</span>
                   </th>
                 </tr>
@@ -106,7 +106,7 @@ export function InventoryView({
                       </th>
                       <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                       <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
-                      <td className="px-4 py-3 text-right font-medium tabular-nums">
+                      <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
                         {availableUnits(product)}
                       </td>
                       <td className="px-4 py-3">

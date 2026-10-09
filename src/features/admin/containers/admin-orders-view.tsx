@@ -107,16 +107,16 @@ export function AdminOrdersView({
             <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-background">
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {orders.tableOrder}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {orders.tableDate}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {orders.tableCustomer}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {orders.tableStatus}
                   </th>
                   <th
@@ -131,7 +131,7 @@ export function AdminOrdersView({
                   >
                     {orders.tableTotal}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     <span className="sr-only">{orders.tableActions}</span>
                   </th>
                 </tr>
@@ -142,7 +142,10 @@ export function AdminOrdersView({
                     key={order.id}
                     className="border-b border-border odd:bg-background last:border-0"
                   >
-                    <th scope="row" className="px-4 py-3 font-mono text-xs font-normal">
+                    <th
+                      scope="row"
+                      className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
+                    >
                       {order.id.slice(0, 8)}…
                     </th>
                     <td className="px-4 py-3 text-muted-foreground">
@@ -153,7 +156,7 @@ export function AdminOrdersView({
                       <OrderStatusBadge status={order.status} messages={messages.account} />
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums">
+                    <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
                       {formatPrice(order.totalAmount, order.currency, locale)}
                     </td>
                     <td className="px-4 py-3">

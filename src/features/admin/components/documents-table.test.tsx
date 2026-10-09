@@ -67,6 +67,7 @@ describe('DocumentsTable', () => {
       'text-right',
       'tabular-nums',
     );
+    expect(screen.getByText(messages.tableChunks).closest('th')).toHaveClass('text-xs');
 
     fireEvent.click(screen.getByRole('button', { name: messages.reingest }));
     expect(onReingest).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');
