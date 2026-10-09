@@ -486,19 +486,21 @@ export function AdminDocumentsView({
           {messages.admin.loadError}
         </Text>
       ) : (
-        <DocumentsTable
-          documents={rows}
-          messages={docs}
-          locale={locale}
-          pendingIds={pendingIds}
-          stoppedIds={stoppedIds}
-          onReingest={(id) => {
-            setConfirmReingestId(id);
-          }}
-          onDelete={(id) => {
-            setConfirmDeleteId(id);
-          }}
-        />
+        <Card padding="none">
+          <DocumentsTable
+            documents={rows}
+            messages={docs}
+            locale={locale}
+            pendingIds={pendingIds}
+            stoppedIds={stoppedIds}
+            onReingest={(id) => {
+              setConfirmReingestId(id);
+            }}
+            onDelete={(id) => {
+              setConfirmDeleteId(id);
+            }}
+          />
+        </Card>
       )}
       {actionFeedback ? (
         <Text

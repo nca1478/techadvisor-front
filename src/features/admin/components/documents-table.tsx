@@ -38,29 +38,29 @@ export function DocumentsTable({
     return <Text tone="muted">{messages.empty}</Text>;
   }
   return (
-    <div className="overflow-x-auto rounded-md border border-border">
+    <div className="overflow-x-auto">
       <table className="w-full border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border text-left">
-            <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableTitle}
             </th>
-            <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableType}
             </th>
-            <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableStatus}
             </th>
             <th
               scope="col"
-              className="px-2 py-2 text-right text-xs font-medium text-muted-foreground"
+              className="px-4 py-2 text-right text-xs font-medium text-muted-foreground"
             >
               {messages.tableChunks}
             </th>
-            <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableUpdated}
             </th>
-            <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableActions}
             </th>
           </tr>
@@ -71,7 +71,7 @@ export function DocumentsTable({
             const processing = isDocumentProcessing(document.status);
             return (
               <tr key={document.id} className="border-b border-border align-top last:border-0">
-                <td className="px-2 py-2">
+                <td className="px-4 py-2">
                   <Stack gap="sm">
                     <Text className="font-medium">{document.title}</Text>
                     <Text tone="muted" className="text-xs">
@@ -91,10 +91,10 @@ export function DocumentsTable({
                     ) : null}
                   </Stack>
                 </td>
-                <td className="px-2 py-2">
+                <td className="px-4 py-2">
                   {(messages as Record<string, string>)[`type_${document.type}`] ?? document.type}
                 </td>
-                <td className="px-2 py-2">
+                <td className="px-4 py-2">
                   <Stack gap="sm">
                     <DocumentStatusBadge status={document.status} messages={messages} />
                     {processing && !stoppedIds.has(document.id) ? (
@@ -104,11 +104,11 @@ export function DocumentsTable({
                     ) : null}
                   </Stack>
                 </td>
-                <td className="px-2 py-2 text-right tabular-nums">
+                <td className="px-4 py-2 text-right tabular-nums">
                   {formatChunks(messages.chunksCount, document.chunkCount)}
                 </td>
-                <td className="px-2 py-2">{new Date(document.updatedAt).toLocaleString(locale)}</td>
-                <td className="px-2 py-2">
+                <td className="px-4 py-2">{new Date(document.updatedAt).toLocaleString(locale)}</td>
+                <td className="px-4 py-2">
                   <Stack direction="horizontal" gap="sm" wrap>
                     <Button
                       variant="secondary"
