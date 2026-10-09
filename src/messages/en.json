@@ -103,6 +103,7 @@
   "search": {
     "label": "Search products",
     "placeholder": "Search in your own words…",
+    "submit": "Search",
     "suggestionsLabel": "Suggestions",
     "suggestionsLoading": "Searching…",
     "noSuggestions": "No suggestions yet.",

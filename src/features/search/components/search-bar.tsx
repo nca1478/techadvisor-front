@@ -101,6 +101,7 @@ export function SearchBar({
     <div ref={boxRef} className="relative w-full max-w-md">
       <form
         role="search"
+        className="flex items-start gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -137,6 +138,9 @@ export function SearchBar({
             if (event.key === 'Escape') setDismissed(true);
           }}
         />
+        <Button type="submit" variant="primary" className="shrink-0">
+          {messages.submit}
+        </Button>
       </form>
       {open && (
         <div className="absolute inset-x-0 top-full z-40 mt-1 rounded-md border border-border bg-surface shadow-lg">

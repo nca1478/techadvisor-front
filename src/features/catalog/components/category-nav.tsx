@@ -26,13 +26,13 @@ export function CategoryNav({
     <nav aria-label={navLabel}>
       <ul className="flex gap-4 overflow-x-auto py-1">
         <li className="shrink-0">
-          <Link href={listHref} variant="muted">
+          <Link href={listHref} variant="header">
             {allLabel}
           </Link>
         </li>
         {categories.map((category) => (
           <li key={category.id} className="shrink-0">
-            <Link href={hrefFor(category.slug)} variant="muted">
+            <Link href={hrefFor(category.slug)} variant="header">
               {category.name}
             </Link>
           </li>

@@ -60,7 +60,7 @@ export default async function LocaleLayout({
         >
           {messages.nav.skipToContent}
         </a>
-        <header className="border-b border-border bg-background">
+        <header className="bg-header">
           <Container>
             <Stack
               direction="horizontal"
@@ -71,13 +71,17 @@ export default async function LocaleLayout({
               className="py-4"
             >
               <Stack direction="horizontal" gap="md" align="center" wrap>
-                <Text variant="lead" as="span">
+                <Text variant="lead" as="span" className="text-header-foreground">
                   {messages.common.techAdvisor}
                 </Text>
                 <nav aria-label={messages.common.techAdvisor}>
                   <Stack direction="horizontal" gap="md" align="center" wrap>
-                    <Link href={`/${locale}`}>{messages.nav.home}</Link>
-                    <Link href={`/${locale}/productos`}>{messages.nav.products}</Link>
+                    <Link href={`/${locale}`} variant="header">
+                      {messages.nav.home}
+                    </Link>
+                    <Link href={`/${locale}/productos`} variant="header">
+                      {messages.nav.products}
+                    </Link>
                     <CartNavLink
                       locale={locale}
                       messages={{
@@ -110,7 +114,7 @@ export default async function LocaleLayout({
               <SearchBar locale={locale} messages={messages.search} />
             </div>
             {categories.length > 0 ? (
-              <div className="border-t border-border py-2">
+              <div className="border-t border-header-sub py-2">
                 <CategoryNav
                   categories={categories}
                   allLabel={messages.nav.allProducts}
@@ -125,42 +129,42 @@ export default async function LocaleLayout({
         <main id="main-content" className="flex flex-1 flex-col">
           {children}
         </main>
-        <footer className="border-t border-border bg-surface">
+        <footer className="bg-header-sub">
           <Container>
             <Grid columns="three" gap="md" className="py-8">
               <Stack gap="sm">
-                <Text variant="lead" as="span">
+                <Text variant="lead" as="span" className="text-header-foreground">
                   {messages.common.techAdvisor}
                 </Text>
-                <Text variant="small" tone="muted">
+                <Text variant="small" tone="muted" className="text-header-muted">
                   {messages.footer.note}
                 </Text>
               </Stack>
               <Stack gap="sm">
-                <Text variant="small" as="p" className="font-medium">
+                <Text variant="small" as="p" className="font-medium text-header-foreground">
                   {messages.footer.shopTitle}
                 </Text>
-                <Link href={`/${locale}/productos`} variant="muted">
+                <Link href={`/${locale}/productos`} variant="header">
                   {messages.nav.products}
                 </Link>
-                <Link href={`/${locale}/buscar`} variant="muted">
+                <Link href={`/${locale}/buscar`} variant="header">
                   {messages.search.title}
                 </Link>
-                <Link href={`/${locale}/carrito`} variant="muted">
+                <Link href={`/${locale}/carrito`} variant="header">
                   {messages.nav.cart}
                 </Link>
               </Stack>
               <Stack gap="sm">
-                <Text variant="small" as="p" className="font-medium">
+                <Text variant="small" as="p" className="font-medium text-header-foreground">
                   {messages.footer.accountTitle}
                 </Text>
-                <Link href={`/${locale}/ingresar`} variant="muted">
+                <Link href={`/${locale}/ingresar`} variant="header">
                   {messages.auth.loginLink}
                 </Link>
-                <Link href={`/${locale}/registro`} variant="muted">
+                <Link href={`/${locale}/registro`} variant="header">
                   {messages.auth.registerLink}
                 </Link>
-                <Link href={`/${locale}/cuenta`} variant="muted">
+                <Link href={`/${locale}/cuenta`} variant="header">
                   {messages.footer.myAccount}
                 </Link>
               </Stack>

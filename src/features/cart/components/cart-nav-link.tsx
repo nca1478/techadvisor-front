@@ -30,6 +30,7 @@ export function CartNavLink({
     <span className="inline-flex items-center gap-1.5">
       <Link
         href={`/${locale}/carrito`}
+        variant="header"
         ariaLabel={
           showCount ? messages.withCount.replace('{count}', String(count)) : messages.label
         }

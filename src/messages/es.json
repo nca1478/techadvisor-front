@@ -103,6 +103,7 @@
   "search": {
     "label": "Buscar productos",
     "placeholder": "Busca con tus palabras…",
+    "submit": "Buscar",
     "suggestionsLabel": "Sugerencias",
     "suggestionsLoading": "Buscando…",
     "noSuggestions": "Sin sugerencias por ahora.",

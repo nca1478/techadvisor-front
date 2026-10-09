@@ -27,7 +27,7 @@ export function NavSession({
 
   if (status === 'loading') {
     return (
-      <Text variant="small" tone="muted" aria-hidden="true">
+      <Text variant="small" tone="muted" aria-hidden="true" className="text-header-muted">
         …
       </Text>
     );
@@ -37,17 +37,17 @@ export function NavSession({
     return (
       <span className="inline-flex items-center gap-3">
         {user.role === 'ADMIN' ? (
-          <Link href={`/${locale}/admin`} variant="muted">
+          <Link href={`/${locale}/admin`} variant="header">
             {adminLabel}
           </Link>
         ) : null}
-        <Link href={`/${locale}/cuenta`} variant="muted">
+        <Link href={`/${locale}/cuenta`} variant="header">
           {accountLabel.replace('{email}', user.email)}
         </Link>
         <button
           type="button"
           onClick={() => void logout()}
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          className="text-sm text-header-muted underline-offset-4 hover:underline"
         >
           {logoutLabel}
         </button>
@@ -57,10 +57,10 @@ export function NavSession({
 
   return (
     <span className="inline-flex items-center gap-3">
-      <Link href={`/${locale}/ingresar`} variant="muted">
+      <Link href={`/${locale}/ingresar`} variant="header">
         {loginLabel}
       </Link>
-      <Link href={`/${locale}/registro`} variant="muted">
+      <Link href={`/${locale}/registro`} variant="header">
         {registerLabel}
       </Link>
     </span>
