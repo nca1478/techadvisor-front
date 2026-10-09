@@ -10,7 +10,6 @@ import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ProductStatusContainer } from '@/features/admin/containers/product-status-container';
-import { ProductStatusBadge } from '@/features/admin/components/product-status-badge';
 import type { AdminProductList, AdminProductStatus } from '@/lib/api/admin';
 import { availableUnits, toAdminQuery } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -154,17 +153,14 @@ export function AdminProductsView({
                     </th>
                     <td className="px-4 py-3 font-mono text-xs">{product.sku}</td>
                     <td className="px-4 py-3">
-                      <Stack gap="sm">
-                        <ProductStatusBadge status={product.status} messages={products} />
-                        <ProductStatusContainer
-                          productId={product.id}
-                          initialStatus={product.status}
-                          messages={messages}
-                          onChanged={() => {
-                            router.refresh();
-                          }}
-                        />
-                      </Stack>
+                      <ProductStatusContainer
+                        productId={product.id}
+                        initialStatus={product.status}
+                        messages={messages}
+                        onChanged={() => {
+                          router.refresh();
+                        }}
+                      />
                     </td>
                     <td className="px-4 py-3 text-right font-medium tabular-nums">
                       {formatPrice(product.priceAmount, product.currency, locale)}
