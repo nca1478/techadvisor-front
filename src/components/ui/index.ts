@@ -2,6 +2,7 @@ export { Badge, type BadgeProps } from './badge';
 export { Button, type ButtonProps } from './button';
 export { Card, type CardProps } from './card';
 export { Container, type ContainerProps, type ContainerSize } from './container';
+export { Disclosure, type DisclosureProps } from './disclosure';
 export { Grid, type GridProps } from './grid';
 export { Heading, type HeadingLevel, type HeadingProps } from './heading';
 export { Input, type InputProps } from './input';

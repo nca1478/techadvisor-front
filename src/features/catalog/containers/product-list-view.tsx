@@ -1,7 +1,7 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { Disclosure } from '@/components/ui/disclosure';
 import { Heading } from '@/components/ui/heading';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
@@ -59,6 +59,9 @@ export function ProductListView({
 
   const { data, meta } = initialData;
   const visible = inStockOnly ? data.filter((product) => product.inStock) : data;
+  const activeFilterCount =
+    [values.q, values.category, values.brand, values.sort].filter((value) => value !== '').length +
+    (values.inStockOnly ? 1 : 0);
 
   return (
     <Container>
@@ -69,7 +72,7 @@ export function ProductListView({
             <Text tone="muted">{messages.catalog.subtitle}</Text>
           </Stack>
 
-          <Card>
+          <Disclosure title={messages.catalog.filtersTitle} count={activeFilterCount}>
             <ProductFilters
               values={values}
               categories={categories}
@@ -88,7 +91,7 @@ export function ProductListView({
                 update({ q: '', category: '', brand: '', sort: '', inStockOnly: false, page: 1 });
               }}
             />
-          </Card>
+          </Disclosure>
 
           <Text variant="small" tone="muted" role="status">
             {formatCount(messages.catalog.results, meta.total)}

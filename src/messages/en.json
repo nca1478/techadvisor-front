@@ -39,6 +39,7 @@
     "sort newest": "Newest",
     "inStockOnly": "In stock only",
     "clearFilters": "Clear filters",
+    "filtersTitle": "Filters",
     "results": "{count} products",
     "empty": "No products match these filters.",
     "loadError": "The product list could not be loaded.",

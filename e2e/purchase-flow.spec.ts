@@ -21,6 +21,7 @@ test('register, search, add to cart, checkout and see the paid order', async ({ 
   await page.goto('/en/productos');
   await expect(page.getByRole('link', { name: 'Mock Laptop 13' }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: 'Mock Mouse Pro' }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Filters' }).click();
   await page.getByRole('textbox', { name: 'Search' }).fill('laptop');
   await expect(page).toHaveURL(/q=laptop/);
   await expect(page.getByRole('link', { name: 'Mock Laptop 13' }).first()).toBeVisible();

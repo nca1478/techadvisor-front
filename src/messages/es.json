@@ -39,6 +39,7 @@
     "sort newest": "Novedades",
     "inStockOnly": "Solo en stock",
     "clearFilters": "Limpiar filtros",
+    "filtersTitle": "Filtros",
     "results": "{count} productos",
     "empty": "Ningún producto coincide con estos filtros.",
     "loadError": "No se pudo cargar la lista de productos.",
