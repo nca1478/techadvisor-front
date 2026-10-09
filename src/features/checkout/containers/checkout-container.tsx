@@ -15,6 +15,7 @@ import { useSession } from '@/features/auth/session-context';
 import { useCart } from '@/features/cart/cart-context';
 import { EMPTY_SHIPPING, shippingSchema } from '../shipping-schema';
 import { storeLastOrderId } from '../order-polling';
+import { CheckoutSteps } from '../components/checkout-steps';
 import {
   ShippingForm,
   type ShippingField,
@@ -35,6 +36,9 @@ export interface CheckoutPageMessages {
   totalLabel: string;
   payWithStripe: string;
   stripeNote: string;
+  stepAddress: string;
+  stepPayment: string;
+  stepDone: string;
   form: ShippingFormMessages;
   genericError: string;
 }
@@ -182,6 +186,15 @@ export function CheckoutContainer({
             <Heading level={1}>{messages.title}</Heading>
             <Text tone="muted">{messages.subtitle}</Text>
           </Stack>
+          <CheckoutSteps
+            label={messages.title}
+            current={1}
+            messages={{
+              address: messages.stepAddress,
+              payment: messages.stepPayment,
+              done: messages.stepDone,
+            }}
+          />
           {formError ? (
             <Text className="text-destructive" role="alert">
               {formError}

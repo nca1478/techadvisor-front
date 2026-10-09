@@ -1,5 +1,6 @@
 'use client';
 
+import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
 import { Section } from '@/components/ui/section';
@@ -68,24 +69,26 @@ export function ProductListView({
             <Text tone="muted">{messages.catalog.subtitle}</Text>
           </Stack>
 
-          <ProductFilters
-            values={values}
-            categories={categories}
-            brands={brands}
-            messages={messages.catalog}
-            onChange={(next) => {
-              update({
-                q: next.q,
-                category: next.category,
-                brand: next.brand,
-                sort: next.sort,
-                inStockOnly: next.inStockOnly,
-              });
-            }}
-            onClear={() => {
-              update({ q: '', category: '', brand: '', sort: '', inStockOnly: false, page: 1 });
-            }}
-          />
+          <Card>
+            <ProductFilters
+              values={values}
+              categories={categories}
+              brands={brands}
+              messages={messages.catalog}
+              onChange={(next) => {
+                update({
+                  q: next.q,
+                  category: next.category,
+                  brand: next.brand,
+                  sort: next.sort,
+                  inStockOnly: next.inStockOnly,
+                });
+              }}
+              onClear={() => {
+                update({ q: '', category: '', brand: '', sort: '', inStockOnly: false, page: 1 });
+              }}
+            />
+          </Card>
 
           <Text variant="small" tone="muted" role="status">
             {formatCount(messages.catalog.results, meta.total)}

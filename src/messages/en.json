@@ -179,6 +179,9 @@
     "totalLabel": "Total",
     "payWithStripe": "Pay with Stripe",
     "stripeNote": "You will be redirected to hosted Stripe Checkout. No card data touches this store.",
+    "stepAddress": "Address",
+    "stepPayment": "Payment",
+    "stepDone": "Confirmation",
     "genericError": "Something went wrong",
     "form": {
       "fullName": "Full name",
@@ -211,7 +214,10 @@
     "summaryTitle": "Order summary",
     "itemsLabel": "{count} items",
     "totalLabel": "Total",
-    "orderLabel": "Order {id}"
+    "orderLabel": "Order {id}",
+    "stepAddress": "Address",
+    "stepPayment": "Payment",
+    "stepDone": "Confirmation"
   },
   "account": {
     "title": "My account",

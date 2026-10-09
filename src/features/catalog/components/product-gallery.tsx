@@ -30,7 +30,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         priority
       />
       {images.length > 1 && (
-        <div role="group" aria-label={productName} className="grid grid-cols-4 gap-4">
+        <div role="group" aria-label={productName} className="flex gap-4 overflow-x-auto pb-1">
           {images.map((image, index) => (
             <button
               key={`${image.url}-${String(index)}`}
@@ -41,7 +41,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               aria-pressed={index === active}
               aria-label={`${productImageAlt(image, productName)} (${String(index + 1)})`}
               className={cn(
-                'overflow-hidden rounded-md border',
+                'w-20 shrink-0 overflow-hidden rounded-md border sm:w-24',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 index === active ? 'border-primary' : 'border-border',
               )}

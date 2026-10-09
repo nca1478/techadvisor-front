@@ -106,7 +106,7 @@ export function AdminOrdersView({
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
               <thead>
-                <tr className="border-b border-border bg-surface">
+                <tr className="border-b border-border bg-background">
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                     {orders.tableOrder}
                   </th>
@@ -132,7 +132,10 @@ export function AdminOrdersView({
               </thead>
               <tbody>
                 {data.data.map((order) => (
-                  <tr key={order.id} className="border-b border-border last:border-0">
+                  <tr
+                    key={order.id}
+                    className="border-b border-border odd:bg-background last:border-0"
+                  >
                     <th scope="row" className="px-4 py-3 font-mono text-xs font-normal">
                       {order.id.slice(0, 8)}…
                     </th>

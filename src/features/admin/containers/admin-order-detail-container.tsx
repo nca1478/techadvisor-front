@@ -82,7 +82,7 @@ export function AdminOrderDetailContainer({
       <div className="overflow-x-auto rounded-md border border-border">
         <table className="w-full min-w-[40rem] border-collapse bg-surface text-left text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface">
+            <tr className="border-b border-border bg-background">
               <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                 {messages.account.itemsTitle}
               </th>
@@ -99,7 +99,10 @@ export function AdminOrderDetailContainer({
           </thead>
           <tbody>
             {order.items.map((item) => (
-              <tr key={item.productId} className="border-b border-border last:border-0">
+              <tr
+                key={item.productId}
+                className="border-b border-border odd:bg-background last:border-0"
+              >
                 <th scope="row" className="px-4 py-3 font-normal">
                   {item.name}
                 </th>

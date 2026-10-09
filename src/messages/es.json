@@ -179,6 +179,9 @@
     "totalLabel": "Total",
     "payWithStripe": "Pagar con Stripe",
     "stripeNote": "Serás redirigido al Checkout alojado de Stripe. Ningún dato de tarjeta pasa por esta tienda.",
+    "stepAddress": "Dirección",
+    "stepPayment": "Pago",
+    "stepDone": "Confirmación",
     "genericError": "Algo salió mal",
     "form": {
       "fullName": "Nombre completo",
@@ -211,7 +214,10 @@
     "summaryTitle": "Resumen del pedido",
     "itemsLabel": "{count} artículos",
     "totalLabel": "Total",
-    "orderLabel": "Pedido {id}"
+    "orderLabel": "Pedido {id}",
+    "stepAddress": "Dirección",
+    "stepPayment": "Pago",
+    "stepDone": "Confirmación"
   },
   "account": {
     "title": "Mi cuenta",

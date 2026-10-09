@@ -33,10 +33,11 @@ export interface HomeAdvisorHeroProps {
 }
 
 /**
- * Presentational advisor preview for the home page (ADR 0013).
+ * Presentational advisor preview for the home page (ADR 0013, band 0020).
  * Static mock: the picks are real catalog products passed by the server
  * container, the answer copy is an illustrative sample (no fetching,
- * no streaming). Links point to existing routes only.
+ * no streaming). Links point to existing routes only. The navy band is
+ * the single bold element on the home page; everything else stays quiet.
  */
 export function HomeAdvisorHero({
   locale,
@@ -46,13 +47,15 @@ export function HomeAdvisorHero({
   messages,
 }: HomeAdvisorHeroProps) {
   return (
-    <Card variant="ghost">
-      <Stack gap="md">
+    <div className="overflow-hidden rounded-xl bg-header">
+      <Stack gap="md" className="p-6 md:p-8">
         <Stack gap="sm">
           <span>
             <Badge tone="primary">{messages.badge}</Badge>
           </span>
-          <Heading level={2}>{messages.title}</Heading>
+          <Heading level={2} className="text-header-foreground">
+            {messages.title}
+          </Heading>
         </Stack>
 
         <Card>
@@ -91,6 +94,6 @@ export function HomeAdvisorHero({
           </Button>
         </Stack>
       </Stack>
-    </Card>
+    </div>
   );
 }

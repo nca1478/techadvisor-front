@@ -34,7 +34,7 @@ export function OrdersTable({
     <div className="overflow-x-auto rounded-md border border-border">
       <table className="w-full min-w-[42rem] border-collapse bg-surface text-left text-sm">
         <thead>
-          <tr className="border-b border-border bg-surface">
+          <tr className="border-b border-border bg-background">
             <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
               {messages.tableOrder}
             </th>
@@ -57,7 +57,7 @@ export function OrdersTable({
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order.id} className="border-b border-border last:border-0">
+            <tr key={order.id} className="border-b border-border odd:bg-background last:border-0">
               <th scope="row" className="px-4 py-3 font-mono text-xs font-normal">
                 {order.id.slice(0, 8)}…
               </th>
@@ -106,7 +106,7 @@ export function OrderDetail({
       <div className="overflow-x-auto rounded-md border border-border">
         <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface">
+            <tr className="border-b border-border bg-background">
               <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                 {messages.itemsTitle}
               </th>
@@ -123,7 +123,10 @@ export function OrderDetail({
           </thead>
           <tbody>
             {order.items.map((item) => (
-              <tr key={item.productId} className="border-b border-border last:border-0">
+              <tr
+                key={item.productId}
+                className="border-b border-border odd:bg-background last:border-0"
+              >
                 <th scope="row" className="px-4 py-3 font-normal">
                   {item.name}
                 </th>

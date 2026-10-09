@@ -37,8 +37,8 @@ export function SearchResults({
             messages={catalogMessages}
             detailHref={detailHrefFor(result.product.slug)}
           />
-          <Text variant="small" tone="muted" as="p">
-            <Text variant="small" as="span">
+          <Text variant="small" tone="muted" as="p" className="border-l-2 border-primary pl-3">
+            <Text variant="small" as="span" className="font-medium text-foreground">
               {searchMessages.evidenceLabel}
             </Text>{' '}
             {result.snippet}

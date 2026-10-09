@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
 import { Section } from '@/components/ui/section';
@@ -65,21 +66,25 @@ export function LoginContainer({
     <Container>
       <Section>
         <Stack gap="md" className="mx-auto w-full max-w-md">
-          <Stack gap="sm">
-            <Heading level={1}>{title}</Heading>
-            <Text tone="muted">{subtitle}</Text>
-          </Stack>
-          <AuthForm
-            values={values}
-            errors={errors}
-            pending={pending}
-            showName={false}
-            messages={messages}
-            onChange={(field, value) => {
-              setValues((prev) => ({ ...prev, [field]: value }));
-            }}
-            onSubmit={() => void handleSubmit()}
-          />
+          <Card>
+            <Stack gap="md">
+              <Stack gap="sm">
+                <Heading level={1}>{title}</Heading>
+                <Text tone="muted">{subtitle}</Text>
+              </Stack>
+              <AuthForm
+                values={values}
+                errors={errors}
+                pending={pending}
+                showName={false}
+                messages={messages}
+                onChange={(field, value) => {
+                  setValues((prev) => ({ ...prev, [field]: value }));
+                }}
+                onSubmit={() => void handleSubmit()}
+              />
+            </Stack>
+          </Card>
         </Stack>
       </Section>
     </Container>

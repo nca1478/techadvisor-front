@@ -43,11 +43,12 @@ export function CartSummary({
           <Text tone="muted">{messages.items.replace('{count}', String(itemCount))}</Text>
           <Text as="span">{formatPrice(totalAmount, currency, locale)}</Text>
         </Stack>
+        <div className="border-t border-border" aria-hidden="true" />
         <Stack direction="horizontal" justify="between" align="center">
           <Text variant="lead" as="span">
             {messages.total}
           </Text>
-          <Text variant="lead" as="span" role="status">
+          <Text variant="lead" as="span" role="status" className="font-bold">
             {formatPrice(totalAmount, currency, locale)}
           </Text>
         </Stack>

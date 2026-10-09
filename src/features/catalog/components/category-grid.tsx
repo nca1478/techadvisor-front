@@ -24,7 +24,7 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
       <Grid columns="three" gap="md">
         {categories.map((category) => (
           <a key={category.id} href={hrefFor(category.slug)} aria-label={category.name}>
-            <Card>
+            <Card className="transition-shadow hover:shadow-md">
               <Text variant="body" as="span" className="font-medium">
                 {category.name}
               </Text>

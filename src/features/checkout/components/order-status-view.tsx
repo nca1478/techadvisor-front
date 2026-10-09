@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
 import { Link } from '@/components/ui/link';
@@ -10,6 +11,7 @@ import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { Order } from '@/lib/api/orders';
 import { pollOrderUntilSettled } from '../order-polling';
+import { CheckoutSteps } from './checkout-steps';
 import { OrderSummary, orderSummaryProps } from '../components/order-summary';
 
 export interface OrderStatusMessages {
@@ -30,6 +32,9 @@ export interface OrderStatusMessages {
   itemsLabel: string;
   totalLabel: string;
   orderLabel: string;
+  stepAddress: string;
+  stepPayment: string;
+  stepDone: string;
 }
 
 type Phase =
@@ -171,6 +176,15 @@ export function OrderStatusView({
               {body}
             </Text>
           </Stack>
+          <CheckoutSteps
+            label={title}
+            current={3}
+            messages={{
+              address: messages.stepAddress,
+              payment: messages.stepPayment,
+              done: messages.stepDone,
+            }}
+          />
           {phase.kind === 'processing' && (
             <Stack gap="sm">
               <span
@@ -182,16 +196,18 @@ export function OrderStatusView({
               </Text>
             </Stack>
           )}
-          <OrderSummary
-            items={summary.items}
-            totalAmount={summary.totalAmount}
-            itemCount={summary.itemCount}
-            currency={summary.currency}
-            locale={locale}
-            title={messages.summaryTitle}
-            itemsLabel={messages.itemsLabel}
-            totalLabel={messages.totalLabel}
-          />
+          <Card>
+            <OrderSummary
+              items={summary.items}
+              totalAmount={summary.totalAmount}
+              itemCount={summary.itemCount}
+              currency={summary.currency}
+              locale={locale}
+              title={messages.summaryTitle}
+              itemsLabel={messages.itemsLabel}
+              totalLabel={messages.totalLabel}
+            />
+          </Card>
           {payError ? (
             <Text className="text-destructive" role="alert">
               {payError}
