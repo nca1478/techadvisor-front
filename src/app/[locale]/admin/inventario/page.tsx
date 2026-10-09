@@ -2,9 +2,6 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { Heading } from '@/components/ui/heading';
-import { Stack } from '@/components/ui/stack';
-import { Text } from '@/components/ui/text';
 import { InventoryPanelContainer } from '@/features/admin/containers/inventory-panel-container';
 import { InventoryView } from '@/features/admin/containers/inventory-view';
 import { backendFetch } from '@/lib/api/backend';
@@ -107,33 +104,27 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
       : [];
 
   return (
-    <Stack gap="md">
-      <Stack gap="sm">
-        <Heading level={2}>{messages.admin.inventory.title}</Heading>
-        <Text tone="muted">{messages.admin.inventory.subtitle}</Text>
-      </Stack>
-      <InventoryView
-        data={data}
-        loadError={data === null}
-        page={page}
-        selectedProductId={selectedProductId}
-        locale={locale}
-        messages={messages}
-        panel={
-          selectedProductId ? (
-            <Card>
-              <InventoryPanelContainer
-                productId={selectedProductId}
-                productName={selected?.name ?? selectedProductId}
-                initialInventory={inventory}
-                initialMovements={movements}
-                locale={locale}
-                messages={messages}
-              />
-            </Card>
-          ) : null
-        }
-      />
-    </Stack>
+    <InventoryView
+      data={data}
+      loadError={data === null}
+      page={page}
+      selectedProductId={selectedProductId}
+      locale={locale}
+      messages={messages}
+      panel={
+        selectedProductId ? (
+          <Card>
+            <InventoryPanelContainer
+              productId={selectedProductId}
+              productName={selected?.name ?? selectedProductId}
+              initialInventory={inventory}
+              initialMovements={movements}
+              locale={locale}
+              messages={messages}
+            />
+          </Card>
+        ) : null
+      }
+    />
   );
 }

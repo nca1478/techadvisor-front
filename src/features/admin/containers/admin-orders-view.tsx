@@ -2,10 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import { Pagination } from '@/features/catalog/components/pagination';
 import type { AdminOrderList } from '@/lib/api/admin';
@@ -60,7 +62,8 @@ export function AdminOrdersView({
 
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" gap="md" align="end" wrap>
+      <AdminHeaderCard title={orders.title} subtitle={orders.subtitle} />
+      <AdminFiltersCard>
         <div className="min-w-44">
           <Select
             label={orders.statusFilter}
@@ -88,7 +91,7 @@ export function AdminOrdersView({
         >
           {messages.catalog.clearFilters}
         </Button>
-      </Stack>
+      </AdminFiltersCard>
       <Text variant="small" tone="muted">
         {orders.paidNote}
       </Text>
@@ -103,7 +106,8 @@ export function AdminOrdersView({
           <Text variant="small" tone="muted" role="status">
             {messages.admin.totalCount.replace('{count}', String(data.total))}
           </Text>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <Card padding="none">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
@@ -166,6 +170,7 @@ export function AdminOrdersView({
               </tbody>
             </table>
           </div>
+          </Card>
           <Pagination
             page={data.page}
             totalPages={data.totalPages}

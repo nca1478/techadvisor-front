@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { DocumentsTable } from '@/features/admin/components/documents-table';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
@@ -295,7 +296,8 @@ export function AdminDocumentsView({
 
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" gap="md" align="end" wrap>
+      <AdminHeaderCard title={docs.title} subtitle={docs.subtitle} />
+      <AdminFiltersCard>
         <div className="min-w-44">
           <Select
             label={docs.statusFilter}
@@ -307,7 +309,7 @@ export function AdminDocumentsView({
             }}
           />
         </div>
-      </Stack>
+      </AdminFiltersCard>
 
       <Card>
         <Stack gap="md">

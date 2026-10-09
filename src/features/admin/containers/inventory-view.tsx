@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { Pagination } from '@/features/catalog/components/pagination';
 import type { AdminProductList } from '@/lib/api/admin';
 import { availableUnits } from '@/lib/api/admin';
@@ -49,6 +51,7 @@ export function InventoryView({
 
   return (
     <Stack gap="md">
+      <AdminHeaderCard title={inventory.title} subtitle={inventory.subtitle} />
       {loadError || data === null ? (
         <Text role="alert" className="text-destructive">
           {messages.admin.loadError}
@@ -60,7 +63,8 @@ export function InventoryView({
           <Text variant="small" tone="muted" role="status">
             {messages.admin.totalCount.replace('{count}', String(data.total))}
           </Text>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <Card padding="none">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
@@ -130,6 +134,7 @@ export function InventoryView({
               </tbody>
             </table>
           </div>
+          </Card>
           <Pagination
             page={data.page}
             totalPages={data.totalPages}

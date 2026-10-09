@@ -3,11 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ProductStatusContainer } from '@/features/admin/containers/product-status-container';
 import type { AdminProductList, AdminProductStatus } from '@/lib/api/admin';
@@ -59,49 +61,51 @@ export function AdminProductsView({
 
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" gap="md" align="end" justify="between" wrap>
-        <Stack direction="horizontal" gap="md" align="end" wrap>
-          <div className="min-w-56">
-            <Input
-              label={products.searchPlaceholder}
-              name="q"
-              value={draft}
-              onChange={(event) => {
-                setDraft(event.target.value);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
-              }}
-            />
-          </div>
-          <div className="min-w-44">
-            <Select
-              label={products.statusFilter}
-              name="status"
-              value={query.status}
-              options={[
-                { value: '', label: products.allStatuses },
-                { value: 'DRAFT', label: products.status_DRAFT },
-                { value: 'ACTIVE', label: products.status_ACTIVE },
-                { value: 'ARCHIVED', label: products.status_ARCHIVED },
-              ]}
-              onChange={(event) => {
-                navigate({ status: event.target.value as AdminProductsQuery['status'], page: 1 });
-              }}
-            />
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setDraft('');
-              navigate({ status: '', q: '', page: 1 });
+      <AdminHeaderCard
+        title={products.title}
+        subtitle={products.subtitle}
+        actions={<Button href={`/${locale}/admin/productos/nuevo`}>{products.newProduct}</Button>}
+      />
+      <AdminFiltersCard>
+        <div className="min-w-56">
+          <Input
+            label={products.searchPlaceholder}
+            name="q"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
             }}
-          >
-            {messages.catalog.clearFilters}
-          </Button>
-        </Stack>
-        <Button href={`/${locale}/admin/productos/nuevo`}>{products.newProduct}</Button>
-      </Stack>
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+            }}
+          />
+        </div>
+        <div className="min-w-44">
+          <Select
+            label={products.statusFilter}
+            name="status"
+            value={query.status}
+            options={[
+              { value: '', label: products.allStatuses },
+              { value: 'DRAFT', label: products.status_DRAFT },
+              { value: 'ACTIVE', label: products.status_ACTIVE },
+              { value: 'ARCHIVED', label: products.status_ARCHIVED },
+            ]}
+            onChange={(event) => {
+              navigate({ status: event.target.value as AdminProductsQuery['status'], page: 1 });
+            }}
+          />
+        </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setDraft('');
+            navigate({ status: '', q: '', page: 1 });
+          }}
+        >
+          {messages.catalog.clearFilters}
+        </Button>
+      </AdminFiltersCard>
       {loadError || data === null ? (
         <Text role="alert" className="text-destructive">
           {messages.admin.loadError}
@@ -113,7 +117,8 @@ export function AdminProductsView({
           <Text variant="small" tone="muted" role="status">
             {messages.admin.totalCount.replace('{count}', String(data.total))}
           </Text>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <Card padding="none">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
@@ -178,6 +183,7 @@ export function AdminProductsView({
               </tbody>
             </table>
           </div>
+          </Card>
           <Pagination
             page={data.page}
             totalPages={data.totalPages}
