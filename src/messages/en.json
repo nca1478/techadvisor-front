@@ -319,6 +319,7 @@
       "status_DRAFT": "Draft",
       "status_ACTIVE": "Active",
       "status_ARCHIVED": "Archived",
+      "tableNumber": "No",
       "tableProduct": "Product",
       "tableSku": "SKU",
       "tableStatus": "Status",
@@ -400,6 +401,7 @@
     "inventory": {
       "title": "Inventory",
       "subtitle": "Exact stock levels and the audit trail of movements.",
+      "tableNumber": "No",
       "tableProduct": "Product",
       "tableStock": "Stock",
       "tableReserved": "Reserved",
@@ -451,6 +453,7 @@
       "registerError": "Could not register the URL.",
       "statusFilter": "Status",
       "allStatuses": "All statuses",
+      "tableNumber": "No",
       "status_PENDING": "Pending",
       "status_PROCESSING": "Processing",
       "status_READY": "Ready",
@@ -484,6 +487,7 @@
     "orders": {
       "title": "Orders",
       "subtitle": "Every customer order, newest first.",
+      "tableNumber": "No",
       "statusFilter": "Status",
       "allStatuses": "All statuses",
       "tableOrder": "Order",

@@ -21,6 +21,7 @@ export function DocumentsTable({
   locale,
   pendingIds,
   stoppedIds,
+  rowOffset = 0,
   onReingest,
   onDelete,
 }: {
@@ -31,6 +32,8 @@ export function DocumentsTable({
   pendingIds: ReadonlySet<string>;
   /** Transient rows whose bounded polling gave up (note shown). */
   stoppedIds: ReadonlySet<string>;
+  /** Number of rows before this page (keeps numbering continuous). */
+  rowOffset?: number;
   onReingest: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -43,6 +46,12 @@ export function DocumentsTable({
         <thead>
           <tr className="border-b border-border text-left">
             <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
+            <th
+              scope="col"
+              className="px-4 py-2 text-right text-sm font-bold text-muted-foreground"
+            >
+              {messages.tableNumber}
+            </th>
               {messages.tableTitle}
             </th>
             <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
@@ -66,11 +75,14 @@ export function DocumentsTable({
           </tr>
         </thead>
         <tbody>
-          {documents.map((document) => {
+          {documents.map((document, index) => {
             const busy = pendingIds.has(document.id);
             const processing = isDocumentProcessing(document.status);
             return (
               <tr key={document.id} className="border-b border-border align-top last:border-0">
+                <td className="px-4 py-2 text-right tabular-nums text-muted-foreground">
+                  {rowOffset + index + 1}
+                </td>
                 <td className="px-4 py-2">
                   <Stack gap="sm">
                     <Text className="font-medium">{document.title}</Text>

@@ -319,6 +319,7 @@
       "status_DRAFT": "Borrador",
       "status_ACTIVE": "Activo",
       "status_ARCHIVED": "Archivado",
+      "tableNumber": "No",
       "tableProduct": "Producto",
       "tableSku": "SKU",
       "tableStatus": "Estado",
@@ -400,6 +401,7 @@
     "inventory": {
       "title": "Inventario",
       "subtitle": "Niveles exactos de stock y el historial de movimientos.",
+      "tableNumber": "No",
       "tableProduct": "Producto",
       "tableStock": "Stock",
       "tableReserved": "Reservado",
@@ -451,6 +453,7 @@
       "registerError": "No se pudo registrar la URL.",
       "statusFilter": "Estado",
       "allStatuses": "Todos los estados",
+      "tableNumber": "No",
       "status_PENDING": "Pendiente",
       "status_PROCESSING": "Procesando",
       "status_READY": "Listo",
@@ -484,6 +487,7 @@
     "orders": {
       "title": "Pedidos",
       "subtitle": "Todos los pedidos de clientes, del más reciente al más antiguo.",
+      "tableNumber": "No",
       "statusFilter": "Estado",
       "allStatuses": "Todos los estados",
       "tableOrder": "Pedido",

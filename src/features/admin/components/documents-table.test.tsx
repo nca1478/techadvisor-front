@@ -77,6 +77,37 @@ describe('DocumentsTable', () => {
     expect(onDelete).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');
   });
 
+  it('numbers rows starting at 1 and continuing from the row offset', () => {
+    const { rerender } = render(
+      <DocumentsTable
+        documents={[makeDocument(), makeDocument({ id: '7fa85f64-5717-4562-b3fc-2c963f66afa6' })]}
+        messages={messages}
+        locale="es"
+        pendingIds={new Set()}
+        stoppedIds={new Set()}
+        onReingest={() => undefined}
+        onDelete={() => undefined}
+      />,
+    );
+    expect(screen.getByText(messages.tableNumber)).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+
+    rerender(
+      <DocumentsTable
+        documents={[makeDocument()]}
+        messages={messages}
+        locale="es"
+        pendingIds={new Set()}
+        stoppedIds={new Set()}
+        rowOffset={20}
+        onReingest={() => undefined}
+        onDelete={() => undefined}
+      />,
+    );
+    expect(screen.getByText('21')).toBeInTheDocument();
+  });
+
   it('shows the failure detail and disables actions while busy', () => {
     render(
       <DocumentsTable

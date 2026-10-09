@@ -123,6 +123,12 @@ export function AdminProductsView({
               <thead>
                 <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                  >
+                    {products.tableNumber}
+                  </th>
                     {products.tableProduct}
                   </th>
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
@@ -149,8 +155,11 @@ export function AdminProductsView({
                 </tr>
               </thead>
               <tbody>
-                {data.data.map((product) => (
+                {data.data.map((product, index) => (
                   <tr key={product.id} className="border-b border-border align-top last:border-0">
+                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                      {(data.page - 1) * data.limit + index + 1}
+                    </td>
                     <th scope="row" className="px-4 py-3 font-normal">
                       <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
                         {product.name}

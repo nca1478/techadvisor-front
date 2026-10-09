@@ -69,6 +69,12 @@ export function InventoryView({
               <thead>
                 <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                  >
+                    {inventory.tableNumber}
+                  </th>
                     {inventory.tableProduct}
                   </th>
                   <th
@@ -95,10 +101,13 @@ export function InventoryView({
                 </tr>
               </thead>
               <tbody>
-                {data.data.map((product) => {
+                {data.data.map((product, index) => {
                   const selected = product.id === selectedProductId;
                   return (
                     <tr key={product.id} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        {(data.page - 1) * data.limit + index + 1}
+                      </td>
                       <th scope="row" className="px-4 py-3 font-medium">
                         {product.name}
                         <Text variant="caption" tone="muted" as="span" className="block">

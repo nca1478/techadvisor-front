@@ -495,6 +495,7 @@ export function AdminDocumentsView({
             locale={locale}
             pendingIds={pendingIds}
             stoppedIds={stoppedIds}
+            rowOffset={data ? (data.page - 1) * data.limit : 0}
             onReingest={(id) => {
               setConfirmReingestId(id);
             }}

@@ -112,6 +112,12 @@ export function AdminOrdersView({
               <thead>
                 <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                  >
+                    {orders.tableNumber}
+                  </th>
                     {orders.tableOrder}
                   </th>
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
@@ -141,8 +147,11 @@ export function AdminOrdersView({
                 </tr>
               </thead>
               <tbody>
-                {data.data.map((order) => (
+                {data.data.map((order, index) => (
                   <tr key={order.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                      {(data.page - 1) * data.limit + index + 1}
+                    </td>
                     <th
                       scope="row"
                       className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
