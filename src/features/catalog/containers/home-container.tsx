@@ -44,74 +44,52 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   const products = featuredResult.value.data.filter((product) => product.inStock).slice(0, 8);
   const categories = categoriesResult.value;
   const listHref = `/${locale}/productos`;
-  const advisorPicks = products.slice(0, 3).map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-  }));
-  const advisorSearchHref = `/${locale}/buscar?q=${encodeURIComponent(messages.catalog.homeAdvisorQuestion)}`;
-  const advisorMessages = {
-    badge: messages.catalog.homeAdvisorBadge,
-    title: messages.catalog.homeAdvisorTitle,
-    question: messages.catalog.homeAdvisorQuestion,
-    answerIntro: messages.catalog.homeAdvisorAnswerIntro,
-    citationLabel: messages.catalog.homeAdvisorCitationLabel,
-    disclaimer: messages.catalog.homeAdvisorDisclaimer,
-    trySearch: messages.catalog.homeAdvisorTrySearch,
-    picksLabel: messages.catalog.homeAdvisorPicksLabel,
-    emptyPicks: messages.catalog.homeAdvisorEmptyPicks,
+  const coverMessages = {
+    badge: messages.catalog.homeCoverBadge,
+    title: messages.catalog.homeCoverTitle,
+    subtitle: messages.catalog.homeCoverSubtitle,
+    cta: messages.catalog.homeCoverCta,
   };
 
   return (
-    <Container>
-      <Section spacing="tight">
-        <Stack gap="sm">
-          <Heading level={1}>{messages.common.techAdvisor}</Heading>
-          <Text variant="lead" tone="muted">
-            {messages.catalog.homeHeroSubtitle}
-          </Text>
-        </Stack>
-      </Section>
+    <>
+      <HomeAdvisorHero catalogHref={listHref} messages={coverMessages} />
 
-      <Section spacing="tight">
-        <HomeAdvisorHero
-          locale={locale}
-          searchHref={advisorSearchHref}
-          picks={advisorPicks}
-          detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
-          messages={advisorMessages}
-        />
-      </Section>
-
-      <Section spacing="tight">
-        <Stack gap="md">
-          <Stack gap="sm">
-            <Heading level={2}>{messages.catalog.homeFeaturedTitle}</Heading>
-            <Text tone="muted">{messages.catalog.homeFeaturedSubtitle}</Text>
+      <Container>
+        <Section spacing="tight">
+          <Stack gap="md">
+            <Stack gap="sm">
+              <Heading level={2}>{messages.catalog.homeFeaturedTitle}</Heading>
+              <Text tone="muted">{messages.catalog.homeFeaturedSubtitle}</Text>
+            </Stack>
+            {products.length === 0 ? (
+              <Text tone="muted">{messages.catalog.homeEmpty}</Text>
+            ) : (
+              <ProductCardGrid
+                products={products}
+                locale={locale}
+                currency={currency}
+                messages={messages.catalog}
+                detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+              />
+            )}
+            <Link href={listHref}>{messages.nav.viewAll}</Link>
           </Stack>
-          {products.length === 0 ? (
-            <Text tone="muted">{messages.catalog.homeEmpty}</Text>
-          ) : (
-            <ProductCardGrid
-              products={products}
-              locale={locale}
-              currency={currency}
-              messages={messages.catalog}
-              detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
-            />
-          )}
-          <Link href={listHref}>{messages.nav.viewAll}</Link>
-        </Stack>
-      </Section>
+        </Section>
+      </Container>
 
-      <Section spacing="tight">
-        <CategoryGrid
-          categories={categories}
-          title={messages.catalog.homeCategoriesTitle}
-          subtitle={messages.catalog.homeCategoriesSubtitle}
-          hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
-        />
-      </Section>
-    </Container>
+      <div className="border-y border-border bg-surface">
+        <Container>
+          <Section spacing="tight">
+            <CategoryGrid
+              categories={categories}
+              title={messages.catalog.homeCategoriesTitle}
+              subtitle={messages.catalog.homeCategoriesSubtitle}
+              hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
+            />
+          </Section>
+        </Container>
+      </div>
+    </>
   );
 }

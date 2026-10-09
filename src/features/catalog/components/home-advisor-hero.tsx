@@ -1,99 +1,68 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
-import { Link } from '@/components/ui/link';
-import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
-
-export interface AdvisorPick {
-  id: string;
-  slug: string;
-  name: string;
-}
 
 export interface HomeAdvisorHeroMessages {
   badge: string;
   title: string;
-  question: string;
-  answerIntro: string;
-  citationLabel: string;
-  disclaimer: string;
-  trySearch: string;
-  picksLabel: string;
-  emptyPicks: string;
+  subtitle: string;
+  cta: string;
 }
 
 export interface HomeAdvisorHeroProps {
-  locale: string;
-  searchHref: string;
-  picks: AdvisorPick[];
-  detailHrefFor: (slug: string) => string;
+  catalogHref: string;
   messages: HomeAdvisorHeroMessages;
+  backgroundSrc?: string;
+  backgroundAlt?: string;
 }
 
+const DEFAULT_BACKGROUND_SRC =
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80';
+
 /**
- * Presentational advisor preview for the home page (ADR 0013, band 0020).
- * Static mock: the picks are real catalog products passed by the server
- * container, the answer copy is an illustrative sample (no fetching,
- * no streaming). Links point to existing routes only. The navy band is
- * the single bold element on the home page; everything else stays quiet.
+ * Home cover hero (ADR 0024): full-bleed dark cover over a niche photo
+ * (circuit board), centered headline + supporting line + a single pill CTA
+ * to the product listing. Full viewport width with square corners so it sits
+ * flush under the navbar; the inner copy stays centered in a max width.
+ * The photo is decorative and plain `<img>` (no next/image remote host
+ * needed); the `bg-header` base and overlay keep the white copy legible
+ * even if the photo fails to load.
  */
 export function HomeAdvisorHero({
-  locale,
-  searchHref,
-  picks,
-  detailHrefFor,
+  catalogHref,
   messages,
+  backgroundSrc = DEFAULT_BACKGROUND_SRC,
+  backgroundAlt = '',
 }: HomeAdvisorHeroProps) {
   return (
-    <div className="overflow-hidden rounded-xl bg-header">
-      <Stack gap="md" className="p-6 md:p-8">
-        <Stack gap="sm">
-          <span>
-            <Badge tone="primary">{messages.badge}</Badge>
-          </span>
-          <Heading level={2} className="text-header-foreground">
-            {messages.title}
-          </Heading>
-        </Stack>
+    <div className="relative w-full overflow-hidden bg-header">
+      {/* eslint-disable-next-line @next/next/no-img-element -- decorative cover: plain img avoids next/image remote-host config (ADR 0011), bg-header keeps it legible offline */}
+      <img
+        src={backgroundSrc}
+        alt={backgroundAlt}
+        aria-hidden={backgroundAlt === ''}
+        loading="eager"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div aria-hidden="true" className="absolute inset-0 bg-header/75" />
 
-        <Card>
-          <Stack gap="sm">
-            <Text variant="body" as="p">
-              {messages.question}
-            </Text>
-            <Text variant="small" tone="muted" as="p">
-              {messages.answerIntro}
-            </Text>
-            {picks.length === 0 ? (
-              <Text variant="small" tone="muted" as="p" role="status">
-                {messages.emptyPicks}
-              </Text>
-            ) : (
-              <ol className="flex flex-col gap-3">
-                {picks.map((pick, index) => (
-                  <li key={pick.id} className="flex flex-col gap-1">
-                    <Link href={detailHrefFor(pick.slug)}>{pick.name}</Link>
-                    <Text variant="caption" tone="muted" as="p">
-                      [{String(index + 1)}] {messages.citationLabel} · {locale}
-                    </Text>
-                  </li>
-                ))}
-              </ol>
-            )}
-            <Text variant="caption" tone="muted" as="p">
-              {messages.disclaimer}
-            </Text>
-          </Stack>
-        </Card>
-
-        <Stack direction="horizontal" gap="md" wrap>
-          <Button href={searchHref} variant="primary">
-            {messages.trySearch}
-          </Button>
-        </Stack>
-      </Stack>
+      <div className="relative flex flex-col items-center px-6 py-16 text-center md:px-12 md:py-24">
+        <span>
+          <Badge tone="primary">{messages.badge}</Badge>
+        </span>
+        <Heading level={1} className="mt-4 max-w-2xl text-header-foreground">
+          {messages.title}
+        </Heading>
+        <Text variant="lead" tone="headerMuted" as="p" className="mt-4 max-w-xl">
+          {messages.subtitle}
+        </Text>
+        <Button href={catalogHref} variant="secondary" size="lg" className="mt-8">
+          {messages.cta}
+        </Button>
+      </div>
     </div>
   );
 }
