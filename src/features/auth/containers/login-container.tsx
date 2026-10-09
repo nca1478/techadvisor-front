@@ -69,7 +69,7 @@ export function LoginContainer({
           <Card>
             <Stack gap="md">
               <Stack gap="sm">
-                <Heading level={1}>{title}</Heading>
+                <Heading level={2}>{title}</Heading>
                 <Text tone="muted">{subtitle}</Text>
               </Stack>
               <AuthForm
