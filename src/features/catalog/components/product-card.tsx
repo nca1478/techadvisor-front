@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Link } from '@/components/ui/link';
 import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -31,11 +32,15 @@ export function ProductCard({ product, locale, currency, messages, detailHref }:
         <MediaFrame src={image.src} alt={image.alt} rounded="sm" />
       </a>
       <Stack gap="sm" className="p-4">
-        <a href={detailHref} className="line-clamp-2 text-sm font-medium text-foreground">
+        <Link
+          href={detailHref}
+          ariaLabel={product.name}
+          className="line-clamp-2 text-sm font-medium"
+        >
           {product.name}
-        </a>
+        </Link>
         <Stack direction="horizontal" gap="sm" align="center">
-          <Text variant="small" as="span">
+          <Text variant="lead" as="span" className="font-bold">
             {price}
           </Text>
           {product.inStock ? (

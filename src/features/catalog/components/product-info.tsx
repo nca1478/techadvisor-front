@@ -27,7 +27,7 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
         </Text>
         <Heading level={1}>{product.name}</Heading>
         <Stack direction="horizontal" gap="sm" align="center">
-          <Text variant="lead" as="span">
+          <Text variant="lead" as="span" className="font-bold">
             {formatPrice(product.priceAmount, currency, locale)}
           </Text>
           {product.inStock ? (
