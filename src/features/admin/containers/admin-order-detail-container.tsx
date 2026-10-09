@@ -86,13 +86,13 @@ export function AdminOrderDetailContainer({
               <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                 {messages.account.itemsTitle}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.account.quantityHeader}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.account.unitPriceHeader}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.account.lineTotalHeader}
               </th>
             </tr>
@@ -106,11 +106,11 @@ export function AdminOrderDetailContainer({
                 <th scope="row" className="px-4 py-3 font-normal">
                   {item.name}
                 </th>
-                <td className="px-4 py-3">{item.qty}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
+                <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-right font-medium tabular-nums">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>

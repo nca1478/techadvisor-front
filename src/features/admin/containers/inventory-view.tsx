@@ -67,13 +67,22 @@ export function InventoryView({
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                     {inventory.tableProduct}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {inventory.tableStock}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {inventory.tableReserved}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {inventory.tableAvailable}
                   </th>
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -95,9 +104,11 @@ export function InventoryView({
                           {product.sku}
                         </Text>
                       </th>
-                      <td className="px-4 py-3">{product.stock}</td>
-                      <td className="px-4 py-3">{product.reserved}</td>
-                      <td className="px-4 py-3">{availableUnits(product)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
+                      <td className="px-4 py-3 text-right font-medium tabular-nums">
+                        {availableUnits(product)}
+                      </td>
                       <td className="px-4 py-3">
                         <Stack direction="horizontal" gap="md">
                           <Button

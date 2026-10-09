@@ -62,6 +62,11 @@ describe('DocumentsTable', () => {
     expect(screen.getByText(messages.status_READY)).toBeInTheDocument();
     expect(screen.getByText(messages.type_MANUAL)).toBeInTheDocument();
     expect(screen.getByText('12 fragmentos')).toBeInTheDocument();
+    // Numeric columns align right with tabular figures for comparability.
+    expect(screen.getByText('12 fragmentos').closest('td')).toHaveClass(
+      'text-right',
+      'tabular-nums',
+    );
 
     fireEvent.click(screen.getByRole('button', { name: messages.reingest }));
     expect(onReingest).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');

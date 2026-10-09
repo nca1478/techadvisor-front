@@ -44,10 +44,10 @@ export function OrdersTable({
             <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
               {messages.tableStatus}
             </th>
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
               {messages.tableItems}
             </th>
-            <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
               {messages.tableTotal}
             </th>
             <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -67,8 +67,8 @@ export function OrdersTable({
               <td className="px-4 py-3">
                 <OrderStatusBadge status={order.status} messages={messages} />
               </td>
-              <td className="px-4 py-3">{order.itemCount}</td>
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-right tabular-nums">{order.itemCount}</td>
+              <td className="px-4 py-3 text-right font-medium tabular-nums">
                 {formatPrice(order.totalAmount, order.currency, locale)}
               </td>
               <td className="px-4 py-3">
@@ -110,13 +110,13 @@ export function OrderDetail({
               <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                 {messages.itemsTitle}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.quantityHeader}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.unitPriceHeader}
               </th>
-              <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
                 {messages.lineTotalHeader}
               </th>
             </tr>
@@ -130,11 +130,11 @@ export function OrderDetail({
                 <th scope="row" className="px-4 py-3 font-normal">
                   {item.name}
                 </th>
-                <td className="px-4 py-3">{item.qty}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
+                <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-right font-medium tabular-nums">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>

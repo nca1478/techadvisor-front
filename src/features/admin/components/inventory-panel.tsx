@@ -119,10 +119,16 @@ export function InventoryPanel({
             <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-background">
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {messages.tableDelta}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {messages.tableStockAfter}
                   </th>
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -139,10 +145,10 @@ export function InventoryPanel({
                     key={movement.id}
                     className="border-b border-border odd:bg-background last:border-0"
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right tabular-nums">
                       {movement.delta > 0 ? `+${String(movement.delta)}` : String(movement.delta)}
                     </td>
-                    <td className="px-4 py-3">{movement.stockAfter}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{movement.stockAfter}</td>
                     <td className="px-4 py-3">{movement.reason}</td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {formatDate(movement.createdAt, locale)}

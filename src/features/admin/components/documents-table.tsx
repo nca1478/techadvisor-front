@@ -38,10 +38,10 @@ export function DocumentsTable({
     return <Text tone="muted">{messages.empty}</Text>;
   }
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
+    <div className="overflow-x-auto rounded-md border border-border">
+      <table className="w-full border-collapse bg-surface text-left text-sm">
         <thead>
-          <tr className="border-b border-border text-left">
+          <tr className="border-b border-border bg-background text-left">
             <th scope="col" className="px-2 py-2 font-medium">
               {messages.tableTitle}
             </th>
@@ -51,7 +51,7 @@ export function DocumentsTable({
             <th scope="col" className="px-2 py-2 font-medium">
               {messages.tableStatus}
             </th>
-            <th scope="col" className="px-2 py-2 font-medium">
+            <th scope="col" className="px-2 py-2 text-right font-medium">
               {messages.tableChunks}
             </th>
             <th scope="col" className="px-2 py-2 font-medium">
@@ -67,7 +67,10 @@ export function DocumentsTable({
             const busy = pendingIds.has(document.id);
             const processing = isDocumentProcessing(document.status);
             return (
-              <tr key={document.id} className="border-b border-border align-top odd:bg-surface">
+              <tr
+                key={document.id}
+                className="border-b border-border align-top odd:bg-background last:border-0"
+              >
                 <td className="px-2 py-2">
                   <Stack gap="sm">
                     <Text className="font-medium">{document.title}</Text>
@@ -101,7 +104,7 @@ export function DocumentsTable({
                     ) : null}
                   </Stack>
                 </td>
-                <td className="px-2 py-2">
+                <td className="px-2 py-2 text-right tabular-nums">
                   {formatChunks(messages.chunksCount, document.chunkCount)}
                 </td>
                 <td className="px-2 py-2">{new Date(document.updatedAt).toLocaleString(locale)}</td>

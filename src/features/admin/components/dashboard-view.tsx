@@ -53,7 +53,10 @@ export function DashboardView({
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                       {admin.dashboard.tableStatus}
                     </th>
-                    <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    >
                       {admin.dashboard.tableTotal}
                     </th>
                   </tr>
@@ -72,7 +75,7 @@ export function DashboardView({
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-right font-medium tabular-nums">
                         {formatPrice(order.totalAmount, order.currency, locale)}
                       </td>
                     </tr>
@@ -105,7 +108,10 @@ export function DashboardView({
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                       {admin.dashboard.tableProduct}
                     </th>
-                    <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    >
                       {admin.dashboard.tableAvailable}
                     </th>
                   </tr>
@@ -121,7 +127,9 @@ export function DashboardView({
                           {product.name}
                         </Link>
                       </th>
-                      <td className="px-4 py-3">{availableUnits(product)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {availableUnits(product)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

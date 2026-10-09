@@ -119,10 +119,16 @@ export function AdminOrdersView({
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                     {orders.tableStatus}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {orders.tableItems}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {orders.tableTotal}
                   </th>
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -146,8 +152,8 @@ export function AdminOrdersView({
                     <td className="px-4 py-3">
                       <OrderStatusBadge status={order.status} messages={messages.account} />
                     </td>
-                    <td className="px-4 py-3">{order.items.length}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
+                    <td className="px-4 py-3 text-right font-medium tabular-nums">
                       {formatPrice(order.totalAmount, order.currency, locale)}
                     </td>
                     <td className="px-4 py-3">

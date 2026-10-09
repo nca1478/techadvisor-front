@@ -127,10 +127,16 @@ export function AdminProductsView({
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
                     {products.tableStatus}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {products.tablePrice}
                   </th>
-                  <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                  >
                     {products.tableStock}
                   </th>
                   <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -163,10 +169,10 @@ export function AdminProductsView({
                         />
                       </Stack>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right tabular-nums">
                       {formatPrice(product.priceAmount, product.currency, locale)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right tabular-nums">
                       {products.outOfStock.replace('{count}', String(availableUnits(product)))}
                     </td>
                     <td className="px-4 py-3">
