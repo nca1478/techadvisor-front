@@ -111,37 +111,37 @@ export function AdminOrdersView({
             <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                   <th
                     scope="col"
                     className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                   >
                     {orders.tableNumber}
                   </th>
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {orders.tableOrder}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {orders.tableDate}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {orders.tableCustomer}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {orders.tableStatus}
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                   >
                     {orders.tableItems}
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                   >
                     {orders.tableTotal}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     <span className="sr-only">{orders.tableActions}</span>
                   </th>
                 </tr>

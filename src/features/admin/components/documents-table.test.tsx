@@ -67,7 +67,7 @@ describe('DocumentsTable', () => {
       'text-right',
       'tabular-nums',
     );
-    expect(screen.getByText(messages.tableChunks).closest('th')).toHaveClass('text-xs');
+    expect(screen.getByText(messages.tableChunks).closest('th')).toHaveClass('text-sm');
     // Reference look: hairlines only, no zebra striping.
     expect(screen.getByText('X1 manual').closest('tr')).not.toHaveClass('odd:bg-background');
 

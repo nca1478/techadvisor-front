@@ -121,20 +121,20 @@ export function InventoryPanel({
                 <tr className="border-b border-border">
                   <th
                     scope="col"
-                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                   >
                     {messages.tableDelta}
                   </th>
                   <th
                     scope="col"
-                    className="px-4 py-3 text-right font-medium text-muted-foreground"
+                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                   >
                     {messages.tableStockAfter}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {messages.tableReason}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                     {messages.tableDate}
                   </th>
                 </tr>

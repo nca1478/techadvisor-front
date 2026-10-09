@@ -45,31 +45,31 @@ export function DocumentsTable({
       <table className="w-full border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border text-left">
-            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
             <th
               scope="col"
               className="px-4 py-2 text-right text-sm font-bold text-muted-foreground"
             >
               {messages.tableNumber}
             </th>
+            <th scope="col" className="px-4 py-2 text-sm font-bold text-muted-foreground">
               {messages.tableTitle}
             </th>
-            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-sm font-bold text-muted-foreground">
               {messages.tableType}
             </th>
-            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-sm font-bold text-muted-foreground">
               {messages.tableStatus}
             </th>
             <th
               scope="col"
-              className="px-4 py-2 text-right text-xs font-medium text-muted-foreground"
+              className="px-4 py-2 text-right text-sm font-bold text-muted-foreground"
             >
               {messages.tableChunks}
             </th>
-            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-sm font-bold text-muted-foreground">
               {messages.tableUpdated}
             </th>
-            <th scope="col" className="px-4 py-2 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-2 text-sm font-bold text-muted-foreground">
               {messages.tableActions}
             </th>
           </tr>

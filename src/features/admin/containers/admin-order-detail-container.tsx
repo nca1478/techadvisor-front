@@ -83,16 +83,16 @@ export function AdminOrderDetailContainer({
         <table className="w-full min-w-[40rem] border-collapse bg-surface text-left text-sm">
           <thead>
             <tr className="border-b border-border">
-              <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                 {messages.account.itemsTitle}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
                 {messages.account.quantityHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
                 {messages.account.unitPriceHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
                 {messages.account.lineTotalHeader}
               </th>
             </tr>
