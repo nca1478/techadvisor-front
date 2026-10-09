@@ -67,7 +67,7 @@ export default async function AdminOrdersPage({ params, searchParams }: OrdersPa
   const search = toAdminQuery({
     ...(status === '' ? {} : { status }),
     page,
-    limit: 20,
+    limit: 10,
   });
   const result = await backendFetch(`/admin/orders${search}`, { method: 'GET', cookieHeader });
   const data = result.status === 200 && isOrderList(result.body) ? result.body : null;

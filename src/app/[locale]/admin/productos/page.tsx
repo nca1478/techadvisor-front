@@ -64,7 +64,7 @@ export default async function AdminProductsPage({ params, searchParams }: Produc
     ...(status === '' ? {} : { status }),
     ...(q === '' ? {} : { q }),
     page,
-    limit: 20,
+    limit: 10,
   });
   const result = await backendFetch(`/admin/products${search}`, { method: 'GET', cookieHeader });
   const data = result.status === 200 && isProductList(result.body) ? result.body : null;

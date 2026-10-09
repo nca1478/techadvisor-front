@@ -67,7 +67,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
     .map((cookie) => `${cookie.name}=${cookie.value}`)
     .join('; ');
 
-  const listResult = await backendFetch(`/admin/products${toAdminQuery({ page, limit: 20 })}`, {
+  const listResult = await backendFetch(`/admin/products${toAdminQuery({ page, limit: 10 })}`, {
     method: 'GET',
     cookieHeader,
   });
