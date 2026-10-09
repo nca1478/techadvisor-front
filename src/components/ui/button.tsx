@@ -3,9 +3,9 @@ import { cn } from './cn';
 
 const VARIANTS = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
-  secondary: 'border border-border bg-background text-foreground hover:bg-surface',
+  secondary: 'border border-border bg-surface text-foreground hover:bg-background',
   ghost: 'text-foreground hover:bg-surface',
-  link: 'h-auto p-0 text-primary underline-offset-4 hover:underline',
+  link: 'h-auto p-0 text-link underline-offset-4 hover:text-link-hover hover:underline',
 } as const;
 
 const SIZES = {
@@ -39,7 +39,7 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const classes = cn(
-    'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors',
+    'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     'disabled:pointer-events-none disabled:opacity-50',
     VARIANTS[variant],

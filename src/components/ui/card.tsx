@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import { cn } from './cn';
 
 const VARIANTS = {
-  default: 'border border-border bg-background shadow-sm',
-  outline: 'border border-border bg-background',
+  default: 'border border-border bg-surface shadow-sm',
+  outline: 'border border-border bg-surface',
   ghost: 'bg-surface',
 } as const;
 

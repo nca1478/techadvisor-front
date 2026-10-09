@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { cn } from './cn';
 
 const VARIANTS = {
-  default: 'text-primary underline-offset-4 hover:underline',
+  default: 'text-link underline-offset-4 hover:text-link-hover hover:underline',
   muted: 'text-muted-foreground underline-offset-4 hover:text-foreground hover:underline',
 } as const;
 

@@ -59,7 +59,7 @@ export function ConfirmDialog({
     <dialog
       ref={ref}
       aria-labelledby="confirm-dialog-title"
-      className="rounded-lg border border-border bg-background p-6 text-foreground backdrop:bg-black/50"
+      className="rounded-lg border border-border bg-surface p-6 text-foreground backdrop:bg-black/50"
     >
       <Stack gap="md" className="w-full min-w-72 max-w-sm">
         <Heading level={2}>

@@ -34,7 +34,7 @@ export function CartLine({
 }) {
   const imageSrc = typeof item.imageUrl === 'string' ? item.imageUrl : null;
   return (
-    <li className="flex flex-col gap-3 rounded-md border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+    <li className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 flex-1 gap-3">
         <a
           href={`/${locale}/productos/${item.slug}`}

@@ -139,7 +139,7 @@ export function SearchBar({
         />
       </form>
       {open && (
-        <div className="absolute inset-x-0 top-full z-40 mt-1 rounded-md border border-border bg-background shadow-lg">
+        <div className="absolute inset-x-0 top-full z-40 mt-1 rounded-md border border-border bg-surface shadow-lg">
           {loading ? (
             <Text variant="small" tone="muted" as="p" className="px-3 py-2">
               {messages.suggestionsLoading}
@@ -154,7 +154,7 @@ export function SearchBar({
                 <li key={product.id} role="option" aria-selected="false">
                   <a
                     href={`/${locale}/productos/${product.slug}`}
-                    className="block truncate px-3 py-2 text-sm text-foreground hover:bg-surface"
+                    className="block truncate px-3 py-2 text-sm text-foreground hover:bg-background"
                     onClick={() => {
                       setDismissed(true);
                     }}

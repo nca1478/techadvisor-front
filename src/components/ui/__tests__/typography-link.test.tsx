@@ -24,11 +24,11 @@ describe('Typography primitives', () => {
 });
 
 describe('Link', () => {
-  it('renders an internal link with the primary style', () => {
+  it('renders an internal link with the link style', () => {
     render(<Link href="/shop">Shop</Link>);
     const link = screen.getByRole('link', { name: 'Shop' });
     expect(link).toHaveAttribute('href', '/shop');
-    expect(link).toHaveClass('text-primary');
+    expect(link).toHaveClass('text-link');
     expect(link).not.toHaveAttribute('target');
   });
 

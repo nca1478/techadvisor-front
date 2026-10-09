@@ -44,7 +44,7 @@ export function DashboardView({
             <Text tone="muted">{admin.dashboard.noOrders}</Text>
           ) : (
             <div className="overflow-x-auto rounded-md border border-border">
-              <table className="w-full min-w-[36rem] border-collapse bg-background text-left text-sm">
+              <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface">
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">
@@ -96,7 +96,7 @@ export function DashboardView({
             <Text tone="muted">{admin.dashboard.noLowStock}</Text>
           ) : (
             <div className="overflow-x-auto rounded-md border border-border">
-              <table className="w-full min-w-[36rem] border-collapse bg-background text-left text-sm">
+              <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface">
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">

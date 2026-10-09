@@ -69,7 +69,7 @@ export default function DesignSystemPage() {
               <PaletteSwatch
                 swatch="bg-background border border-border"
                 name="background / foreground"
-                detail="Page base · ratio 17.99"
+                detail="Page base · ratio 15.09"
               />
               <PaletteSwatch
                 swatch="bg-surface border border-border"
@@ -79,14 +79,26 @@ export default function DesignSystemPage() {
               <PaletteSwatch
                 swatch="bg-foreground"
                 name="foreground on background"
-                detail="Primary text · ratio 17.99"
+                detail="Primary text · ratio 15.09"
                 textClass="text-background"
               />
               <PaletteSwatch
                 swatch="bg-primary"
                 name="primary"
-                detail="Actions · white text ratio 7.85"
+                detail="CTA yellow · dark text ratio 13.61"
                 textClass="text-primary-foreground"
+              />
+              <PaletteSwatch
+                swatch="bg-link"
+                name="link"
+                detail="Links · ratio 5.67"
+                textClass="text-background"
+              />
+              <PaletteSwatch
+                swatch="bg-header"
+                name="header"
+                detail="Header navy · white text ratio 17.67"
+                textClass="text-header-foreground"
               />
               <PaletteSwatch
                 swatch="bg-accent"
@@ -109,13 +121,13 @@ export default function DesignSystemPage() {
               <PaletteSwatch
                 swatch="bg-destructive"
                 name="destructive"
-                detail="Error · white text ratio 6.47"
+                detail="Error and deals · white text ratio 5.71"
                 textClass="text-destructive-foreground"
               />
               <PaletteSwatch
                 swatch="bg-muted-foreground"
                 name="muted-foreground"
-                detail="Secondary text · ratio 7.58"
+                detail="Secondary text · ratio 5.63"
                 textClass="text-background"
               />
             </Grid>

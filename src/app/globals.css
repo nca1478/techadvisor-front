@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * TechAdvisor design tokens (ADR 0005).
+ * TechAdvisor design tokens (ADR 0005, retema 0019 marketplace denso).
  * Semantic colors live in :root so every theme (including the future dark
  * theme) overrides plain CSS variables; @theme inline maps them to Tailwind
  * utilities (bg-background, text-foreground, border-border, ...).
@@ -11,22 +11,30 @@
 :root {
   color-scheme: light;
 
-  --background: #ffffff;
-  --surface: #f6f7f9;
-  --foreground: #13171c;
-  --muted-foreground: #475569;
-  --border: #dde1e7;
+  --background: #e3e6e6;
+  --surface: #ffffff;
+  --foreground: #0f1111;
+  --muted-foreground: #565959;
+  --border: #d5d9d9;
 
-  --primary: #174ea6;
-  --primary-hover: #123d82;
-  --primary-subtle: #e8eefb;
-  --primary-foreground: #ffffff;
+  --primary: #ffd814;
+  --primary-hover: #f7ca00;
+  --primary-subtle: #fef3d3;
+  --primary-foreground: #0f1111;
+
+  --link: #007185;
+  --link-hover: #c7511f;
+
+  --header: #131921;
+  --header-sub: #232f3e;
+  --header-foreground: #ffffff;
+  --header-muted: #cccccc;
 
   --accent: #0f766e;
   --accent-hover: #0c5f59;
   --accent-foreground: #ffffff;
 
-  --ring: #174ea6;
+  --ring: #007185;
 
   --success: #15803d;
   --success-subtle: #e7f4ec;
@@ -36,7 +44,7 @@
   --warning-subtle: #fbf0e0;
   --warning-foreground: #ffffff;
 
-  --destructive: #b91c1c;
+  --destructive: #cc0c39;
   --destructive-subtle: #fbeaea;
   --destructive-foreground: #ffffff;
 }
@@ -89,6 +97,14 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-subtle: var(--primary-subtle);
   --color-primary-foreground: var(--primary-foreground);
+
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+
+  --color-header: var(--header);
+  --color-header-sub: var(--header-sub);
+  --color-header-foreground: var(--header-foreground);
+  --color-header-muted: var(--header-muted);
 
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);

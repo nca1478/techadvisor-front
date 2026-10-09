@@ -102,7 +102,7 @@ export function ImagesEditor({
           {images.map((image, index) => (
             <div
               key={index}
-              className="flex flex-col gap-3 rounded-md border border-border bg-background p-4 sm:flex-row sm:items-start"
+              className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4 sm:flex-row sm:items-start"
             >
               <ImagePreview url={image.url} alt={image.alt} messages={messages} />
               <Stack gap="sm" className="flex-1">
