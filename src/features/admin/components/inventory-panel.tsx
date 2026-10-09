@@ -118,7 +118,7 @@ export function InventoryPanel({
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
               <thead>
-                <tr className="border-b border-border bg-background">
+                <tr className="border-b border-border">
                   <th
                     scope="col"
                     className="px-4 py-3 text-right font-medium text-muted-foreground"
@@ -141,10 +141,7 @@ export function InventoryPanel({
               </thead>
               <tbody>
                 {movements.map((movement) => (
-                  <tr
-                    key={movement.id}
-                    className="border-b border-border odd:bg-background last:border-0"
-                  >
+                  <tr key={movement.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3 text-right tabular-nums">
                       {movement.delta > 0 ? `+${String(movement.delta)}` : String(movement.delta)}
                     </td>

@@ -106,7 +106,7 @@ export function AdminOrdersView({
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
               <thead>
-                <tr className="border-b border-border bg-background">
+                <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {orders.tableOrder}
                   </th>
@@ -138,10 +138,7 @@ export function AdminOrdersView({
               </thead>
               <tbody>
                 {data.data.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-b border-border odd:bg-background last:border-0"
-                  >
+                  <tr key={order.id} className="border-b border-border last:border-0">
                     <th
                       scope="row"
                       className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
@@ -156,7 +153,7 @@ export function AdminOrdersView({
                       <OrderStatusBadge status={order.status} messages={messages.account} />
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
-                    <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
+                    <td className="px-4 py-3 text-right font-bold tabular-nums">
                       {formatPrice(order.totalAmount, order.currency, locale)}
                     </td>
                     <td className="px-4 py-3">

@@ -30,6 +30,14 @@ jerarquía tipográfica sin salir del sistema — totales y disponible en
 (conservando las mayúsculas originales, nunca ALL-CAPS). Todo sigue
 siendo información, no decoración.
 
+## Addendum 2026-10-09 — imagen de referencia del usuario
+
+La zebra y el thead gris se retiran: la referencia pide tabla blanca
+sobre gris con solo hairlines, cabecera blanca pequeña y atenuada,
+primera columna con énfasis y numéricos a la derecha. La jerarquía queda
+en peso tipográfico (nombres medium, totales bold al mismo tamaño) en vez
+de fondos. Las palabras del brief mandan sobre la calibración.
+
 ## Dependencias (verificación obligatoria)
 
 - Context7 disponible en la sesión; solo clases Tailwind existentes y

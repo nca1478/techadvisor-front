@@ -82,7 +82,7 @@ export function AdminOrderDetailContainer({
       <div className="overflow-x-auto rounded-md border border-border">
         <table className="w-full min-w-[40rem] border-collapse bg-surface text-left text-sm">
           <thead>
-            <tr className="border-b border-border bg-background">
+            <tr className="border-b border-border">
               <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                 {messages.account.itemsTitle}
               </th>
@@ -99,18 +99,15 @@ export function AdminOrderDetailContainer({
           </thead>
           <tbody>
             {order.items.map((item) => (
-              <tr
-                key={item.productId}
-                className="border-b border-border odd:bg-background last:border-0"
-              >
-                <th scope="row" className="px-4 py-3 font-normal">
+              <tr key={item.productId} className="border-b border-border last:border-0">
+                <th scope="row" className="px-4 py-3 font-medium">
                   {item.name}
                 </th>
                 <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
                 <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
+                <td className="px-4 py-3 text-right font-bold tabular-nums">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>

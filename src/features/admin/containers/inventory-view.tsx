@@ -63,7 +63,7 @@ export function InventoryView({
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
               <thead>
-                <tr className="border-b border-border bg-background">
+                <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {inventory.tableProduct}
                   </th>
@@ -94,11 +94,8 @@ export function InventoryView({
                 {data.data.map((product) => {
                   const selected = product.id === selectedProductId;
                   return (
-                    <tr
-                      key={product.id}
-                      className="border-b border-border odd:bg-background last:border-0"
-                    >
-                      <th scope="row" className="px-4 py-3 font-normal">
+                    <tr key={product.id} className="border-b border-border last:border-0">
+                      <th scope="row" className="px-4 py-3 font-medium">
                         {product.name}
                         <Text variant="caption" tone="muted" as="span" className="block">
                           {product.sku}
@@ -106,7 +103,7 @@ export function InventoryView({
                       </th>
                       <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                       <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
-                      <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
+                      <td className="px-4 py-3 text-right font-bold tabular-nums">
                         {availableUnits(product)}
                       </td>
                       <td className="px-4 py-3">

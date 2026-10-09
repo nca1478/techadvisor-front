@@ -46,7 +46,7 @@ export function DashboardView({
             <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-background">
+                  <tr className="border-b border-border">
                     <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                       {admin.dashboard.tableOrder}
                     </th>
@@ -63,10 +63,7 @@ export function DashboardView({
                 </thead>
                 <tbody>
                   {recentOrders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="border-b border-border odd:bg-background last:border-0"
-                    >
+                    <tr key={order.id} className="border-b border-border last:border-0">
                       <th scope="row" className="px-4 py-3 font-normal">
                         <Link href={`/${locale}/admin/ordenes/${encodeURIComponent(order.id)}`}>
                           {order.id.slice(0, 8)}…
@@ -75,7 +72,7 @@ export function DashboardView({
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
-                      <td className="px-4 py-3 text-right text-base font-bold tabular-nums">
+                      <td className="px-4 py-3 text-right font-bold tabular-nums">
                         {formatPrice(order.totalAmount, order.currency, locale)}
                       </td>
                     </tr>
@@ -104,7 +101,7 @@ export function DashboardView({
             <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-background">
+                  <tr className="border-b border-border">
                     <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                       {admin.dashboard.tableProduct}
                     </th>
@@ -118,10 +115,7 @@ export function DashboardView({
                 </thead>
                 <tbody>
                   {lowStock.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="border-b border-border odd:bg-background last:border-0"
-                    >
+                    <tr key={product.id} className="border-b border-border last:border-0">
                       <th scope="row" className="px-4 py-3 font-normal">
                         <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
                           {product.name}

@@ -117,7 +117,7 @@ export function AdminProductsView({
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
               <thead>
-                <tr className="border-b border-border bg-background">
+                <tr className="border-b border-border">
                   <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
                     {products.tableProduct}
                   </th>
@@ -146,10 +146,7 @@ export function AdminProductsView({
               </thead>
               <tbody>
                 {data.data.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="border-b border-border align-top odd:bg-background last:border-0"
-                  >
+                  <tr key={product.id} className="border-b border-border align-top last:border-0">
                     <th scope="row" className="px-4 py-3 font-normal">
                       <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
                         {product.name}

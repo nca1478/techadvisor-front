@@ -68,6 +68,8 @@ describe('DocumentsTable', () => {
       'tabular-nums',
     );
     expect(screen.getByText(messages.tableChunks).closest('th')).toHaveClass('text-xs');
+    // Reference look: hairlines only, no zebra striping.
+    expect(screen.getByText('X1 manual').closest('tr')).not.toHaveClass('odd:bg-background');
 
     fireEvent.click(screen.getByRole('button', { name: messages.reingest }));
     expect(onReingest).toHaveBeenCalledWith('3fa85f64-5717-4562-b3fc-2c963f66afa6');

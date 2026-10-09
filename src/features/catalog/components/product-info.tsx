@@ -65,7 +65,7 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
             {specs.map(([key, value]) => (
               <div
                 key={key}
-                className="grid grid-cols-1 gap-1 border-b border-border bg-surface px-4 py-3 last:border-b-0 odd:bg-background sm:grid-cols-2 sm:gap-3"
+                className="grid grid-cols-1 gap-1 border-b border-border bg-surface px-4 py-3 last:border-b-0 sm:grid-cols-2 sm:gap-3"
               >
                 <dt className="min-w-0 text-sm text-muted-foreground">
                   {humanizeSpecKey(key, messages.specLabels)}

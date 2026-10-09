@@ -41,7 +41,7 @@ export function DocumentsTable({
     <div className="overflow-x-auto rounded-md border border-border">
       <table className="w-full border-collapse bg-surface text-left text-sm">
         <thead>
-          <tr className="border-b border-border bg-background text-left">
+          <tr className="border-b border-border text-left">
             <th scope="col" className="px-2 py-2 text-xs font-medium text-muted-foreground">
               {messages.tableTitle}
             </th>
@@ -70,10 +70,7 @@ export function DocumentsTable({
             const busy = pendingIds.has(document.id);
             const processing = isDocumentProcessing(document.status);
             return (
-              <tr
-                key={document.id}
-                className="border-b border-border align-top odd:bg-background last:border-0"
-              >
+              <tr key={document.id} className="border-b border-border align-top last:border-0">
                 <td className="px-2 py-2">
                   <Stack gap="sm">
                     <Text className="font-medium">{document.title}</Text>
