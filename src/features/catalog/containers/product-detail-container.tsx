@@ -5,6 +5,7 @@ import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { ProductAdvisor } from '@/features/advisor';
+import { ProductReviews } from '@/features/reviews';
 import { ApiError } from '@/lib/api/errors';
 import { createApiClient } from '@/lib/api/client';
 import { createCatalogApi } from '@/lib/api/catalog';
@@ -77,6 +78,7 @@ export async function ProductDetailContainer({
             supportHref={`/${locale}/soporte`}
             messages={messages.advisor}
           />
+          <ProductReviews productId={product.id} locale={locale} messages={messages.reviews} />
         </Stack>
       </Section>
       {/* schema.org Product: name/image/price+currency/availability from the API. */}

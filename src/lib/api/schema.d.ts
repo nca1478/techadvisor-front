@@ -374,7 +374,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List corpus documents (soft-deleted excluded) with status filter */
+    /** List corpus documents (soft-deleted excluded) with status and type filters */
     get: operations['AdminDocumentsController_listDocuments'];
     put?: never;
     /** Register a document by URL (fetched + ingested server-side) */
@@ -932,6 +932,91 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a review (buyers of this product only, once per product) */
+    post: operations['ReviewsController_createReview'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reviews/product/{productId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List published reviews of a product (paginated, newest first) */
+    get: operations['ReviewsController_listPublished'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/reviews/product/{productId}/summary': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Cached pros/cons summary (summary null while below the review minimum) */
+    get: operations['ReviewsController_getSummary'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reviews': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List reviews with status/product filters (newest first) */
+    get: operations['AdminReviewsController_listReviews'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reviews/{id}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Publish or reject a review (refreshes corpus + summary) */
+    patch: operations['AdminReviewsController_moderateReview'];
     trace?: never;
   };
 }
@@ -2155,6 +2240,74 @@ export interface components {
        */
       compatible: boolean;
       issues: components['schemas']['CompatibilityIssueDto'][];
+    };
+    ReviewDto: {
+      /** @description Review id (UUID). */
+      id: string;
+      /** @description Reviewed product id (UUID). */
+      productId: string;
+      /** @description Star rating (1-5). */
+      rating: number;
+      /** @description Short headline (no author data). */
+      title: string;
+      /** @description Review text (public, moderated). */
+      body: string;
+      /** @description True when the author bought this product. */
+      verifiedPurchase: boolean;
+      /** @description Creation date (ISO 8601). */
+      createdAt: string;
+    };
+    ReviewListDto: {
+      data: components['schemas']['ReviewDto'][];
+      total: number;
+      page: number;
+      limit: number;
+      /** @description Mean rating over published reviews (null when none). */
+      averageRating: Record<string, never> | null;
+    };
+    ReviewSummaryDto: {
+      /** @description Reviewed product id (UUID). */
+      productId: string;
+      /** @description Short pro bullets (paraphrased, never long quotes). */
+      pros: string[];
+      /** @description Short con bullets (paraphrased, never long quotes). */
+      cons: string[];
+      /** @description Published reviews the summary was generated from. */
+      basedOnCount: number;
+      /** @description LLM model id that generated the summary. */
+      model?: string;
+      /** @description Last generation date (ISO 8601). */
+      updatedAt: string;
+    };
+    ReviewSummaryResponseDto: {
+      /** @description Cached summary, or null while published reviews are below the minimum. */
+      summary: components['schemas']['ReviewSummaryDto'] | null;
+    };
+    AdminReviewDto: {
+      /** @description Review id (UUID). */
+      id: string;
+      /** @description Reviewed product id (UUID). */
+      productId: string;
+      /** @description Star rating (1-5). */
+      rating: number;
+      /** @description Short headline (no author data). */
+      title: string;
+      /** @description Review text (public, moderated). */
+      body: string;
+      /** @description True when the author bought this product. */
+      verifiedPurchase: boolean;
+      /** @description Creation date (ISO 8601). */
+      createdAt: string;
+      /** @enum {string} */
+      status: 'PENDING' | 'PUBLISHED' | 'REJECTED';
+      /** @description Author user id (admin only, never public). */
+      userId: string;
+    };
+    AdminReviewListDto: {
+      data: components['schemas']['AdminReviewDto'][];
+      total: number;
+      page: number;
+      limit: number;
     };
   };
   responses: never;
@@ -5607,6 +5760,236 @@ export interface operations {
         };
       };
       /** @description Unknown product id. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReviewsController_createReview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReviewsController_listPublished: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Product not found or not active. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ReviewsController_getSummary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewSummaryResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Product not found or not active. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminReviewsController_listReviews: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminReviewListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminReviewsController_moderateReview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminReviewDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Review not found. */
       404: {
         headers: {
           [name: string]: unknown;

@@ -28,5 +28,6 @@ describe('getDictionarySync', () => {
     expect(Object.keys(es.admin.images).sort()).toEqual(Object.keys(en.admin.images).sort());
     expect(Object.keys(es.admin.inventory).sort()).toEqual(Object.keys(en.admin.inventory).sort());
     expect(Object.keys(es.admin.orders).sort()).toEqual(Object.keys(en.admin.orders).sort());
+    expect(Object.keys(es.reviews).sort()).toEqual(Object.keys(en.reviews).sort());
   });
 });
