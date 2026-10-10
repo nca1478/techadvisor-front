@@ -539,7 +539,7 @@
       "statusChanged": "Estado actualizado.",
       "statusChangeError": "No se pudo actualizar el estado.",
       "empty": "Ningún producto coincide con estos filtros.",
-      "outOfStock": "{count} disponibles"
+      "outOfStock": "{count} disp."
     },
     "productForm": {
       "newTitle": "Nuevo producto",

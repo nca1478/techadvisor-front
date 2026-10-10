@@ -539,7 +539,7 @@
       "statusChanged": "Status updated.",
       "statusChangeError": "The status could not be updated.",
       "empty": "No products match these filters.",
-      "outOfStock": "{count} available"
+      "outOfStock": "{count} avail."
     },
     "productForm": {
       "newTitle": "New product",
