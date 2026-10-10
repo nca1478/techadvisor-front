@@ -92,9 +92,6 @@ export function AdminOrdersView({
           {messages.catalog.clearFilters}
         </Button>
       </AdminFiltersCard>
-      <Text variant="small" tone="muted">
-        {orders.paidNote}
-      </Text>
       {loadError || data === null ? (
         <Text role="alert" className="text-destructive">
           {messages.admin.loadError}
@@ -103,82 +100,79 @@ export function AdminOrdersView({
         <Text tone="muted">{orders.empty}</Text>
       ) : (
         <Stack gap="md">
-          <Text variant="small" tone="muted" role="status">
-            {messages.admin.totalCount.replace('{count}', String(data.total))}
-          </Text>
           <Card padding="none">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {orders.tableNumber}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {orders.tableOrder}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {orders.tableDate}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {orders.tableCustomer}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {orders.tableStatus}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {orders.tableItems}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {orders.tableTotal}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    <span className="sr-only">{orders.tableActions}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map((order, index) => (
-                  <tr key={order.id} className="border-b border-border last:border-0">
-                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                      {(data.page - 1) * data.limit + index + 1}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border">
                     <th
-                      scope="row"
-                      className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
                     >
-                      {order.id.slice(0, 8)}…
+                      {orders.tableNumber}
                     </th>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {formatDate(order.createdAt, locale)}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs">{order.userId.slice(0, 8)}…</td>
-                    <td className="px-4 py-3">
-                      <OrderStatusBadge status={order.status} messages={messages.account} />
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
-                    <td className="px-4 py-3 text-right font-bold tabular-nums">
-                      {formatPrice(order.totalAmount, order.currency, locale)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Link href={`/${locale}/admin/ordenes/${encodeURIComponent(order.id)}`}>
-                        {orders.view}
-                      </Link>
-                    </td>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {orders.tableOrder}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {orders.tableDate}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {orders.tableCustomer}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {orders.tableStatus}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {orders.tableItems}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {orders.tableTotal}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      <span className="sr-only">{orders.tableActions}</span>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.data.map((order, index) => (
+                    <tr key={order.id} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        {(data.page - 1) * data.limit + index + 1}
+                      </td>
+                      <th
+                        scope="row"
+                        className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
+                      >
+                        {order.id.slice(0, 8)}…
+                      </th>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatDate(order.createdAt, locale)}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">{order.userId.slice(0, 8)}…</td>
+                      <td className="px-4 py-3">
+                        <OrderStatusBadge status={order.status} messages={messages.account} />
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
+                      <td className="px-4 py-3 text-right font-bold tabular-nums">
+                        {formatPrice(order.totalAmount, order.currency, locale)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link href={`/${locale}/admin/ordenes/${encodeURIComponent(order.id)}`}>
+                          {orders.view}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
           <Pagination
             page={data.page}
