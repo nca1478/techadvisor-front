@@ -154,6 +154,7 @@ export default function DesignSystemPage() {
             <Stack direction="horizontal" gap="md" wrap align="center">
               <Button variant="primary">Primary</Button>
               <Button variant="secondary">Secondary</Button>
+              <Button variant="danger">Danger</Button>
               <Button variant="ghost">Ghost</Button>
               <Button variant="link">Link button</Button>
             </Stack>

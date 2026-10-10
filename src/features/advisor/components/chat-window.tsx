@@ -120,6 +120,7 @@ export function ChatWindow({
 
   const historyBusy = sending || startingNewChat || switchingSession || deletingSession;
   const showHistory = historyLoading || historyOptions.length > 0 || currentSessionId !== null;
+  const canManageSession = currentSessionId !== null && !historyLoading;
 
   return (
     <Stack gap="md">
@@ -129,15 +130,49 @@ export function ChatWindow({
             {chat.subtitle}
           </Text>
         </Stack>
-        <Button
-          variant="secondary"
-          size="sm"
-          loading={startingNewChat}
-          disabled={startingNewChat || sending}
-          onClick={onNewChat}
-        >
-          {chat.newChat}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            loading={startingNewChat}
+            disabled={startingNewChat || sending}
+            onClick={onNewChat}
+          >
+            {chat.newChat}
+          </Button>
+          {canManageSession ? (
+            deletingSession ? (
+              <Text variant="small" tone="muted" role="status">
+                {chat.deleting}
+              </Text>
+            ) : deleteConfirming ? (
+              <div
+                role="group"
+                aria-label={chat.deleteChat}
+                className="flex flex-wrap items-center gap-2 rounded-md border border-destructive px-3 py-2"
+              >
+                <Text variant="small">{chat.deleteConfirm}</Text>
+                <div className="flex gap-2">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    disabled={historyBusy}
+                    onClick={onDeleteConfirm}
+                  >
+                    {chat.deleteConfirmButton}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={onDeleteCancel}>
+                    {chat.deleteCancel}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button variant="danger" size="sm" disabled={historyBusy} onClick={onDeleteRequest}>
+                {chat.deleteChat}
+              </Button>
+            )
+          ) : null}
+        </div>
       </div>
 
       {showHistory ? (
@@ -170,47 +205,6 @@ export function ChatWindow({
               ))}
             </select>
           )}
-          {currentSessionId !== null && !historyLoading ? (
-            deletingSession ? (
-              <Text variant="small" tone="muted" role="status">
-                {chat.deleting}
-              </Text>
-            ) : deleteConfirming ? (
-              <div
-                role="group"
-                aria-label={chat.deleteChat}
-                className="flex flex-wrap items-center gap-2 rounded-md border border-destructive px-3 py-2"
-              >
-                <Text variant="small">{chat.deleteConfirm}</Text>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="border-destructive"
-                    disabled={historyBusy}
-                    onClick={onDeleteConfirm}
-                  >
-                    {chat.deleteConfirmButton}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={onDeleteCancel}>
-                    {chat.deleteCancel}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="border-destructive"
-                  disabled={historyBusy}
-                  onClick={onDeleteRequest}
-                >
-                  {chat.deleteChat}
-                </Button>
-              </div>
-            )
-          ) : null}
         </div>
       ) : null}
 
@@ -219,7 +213,7 @@ export function ChatWindow({
         role="log"
         aria-live="polite"
         aria-label={chat.logLabel}
-        className="flex max-h-[60dvh] min-h-[40dvh] flex-col gap-3 overflow-y-auto rounded-md border border-border bg-background p-3"
+        className="flex max-h-[60dvh] min-h-[40dvh] flex-col gap-3 overflow-y-auto rounded-md border border-border bg-surface p-3"
       >
         {bubbles.length === 0 && streamingText === null ? (
           <Text variant="small" tone="muted">
@@ -236,7 +230,7 @@ export function ChatWindow({
             </div>
           ) : (
             <div key={bubble.id} className="flex justify-start">
-              <div className="flex max-w-[95%] flex-col gap-2 rounded-md rounded-bl-none border border-border bg-surface px-3 py-2 sm:max-w-[85%]">
+              <div className="flex max-w-[95%] flex-col gap-2 rounded-md rounded-bl-none border border-border bg-background px-3 py-2 sm:max-w-[85%]">
                 <span className="sr-only">{`${chat.assistantLabel}: `}</span>
                 {bubble.clarifying ? <Badge tone="warning">{chat.clarificationBadge}</Badge> : null}
                 {bubble.citations && bubble.citations.length > 0 ? (
@@ -282,7 +276,7 @@ export function ChatWindow({
         )}
         {streamingText !== null ? (
           <div className="flex justify-start">
-            <div className="max-w-[95%] rounded-md rounded-bl-none border border-border bg-surface px-3 py-2 sm:max-w-[85%]">
+            <div className="max-w-[95%] rounded-md rounded-bl-none border border-border bg-background px-3 py-2 sm:max-w-[85%]">
               <span className="sr-only">{`${chat.assistantLabel}: `}</span>
               <p aria-hidden="true" className="text-sm leading-relaxed text-foreground">
                 {streamingText}

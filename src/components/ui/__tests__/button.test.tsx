@@ -13,6 +13,7 @@ describe('Button', () => {
   it.each([
     ['primary', 'bg-primary'],
     ['secondary', 'border-border'],
+    ['danger', 'bg-destructive'],
     ['ghost', 'hover:bg-surface'],
     ['link', 'hover:underline'],
   ] as const)('applies the %s variant', (variant, expectedClass) => {

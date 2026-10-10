@@ -4,6 +4,7 @@ import { cn } from './cn';
 const VARIANTS = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary-hover',
   secondary: 'border border-border bg-surface text-foreground hover:bg-background',
+  danger: 'bg-destructive text-white hover:opacity-90',
   ghost: 'text-foreground hover:bg-surface',
   link: 'h-auto p-0 text-link underline-offset-4 hover:text-link-hover hover:underline',
 } as const;
@@ -23,7 +24,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Button with 4 variants x 3 sizes. Renders an anchor when `href` is given,
+ * Button with 5 variants x 3 sizes. Renders an anchor when `href` is given,
  * otherwise a native button. `loading` shows a spinner, announces busy state
  * and disables interaction.
  */
