@@ -658,6 +658,7 @@
       "statusFilter": "Status",
       "allStatuses": "All statuses",
       "allTypes": "All types",
+      "emptyFiltered": "No documents match these filters.",
       "tableNumber": "No",
       "status_PENDING": "Pending",
       "status_PROCESSING": "Processing",

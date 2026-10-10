@@ -514,11 +514,16 @@ export function AdminDocumentsView({
             pendingIds={pendingIds}
             stoppedIds={stoppedIds}
             rowOffset={data ? (data.page - 1) * data.limit : 0}
+            filtered={query.status !== '' || query.type !== ''}
+            clearFiltersLabel={messages.catalog.clearFilters}
             onReingest={(id) => {
               setConfirmReingestId(id);
             }}
             onDelete={(id) => {
               setConfirmDeleteId(id);
+            }}
+            onClearFilters={() => {
+              navigate({ status: '', type: '', page: 1 });
             }}
           />
         </Card>

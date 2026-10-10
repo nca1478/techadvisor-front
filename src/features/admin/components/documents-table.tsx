@@ -13,7 +13,10 @@ function formatChunks(template: string, count: number): string {
 /**
  * Presentational corpus table: title/type, status, chunk count, update
  * date and row actions. Data fetching, polling and mutations live in the
- * container — this component only renders props.
+ * container — this component only renders props. The empty state is a
+ * centered, padded block (not a stray line): with active filters it names
+ * the mismatch and offers to clear them, otherwise it states the corpus is
+ * empty.
  */
 export function DocumentsTable({
   documents,
@@ -22,8 +25,11 @@ export function DocumentsTable({
   pendingIds,
   stoppedIds,
   rowOffset = 0,
+  filtered,
+  clearFiltersLabel,
   onReingest,
   onDelete,
+  onClearFilters,
 }: {
   documents: AdminDocument[];
   messages: Dictionary['admin']['documents'];
@@ -34,11 +40,25 @@ export function DocumentsTable({
   stoppedIds: ReadonlySet<string>;
   /** Number of rows before this page (keeps numbering continuous). */
   rowOffset?: number;
+  /** True when status/type filters are active (empty = no match). */
+  filtered: boolean;
+  /** Label of the clear-filters button (from the catalog messages). */
+  clearFiltersLabel: string;
   onReingest: (id: string) => void;
   onDelete: (id: string) => void;
+  onClearFilters: () => void;
 }) {
   if (documents.length === 0) {
-    return <Text tone="muted">{messages.empty}</Text>;
+    return (
+      <Stack gap="sm" align="center" className="px-4 py-8 text-center">
+        <Text className="font-medium">{filtered ? messages.emptyFiltered : messages.empty}</Text>
+        {filtered ? (
+          <Button variant="secondary" size="sm" onClick={onClearFilters}>
+            {clearFiltersLabel}
+          </Button>
+        ) : null}
+      </Stack>
+    );
   }
   return (
     <div className="overflow-x-auto">

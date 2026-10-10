@@ -28,20 +28,37 @@ function makeDocument(overrides: Partial<AdminDocument> = {}): AdminDocument {
   };
 }
 
+function baseProps(extra: Partial<Parameters<typeof DocumentsTable>[0]> = {}) {
+  return {
+    documents: [] as AdminDocument[],
+    messages,
+    locale: 'es',
+    pendingIds: new Set<string>(),
+    stoppedIds: new Set<string>(),
+    filtered: false,
+    clearFiltersLabel: 'Limpiar filtros',
+    onReingest: () => undefined,
+    onDelete: () => undefined,
+    onClearFilters: () => undefined,
+    ...extra,
+  };
+}
+
 describe('DocumentsTable', () => {
   it('renders an empty state without rows', () => {
-    render(
-      <DocumentsTable
-        documents={[]}
-        messages={messages}
-        locale="es"
-        pendingIds={new Set()}
-        stoppedIds={new Set()}
-        onReingest={() => undefined}
-        onDelete={() => undefined}
-      />,
-    );
+    render(<DocumentsTable {...baseProps()} />);
     expect(screen.getByText(messages.empty)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Limpiar filtros' })).not.toBeInTheDocument();
+  });
+
+  it('renders a filtered empty state with a clear-filters action', () => {
+    const onClearFilters = vi.fn();
+    render(<DocumentsTable {...baseProps({ filtered: true, onClearFilters })} />);
+    expect(screen.getByText(messages.emptyFiltered)).toBeInTheDocument();
+    expect(screen.queryByText(messages.empty)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpiar filtros' }));
+    expect(onClearFilters).toHaveBeenCalledOnce();
   });
 
   it('renders status, chunk count, localized type and row actions', () => {
@@ -54,8 +71,11 @@ describe('DocumentsTable', () => {
         locale="es"
         pendingIds={new Set()}
         stoppedIds={new Set()}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={onReingest}
         onDelete={onDelete}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.getByText('X1 manual')).toBeInTheDocument();
@@ -85,8 +105,11 @@ describe('DocumentsTable', () => {
         locale="es"
         pendingIds={new Set()}
         stoppedIds={new Set()}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={() => undefined}
         onDelete={() => undefined}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.getByText(messages.tableNumber)).toBeInTheDocument();
@@ -101,8 +124,11 @@ describe('DocumentsTable', () => {
         pendingIds={new Set()}
         stoppedIds={new Set()}
         rowOffset={20}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={() => undefined}
         onDelete={() => undefined}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.getByText('21')).toBeInTheDocument();
@@ -116,8 +142,11 @@ describe('DocumentsTable', () => {
         locale="es"
         pendingIds={new Set(['3fa85f64-5717-4562-b3fc-2c963f66afa6'])}
         stoppedIds={new Set()}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={() => undefined}
         onDelete={() => undefined}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.getByRole('alert')).toHaveTextContent('boom');
@@ -133,8 +162,11 @@ describe('DocumentsTable', () => {
         locale="es"
         pendingIds={new Set()}
         stoppedIds={new Set()}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={() => undefined}
         onDelete={() => undefined}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.getByRole('status')).toHaveTextContent(messages.processingNote);
@@ -146,8 +178,11 @@ describe('DocumentsTable', () => {
         locale="es"
         pendingIds={new Set()}
         stoppedIds={new Set(['3fa85f64-5717-4562-b3fc-2c963f66afa6'])}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
         onReingest={() => undefined}
         onDelete={() => undefined}
+        onClearFilters={() => undefined}
       />,
     );
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
