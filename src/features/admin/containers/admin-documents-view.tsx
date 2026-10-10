@@ -557,7 +557,7 @@ export function AdminDocumentsView({
         </Text>
       ) : null}
 
-      <Stack direction="horizontal" gap="md" align="center">
+      <Stack direction="horizontal" gap="md" align="center" justify="center">
         <Button
           variant="secondary"
           size="sm"
