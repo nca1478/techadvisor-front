@@ -138,6 +138,56 @@ describe('ChatWindow', () => {
     expect(onSelectSession).toHaveBeenCalledWith('s2');
   });
 
+  it('asks for confirmation before deleting the current conversation', () => {
+    const onDeleteRequest = vi.fn();
+    const onDeleteConfirm = vi.fn();
+    const onDeleteCancel = vi.fn();
+    const { rerender } = render(
+      <ChatWindow
+        {...baseProps({
+          historyOptions: [{ id: 's1', label: 'Portátil (2)' }],
+          currentSessionId: 's1',
+          onDeleteRequest,
+          onDeleteConfirm,
+          onDeleteCancel,
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteChat }));
+    expect(onDeleteRequest).toHaveBeenCalled();
+
+    rerender(
+      <ChatWindow
+        {...baseProps({
+          historyOptions: [{ id: 's1', label: 'Portátil (2)' }],
+          currentSessionId: 's1',
+          deleteConfirming: true,
+          onDeleteRequest,
+          onDeleteConfirm,
+          onDeleteCancel,
+        })}
+      />,
+    );
+    expect(screen.getByText(messages.chat.deleteConfirm)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteConfirmButton }));
+    expect(onDeleteConfirm).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteCancel }));
+    expect(onDeleteCancel).toHaveBeenCalled();
+  });
+
+  it('announces the deletion while it runs', () => {
+    render(
+      <ChatWindow
+        {...baseProps({
+          historyOptions: [{ id: 's1', label: 'Portátil (2)' }],
+          currentSessionId: 's1',
+          deletingSession: true,
+        })}
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(messages.chat.deleting);
+  });
+
   it('shows a loading state for the history while sessions resolve', () => {
     render(<ChatWindow {...baseProps({ historyLoading: true })} />);
     expect(screen.getByText(messages.chat.historyLoading)).toBeInTheDocument();

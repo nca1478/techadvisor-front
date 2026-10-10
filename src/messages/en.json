@@ -229,7 +229,13 @@
     "historyLoading": "Loading conversations…",
     "historyEmpty": "No saved conversations yet.",
     "historyListError": "The history could not be loaded. Showing the current conversation.",
-    "conversationFallback": "Conversation"
+    "conversationFallback": "Conversation",
+    "deleteChat": "Delete conversation",
+    "deleteConfirm": "Delete this conversation permanently? This cannot be undone.",
+    "deleteConfirmButton": "Yes, delete",
+    "deleteCancel": "Cancel",
+    "deleting": "Deleting…",
+    "deleteError": "The conversation could not be deleted. Please try again."
   },
   "cart": {
     "title": "Cart",

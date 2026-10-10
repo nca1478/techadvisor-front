@@ -494,6 +494,9 @@ export function createAdvisorApi(client: ApiClient = createApiClient()) {
       const raw = await client.get<unknown>('/advisor/sessions');
       return parseChatSessionList(raw);
     },
+    deleteSession: async (sessionId: string): Promise<void> => {
+      await client.delete<unknown>(`/advisor/sessions/${encodeURIComponent(sessionId)}`);
+    },
     getSessionHistory: async (sessionId: string): Promise<ChatHistory> => {
       const raw = await client.get<unknown>(`/advisor/sessions/${encodeURIComponent(sessionId)}`);
       return parseChatHistory(raw);

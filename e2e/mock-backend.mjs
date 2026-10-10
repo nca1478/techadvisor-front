@@ -497,6 +497,17 @@ async function handler(req, res) {
   }
 
   const sessionMatch = path.match(/^\/advisor\/sessions\/([^/]+)$/);
+  if (sessionMatch && method === 'DELETE') {
+    const session = ownedSessionOrNull(req, decodeURIComponent(sessionMatch[1]));
+    if (!session) {
+      const err = uniformError(404, 'NOT_FOUND', 'Unknown session');
+      send(res, err.status, err.body);
+      return;
+    }
+    state.sessions.splice(state.sessions.indexOf(session), 1);
+    send(res, 204, null);
+    return;
+  }
   if (sessionMatch && method === 'GET') {
     const session = ownedSessionOrNull(req, decodeURIComponent(sessionMatch[1]));
     if (!session) {

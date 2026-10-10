@@ -172,6 +172,15 @@ export async function backendFetch(
 
 /** Builds the `NextResponse` for a proxied backend result, forwarding cookies. */
 export function toProxiedResponse(result: BackendResult): NextResponse {
+  // Bodiless statuses (e.g. the advisor session `DELETE` → 204) must not go
+  // through `NextResponse.json`: constructing a body with them throws.
+  if (result.status === 204 || result.status === 205 || result.status === 304) {
+    const response = new NextResponse(null, { status: result.status });
+    for (const setCookie of result.setCookies) {
+      response.headers.append('set-cookie', setCookie);
+    }
+    return response;
+  }
   const response = NextResponse.json(result.body, { status: result.status });
   for (const setCookie of result.setCookies) {
     response.headers.append('set-cookie', setCookie);

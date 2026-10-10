@@ -43,6 +43,12 @@ export interface ChatWindowProps {
   historyLoading?: boolean;
   switchingSession?: boolean;
   onSelectSession?: (sessionId: string) => void;
+  /** Physical delete of the current session (two-step confirm). */
+  deleteConfirming?: boolean;
+  deletingSession?: boolean;
+  onDeleteRequest?: () => void;
+  onDeleteConfirm?: () => void;
+  onDeleteCancel?: () => void;
   errorMessage: string | null;
   onRetry: () => void;
   chips: string[];
@@ -73,6 +79,11 @@ export function ChatWindow({
   historyLoading = false,
   switchingSession = false,
   onSelectSession,
+  deleteConfirming = false,
+  deletingSession = false,
+  onDeleteRequest,
+  onDeleteConfirm,
+  onDeleteCancel,
   errorMessage,
   onRetry,
   chips,
@@ -107,7 +118,7 @@ export function ChatWindow({
     handleChip(chip);
   };
 
-  const historyBusy = sending || startingNewChat || switchingSession;
+  const historyBusy = sending || startingNewChat || switchingSession || deletingSession;
   const showHistory = historyLoading || historyOptions.length > 0 || currentSessionId !== null;
 
   return (
@@ -159,6 +170,47 @@ export function ChatWindow({
               ))}
             </select>
           )}
+          {currentSessionId !== null && !historyLoading ? (
+            deletingSession ? (
+              <Text variant="small" tone="muted" role="status">
+                {chat.deleting}
+              </Text>
+            ) : deleteConfirming ? (
+              <div
+                role="group"
+                aria-label={chat.deleteChat}
+                className="flex flex-wrap items-center gap-2 rounded-md border border-destructive px-3 py-2"
+              >
+                <Text variant="small">{chat.deleteConfirm}</Text>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="border-destructive"
+                    disabled={historyBusy}
+                    onClick={onDeleteConfirm}
+                  >
+                    {chat.deleteConfirmButton}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={onDeleteCancel}>
+                    {chat.deleteCancel}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="border-destructive"
+                  disabled={historyBusy}
+                  onClick={onDeleteRequest}
+                >
+                  {chat.deleteChat}
+                </Button>
+              </div>
+            )
+          ) : null}
         </div>
       ) : null}
 

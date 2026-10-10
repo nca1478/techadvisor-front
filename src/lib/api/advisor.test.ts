@@ -328,6 +328,16 @@ describe('createAdvisorApi', () => {
     expect(chatSessionStorageKey('en')).not.toBe(chatSessionStorageKey('es'));
   });
 
+  it('deletes a chat session with DELETE', async () => {
+    const fetchFn = vi.fn(() => Promise.resolve(new Response(null, { status: 204 })));
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    await api.deleteSession('session-1');
+    expect(fetchFn).toHaveBeenCalledWith(
+      'http://test/advisor/sessions/session-1',
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
   it('parses a session list and rejects malformed ones', async () => {
     const { fetchFn, calls } = okHandler([
       {

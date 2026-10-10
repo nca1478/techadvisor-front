@@ -203,6 +203,8 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pendingClarification, setPendingClarification] = useState(false);
   const [startingNewChat, setStartingNewChat] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingSession, setDeletingSession] = useState(false);
   const lastSentRef = useRef('');
   const idRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
@@ -349,7 +351,7 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       options: { appendUser?: boolean; rotated?: boolean; sidOverride?: string } = {},
     ): Promise<void> => {
       const content = text.trim();
-      if (content.length === 0 || sending) return;
+      if (content.length === 0 || sending || deletingSession) return;
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -473,7 +475,17 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
         }
       }
     },
-    [chat.sessionError, locale, messages, nextId, sending, sessionId, sessions, startFreshSession],
+    [
+      chat.sessionError,
+      deletingSession,
+      locale,
+      messages,
+      nextId,
+      sending,
+      sessionId,
+      sessions,
+      startFreshSession,
+    ],
   );
 
   const handleSubmit = useCallback(() => {
@@ -495,11 +507,12 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
 
   const handleSelectSession = useCallback(
     async (id: string): Promise<void> => {
-      if (id === sessionId || sending || startingNewChat || switchingSession) {
+      if (id === sessionId || sending || startingNewChat || switchingSession || deletingSession) {
         return;
       }
       abortRef.current?.abort();
       setSwitchingSession(true);
+      setConfirmingDelete(false);
       setErrorMessage(null);
       const history = await fetchSessionHistory(id);
       if (history) {
@@ -551,13 +564,22 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       }
       setSwitchingSession(false);
     },
-    [chat.historyError, locale, sending, sessionId, startingNewChat, switchingSession],
+    [
+      chat.historyError,
+      deletingSession,
+      locale,
+      sending,
+      sessionId,
+      startingNewChat,
+      switchingSession,
+    ],
   );
 
   const handleNewChat = useCallback(() => {
-    if (startingNewChat || sending || switchingSession) return;
+    if (startingNewChat || sending || switchingSession || deletingSession) return;
     abortRef.current?.abort();
     setStartingNewChat(true);
+    setConfirmingDelete(false);
     setErrorMessage(null);
     // The previous session stays in `sessions` + browser history: creating a
     // new one never deletes the current conversation, it just stops showing it.
@@ -577,7 +599,111 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       .finally(() => {
         setStartingNewChat(false);
       });
-  }, [chat.sessionError, sending, startFreshSession, startingNewChat, switchingSession]);
+  }, [
+    chat.sessionError,
+    deletingSession,
+    sending,
+    startFreshSession,
+    startingNewChat,
+    switchingSession,
+  ]);
+
+  const handleDeleteRequest = useCallback(() => {
+    if (sending || startingNewChat || switchingSession || deletingSession || sessionId === null) {
+      return;
+    }
+    setErrorMessage(null);
+    setConfirmingDelete(true);
+  }, [deletingSession, sending, sessionId, startingNewChat, switchingSession]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setConfirmingDelete(false);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async (): Promise<void> => {
+    const id = sessionId;
+    if (id === null || deletingSession || sending) return;
+    abortRef.current?.abort();
+    setDeletingSession(true);
+    setConfirmingDelete(false);
+    setErrorMessage(null);
+    let gone = false;
+    try {
+      const res = await fetch(`/api/advisor/sessions/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      });
+      // 404 means it is already gone server-side (purged, or deleted in
+      // another tab): the local outcome is the same — drop it everywhere.
+      gone = res.ok || res.status === 404;
+    } catch {
+      gone = false;
+    }
+    if (!gone) {
+      setErrorMessage(chat.deleteError);
+      setDeletingSession(false);
+      return;
+    }
+    removeChatSessionFromHistory(locale, id);
+    const remaining = sessions.filter((item) => item.id !== id);
+    // Show the most recent surviving conversation (skipping purged ones);
+    // when none survives, open a blank one so the composer keeps working.
+    let activated: { id: string; bubbles: ChatBubble[]; history: ChatHistory } | null = null;
+    const dropped: string[] = [];
+    for (const candidate of remaining) {
+      const history = await fetchSessionHistory(candidate.id);
+      if (history) {
+        activated = { id: candidate.id, bubbles: historyToBubbles(history), history };
+        break;
+      }
+      dropped.push(candidate.id);
+      removeChatSessionFromHistory(locale, candidate.id);
+    }
+    const alive = remaining.filter((item) => !dropped.includes(item.id));
+    if (activated) {
+      const { id: nextId, bubbles: nextBubbles, history } = activated;
+      const survivor = alive.find((item) => item.id === nextId);
+      upsertChatSessionHistory(
+        locale,
+        survivor?.preview
+          ? { id: nextId, preview: survivor.preview, updatedAt: history.updatedAt }
+          : { id: nextId, updatedAt: history.updatedAt },
+      );
+      setSessions(
+        moveHistoryToFront(
+          alive.map((item) =>
+            item.id === nextId
+              ? { ...item, messageCount: history.messageCount, updatedAt: history.updatedAt }
+              : item,
+          ),
+          nextId,
+        ),
+      );
+      setSessionId(nextId);
+      setBubbles(nextBubbles);
+    } else {
+      setSessions([]);
+      setSessionId(null);
+      setBubbles([]);
+      const fresh = await startFreshSession();
+      if (fresh === null) {
+        setErrorMessage(chat.sessionError);
+      }
+    }
+    setPendingClarification(false);
+    lastSentRef.current = '';
+    setInput('');
+    setDeletingSession(false);
+  }, [
+    chat.deleteError,
+    chat.sessionError,
+    deletingSession,
+    locale,
+    sending,
+    sessionId,
+    sessions,
+    startFreshSession,
+  ]);
 
   const handleAddToCart = useCallback(
     (productId: string): Promise<{ ok: true } | { ok: false }> =>
@@ -637,6 +763,13 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       onSelectSession={(id) => {
         void handleSelectSession(id);
       }}
+      deleteConfirming={confirmingDelete}
+      deletingSession={deletingSession}
+      onDeleteRequest={handleDeleteRequest}
+      onDeleteConfirm={() => {
+        void handleDeleteConfirm();
+      }}
+      onDeleteCancel={handleDeleteCancel}
       errorMessage={errorMessage}
       onRetry={handleRetry}
       chips={chips}

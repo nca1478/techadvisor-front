@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Dictionary } from '@/lib/i18n/index';
 import { getDictionarySync } from '@/lib/i18n/index';
+import { chatSessionHistoryStorageKey } from '@/lib/api/advisor';
 import { AdvisorChat } from './advisor-chat';
 
 const addItemMock = vi.fn(() => Promise.resolve({ ok: true as const }));
@@ -225,6 +226,120 @@ describe('AdvisorChat', () => {
     fireEvent.change(history, { target: { value: 's2' } });
     expect(await screen.findByText('Portátil para estudiar')).toBeInTheDocument();
     expect((await screen.findAllByText(/Estas opciones encajan/)).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('deletes the current conversation and shows the next surviving one', async () => {
+    window.localStorage.setItem(
+      chatSessionHistoryStorageKey('es'),
+      JSON.stringify([{ id: 's8', preview: 'Guardada anterior' }]),
+    );
+    const calls: string[] = [];
+    const historyPayload = (id: string, userText: string, assistantText: string) => ({
+      ...sessionPayload(id),
+      messageCount: 2,
+      messages: [
+        {
+          id: `${id}-m1`,
+          role: 'USER',
+          content: userText,
+          citations: [],
+          products: [],
+          createdAt: '2026-10-09T12:00:00.000Z',
+        },
+        {
+          id: `${id}-m2`,
+          role: 'ASSISTANT',
+          content: assistantText,
+          citations: [],
+          products: [],
+          createdAt: '2026-10-09T12:01:00.000Z',
+        },
+      ],
+    });
+    stubFetch((url, init) => {
+      const method = init?.method ?? 'GET';
+      calls.push(`${method} ${url}`);
+      if (url === '/api/advisor/sessions' && method === 'GET') return jsonResponse(200, []);
+      if (url === '/api/advisor/sessions' && method === 'POST') {
+        return jsonResponse(201, sessionPayload('s9'));
+      }
+      if (url === '/api/advisor/sessions/s8') {
+        return jsonResponse(200, historyPayload('s8', 'Guardada anterior', 'Respuesta guardada.'));
+      }
+      if (url === '/api/advisor/sessions/s9' && method === 'DELETE') {
+        return new Response(null, { status: 204 });
+      }
+      if (url === '/api/advisor/sessions/s9') {
+        return jsonResponse(200, { ...sessionPayload('s9'), messageCount: 0, messages: [] });
+      }
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    expect(await screen.findByText('Guardada anterior')).toBeInTheDocument();
+
+    // A new (empty) conversation on top; the old one stays in the selector.
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.newChat }));
+    await waitFor(() => {
+      expect(
+        screen
+          .getByRole('combobox', { name: messages.chat.historyLabel })
+          .querySelectorAll('option'),
+      ).toHaveLength(2);
+    });
+    expect(screen.queryByText('Guardada anterior')).not.toBeInTheDocument();
+
+    // Two-step delete: request, then confirm.
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteChat }));
+    expect(screen.getByText(messages.chat.deleteConfirm)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteConfirmButton }));
+
+    // The deleted session is gone everywhere; the survivor is restored.
+    expect(await screen.findByText('Guardada anterior')).toBeInTheDocument();
+    expect(await screen.findByText('Respuesta guardada.')).toBeInTheDocument();
+    expect(calls).toContain('DELETE /api/advisor/sessions/s9');
+    await waitFor(() => {
+      expect(
+        screen
+          .getByRole('combobox', { name: messages.chat.historyLabel })
+          .querySelectorAll('option'),
+      ).toHaveLength(1);
+    });
+    expect(window.localStorage.getItem(SESSION_KEY)).toBe('s8');
+  });
+
+  it('deleting the last conversation opens a fresh blank one', async () => {
+    let seq = 9;
+    stubFetch((url, init) => {
+      const method = init?.method ?? 'GET';
+      if (url === '/api/advisor/sessions' && method === 'GET') return jsonResponse(200, []);
+      if (url === '/api/advisor/sessions' && method === 'POST') {
+        seq += 1;
+        return jsonResponse(201, sessionPayload(`s${String(seq)}`));
+      }
+      if (url === '/api/advisor/sessions/s10' && method === 'DELETE') {
+        return new Response(null, { status: 204 });
+      }
+      if (url === '/api/advisor/sessions/s10') {
+        return jsonResponse(200, { ...sessionPayload('s10'), messageCount: 0, messages: [] });
+      }
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    await screen.findByText(messages.chat.startersLabel);
+
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteChat }));
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.deleteConfirmButton }));
+
+    // A blank conversation replaces the deleted one; the selector holds only it.
+    await waitFor(() => {
+      expect(window.localStorage.getItem(SESSION_KEY)).toBe('s11');
+    });
+    expect(await screen.findByText(messages.chat.startersLabel)).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: messages.chat.historyLabel }).querySelectorAll('option'),
+    ).toHaveLength(1);
   });
 
   it('shows a rate-limit alert with retry that resends without duplicating the question', async () => {
