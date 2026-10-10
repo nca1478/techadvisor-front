@@ -224,7 +224,12 @@
     "inStock": "En stock",
     "outOfStock": "Agotado",
     "sessionError": "No se pudo abrir la conversación. Inténtalo de nuevo.",
-    "historyError": "No se pudo recuperar la conversación anterior. Empezamos una nueva."
+    "historyError": "No se pudo recuperar la conversación anterior. Empezamos una nueva.",
+    "historyLabel": "Conversaciones guardadas",
+    "historyLoading": "Cargando conversaciones…",
+    "historyEmpty": "Aún no hay conversaciones guardadas.",
+    "historyListError": "No se pudo cargar el historial. Se muestra la conversación actual.",
+    "conversationFallback": "Conversación"
   },
   "cart": {
     "title": "Carrito",

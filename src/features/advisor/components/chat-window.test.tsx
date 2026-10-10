@@ -118,6 +118,31 @@ describe('ChatWindow', () => {
     expect(onRetry).toHaveBeenCalled();
   });
 
+  it('lists saved conversations and switches on selection', () => {
+    const onSelectSession = vi.fn();
+    render(
+      <ChatWindow
+        {...baseProps({
+          historyOptions: [
+            { id: 's2', label: 'Portátil para estudiar (2)' },
+            { id: 's1', label: 'Auriculares cómodos' },
+          ],
+          currentSessionId: 's1',
+          onSelectSession,
+        })}
+      />,
+    );
+    const history = screen.getByRole('combobox', { name: messages.chat.historyLabel });
+    expect(history.querySelectorAll('option')).toHaveLength(2);
+    fireEvent.change(history, { target: { value: 's2' } });
+    expect(onSelectSession).toHaveBeenCalledWith('s2');
+  });
+
+  it('shows a loading state for the history while sessions resolve', () => {
+    render(<ChatWindow {...baseProps({ historyLoading: true })} />);
+    expect(screen.getByText(messages.chat.historyLoading)).toBeInTheDocument();
+  });
+
   it('submits the composer with Enter and starts a new chat on demand', () => {
     const onSubmit = vi.fn();
     const onNewChat = vi.fn();

@@ -75,7 +75,55 @@ const state = {
   orderSeq: 0,
   sessions: [],
   sessionSeq: 0,
+  sidSeq: 0,
 };
+
+// Advisor session ownership (mirrors the real backend, ADR 0029): a session
+// belongs to the Bearer-authenticated user or to the anonymous guest holding
+// the `sid` cookie. Unknown ids and foreign sessions 404 identically (never
+// revealing ownership); listing requires authentication (401 otherwise).
+// Without this, contexts would adopt each other's sessions through the
+// history list and e2e tests would share conversations.
+function parseCookies(req) {
+  const header = req.headers['cookie'] ?? '';
+  const out = {};
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq <= 0) continue;
+    out[part.slice(0, eq).trim()] = decodeURIComponent(part.slice(eq + 1).trim());
+  }
+  return out;
+}
+
+function bearerToken(req) {
+  const auth = req.headers['authorization'] ?? '';
+  return auth.startsWith('Bearer ') ? auth.slice('Bearer '.length).trim() : '';
+}
+
+function callerOwnerKey(req) {
+  const token = bearerToken(req);
+  if (token) return `user:${token}`;
+  const sid = parseCookies(req).sid;
+  return sid ? `anon:${sid}` : null;
+}
+
+function publicSession(session) {
+  // Owner never leaves the server (like the real backend's DTOs).
+  return {
+    id: session.id,
+    messageCount: session.messages.length,
+    createdAt: session.createdAt,
+    updatedAt: session.updatedAt,
+  };
+}
+
+function ownedSessionOrNull(req, id) {
+  const owner = callerOwnerKey(req);
+  if (!owner) return null;
+  const session = state.sessions.find((candidate) => candidate.id === id);
+  if (!session || session.owner !== owner) return null;
+  return session;
+}
 
 function uniformError(statusCode, code, message) {
   return { status: statusCode, body: { statusCode, code, message } };
@@ -417,29 +465,48 @@ async function handler(req, res) {
   // Advisor (fake adapters): chat sessions, cited answer, abstention, rate limit, feedback stub.
   if (method === 'POST' && path === '/advisor/sessions') {
     state.sessionSeq += 1;
+    let owner = callerOwnerKey(req);
+    let extraHeaders = {};
+    if (!owner) {
+      state.sidSeq += 1;
+      const sid = `mock-sid-${state.sidSeq}`;
+      owner = `anon:${sid}`;
+      extraHeaders = { 'set-cookie': `sid=${sid}; Path=/; HttpOnly` };
+    }
     const session = {
       id: `session-mock-${state.sessionSeq}`,
-      messageCount: 0,
+      owner,
       createdAt: now(),
       updatedAt: now(),
       messages: [],
     };
     state.sessions.push(session);
-    send(res, 201, session);
+    send(res, 201, publicSession(session), extraHeaders);
+    return;
+  }
+
+  if (method === 'GET' && path === '/advisor/sessions') {
+    if (!bearerToken(req)) {
+      const err = uniformError(401, 'UNAUTHORIZED', 'Authentication required');
+      send(res, err.status, err.body);
+      return;
+    }
+    const owned = state.sessions.filter((candidate) => candidate.owner === callerOwnerKey(req));
+    send(res, 200, [...owned].reverse().map(publicSession));
     return;
   }
 
   const sessionMatch = path.match(/^\/advisor\/sessions\/([^/]+)$/);
   if (sessionMatch && method === 'GET') {
-    const session = state.sessions.find(
-      (candidate) => candidate.id === decodeURIComponent(sessionMatch[1]),
-    );
+    const session = ownedSessionOrNull(req, decodeURIComponent(sessionMatch[1]));
     if (!session) {
       const err = uniformError(404, 'NOT_FOUND', 'Unknown session');
       send(res, err.status, err.body);
       return;
     }
-    send(res, 200, session);
+    const rest = { ...session };
+    delete rest.owner;
+    send(res, 200, rest);
     return;
   }
 
@@ -469,9 +536,7 @@ async function handler(req, res) {
   // role+content bodies keep the legacy raw-append behavior.
   const messagesMatch = path.match(/^\/advisor\/sessions\/([^/]+)\/messages$/);
   if (messagesMatch && method === 'POST') {
-    const session = state.sessions.find(
-      (candidate) => candidate.id === decodeURIComponent(messagesMatch[1]),
-    );
+    const session = ownedSessionOrNull(req, decodeURIComponent(messagesMatch[1]));
     if (!session) {
       const err = uniformError(404, 'NOT_FOUND', 'Unknown session');
       send(res, err.status, err.body);

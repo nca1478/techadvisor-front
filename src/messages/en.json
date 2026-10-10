@@ -224,7 +224,12 @@
     "inStock": "In stock",
     "outOfStock": "Out of stock",
     "sessionError": "The conversation could not be opened. Please try again.",
-    "historyError": "The previous conversation could not be recovered. Starting a new one."
+    "historyError": "The previous conversation could not be recovered. Starting a new one.",
+    "historyLabel": "Saved conversations",
+    "historyLoading": "Loading conversations…",
+    "historyEmpty": "No saved conversations yet.",
+    "historyListError": "The history could not be loaded. Showing the current conversation.",
+    "conversationFallback": "Conversation"
   },
   "cart": {
     "title": "Cart",

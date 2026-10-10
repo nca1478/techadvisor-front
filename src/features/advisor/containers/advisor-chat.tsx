@@ -5,16 +5,23 @@ import { useCart } from '@/features/cart/cart-context';
 import {
   asAdvisorCitation,
   asRecommendProduct,
-  chatSessionStorageKey,
   classifyAdvisorError,
+  migrateLegacyChatSession,
   parseChatHistory,
+  parseChatSessionList,
+  readChatSessionHistory,
+  removeChatSessionFromHistory,
   streamRecommendation,
+  truncateSessionPreview,
+  upsertChatSessionHistory,
   type AdvisorCitation,
   type ChatHistory,
+  type ChatSession,
+  type ChatSessionHistoryEntry,
   type RecommendProduct,
 } from '@/lib/api/advisor';
 import type { Dictionary } from '@/lib/i18n/index';
-import { ChatWindow, type ChatBubble } from '../components/chat-window';
+import { ChatWindow, type ChatBubble, type ChatHistoryOption } from '../components/chat-window';
 
 export interface AdvisorChatProps {
   locale: string;
@@ -76,6 +83,104 @@ async function openSession(): Promise<string | null> {
   }
 }
 
+interface HistoryItem {
+  id: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+  preview?: string;
+}
+
+function mergeHistory(
+  remote: ChatSession[] | null,
+  localEntries: ChatSessionHistoryEntry[],
+): HistoryItem[] {
+  const previews = new Map(localEntries.map((entry) => [entry.id, entry.preview]));
+  const merged: HistoryItem[] = [];
+  if (remote) {
+    for (const session of remote) {
+      merged.push({ ...session, preview: previews.get(session.id) });
+    }
+  }
+  const known = new Set(merged.map((item) => item.id));
+  for (const entry of localEntries) {
+    if (known.has(entry.id)) continue;
+    merged.push({
+      id: entry.id,
+      messageCount: 0,
+      createdAt: entry.updatedAt ?? '',
+      updatedAt: entry.updatedAt ?? '',
+      preview: entry.preview,
+    });
+  }
+  return merged;
+}
+
+function moveHistoryToFront(items: HistoryItem[], sessionId: string): HistoryItem[] {
+  const current = items.find((item) => item.id === sessionId);
+  if (!current) return items;
+  return [current, ...items.filter((item) => item.id !== sessionId)];
+}
+
+function formatHistoryLabel(item: HistoryItem, locale: string, fallback: string): string {
+  let datePart = '';
+  const dateSource = item.preview ? null : item.updatedAt || item.createdAt || null;
+  if (dateSource) {
+    const date = new Date(dateSource);
+    if (!Number.isNaN(date.getTime())) {
+      try {
+        datePart = new Intl.DateTimeFormat(locale, {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        }).format(date);
+      } catch {
+        datePart = '';
+      }
+    }
+  }
+  const base = item.preview ?? (datePart ? `${fallback} · ${datePart}` : fallback);
+  return item.messageCount > 0 ? `${base} (${String(item.messageCount)})` : base;
+}
+
+async function fetchSessionHistory(sessionId: string): Promise<ChatHistory | null> {
+  try {
+    const res = await fetch(`/api/advisor/sessions/${encodeURIComponent(sessionId)}`, {
+      credentials: 'same-origin',
+    });
+    if (!res.ok) return null;
+    const body: unknown = await res.json().catch(() => null);
+    try {
+      return parseChatHistory(body);
+    } catch {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
+async function fetchSessionList(): Promise<{
+  status: 'ok' | 'unauthenticated' | 'failed';
+  sessions: ChatSession[];
+}> {
+  try {
+    const res = await fetch('/api/advisor/sessions', { credentials: 'same-origin' });
+    // 401 = guest without a server list (browser history applies); 404 = list
+    // route unknown (older BFF): both fall back to local history silently.
+    if (res.status === 401 || res.status === 404)
+      return { status: 'unauthenticated', sessions: [] };
+    if (!res.ok) return { status: 'failed', sessions: [] };
+    const body: unknown = await res.json().catch(() => null);
+    try {
+      return { status: 'ok', sessions: parseChatSessionList(body) };
+    } catch {
+      return { status: 'failed', sessions: [] };
+    }
+  } catch {
+    return { status: 'failed', sessions: [] };
+  }
+}
+
 /**
  * Container (Client Component): owns the chat session lifecycle (guest and
  * authenticated — both ride the BFF cookies), history restore from
@@ -85,8 +190,10 @@ async function openSession(): Promise<string | null> {
 export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
   const chat = messages.chat;
   const { addItem } = useCart();
-  const storageKey = chatSessionStorageKey(locale);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [switchingSession, setSwitchingSession] = useState(false);
   const [opening, setOpening] = useState(true);
   const [openFailed, setOpenFailed] = useState(false);
   const [bubbles, setBubbles] = useState<ChatBubble[]>([]);
@@ -105,71 +212,128 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
     return `${prefix}-${String(Date.now())}-${String(idRef.current)}`;
   }, []);
 
+  const trackSession = useCallback(
+    (id: string, preview?: string): void => {
+      const now = new Date().toISOString();
+      upsertChatSessionHistory(
+        locale,
+        preview ? { id, preview, updatedAt: now } : { id, updatedAt: now },
+      );
+      setSessions((prev) => {
+        const existing = prev.find((item) => item.id === id);
+        if (existing) {
+          return moveHistoryToFront(
+            prev.map((item) =>
+              item.id === id ? { ...item, preview: preview ?? item.preview, updatedAt: now } : item,
+            ),
+            id,
+          );
+        }
+        return [{ id, messageCount: 0, createdAt: now, updatedAt: now, preview }, ...prev];
+      });
+    },
+    [locale],
+  );
+
   const startFreshSession = useCallback(async (): Promise<string | null> => {
     const id = await openSession();
     if (id !== null) {
-      try {
-        window.localStorage.setItem(storageKey, id);
-      } catch {
-        // Private mode: the chat still works for this page view.
-      }
+      trackSession(id);
       setSessionId(id);
     }
     return id;
-  }, [storageKey]);
+  }, [trackSession]);
 
-  // Mount: restore the stored session history, or open a fresh session.
+  // Mount: merge the server list (authenticated) with the browser history
+  // (guests included), then restore the most recent reachable session.
   useEffect(() => {
+    // Per-mount flag (StrictMode double-mount safe: a shared ref would let
+    // the first mount's in-flight init survive its cleanup and duplicate
+    // sessions). Reads go through the typed reader because an early
+    // `if (cancelled) return;` would otherwise narrow every later read in
+    // this flow to `false` for the linter.
     let cancelled = false;
+    const isCancelled = (): boolean => cancelled;
     async function init(): Promise<void> {
-      let stored: string | null = null;
-      try {
-        stored = window.localStorage.getItem(storageKey);
-      } catch {
-        stored = null;
+      const legacy = migrateLegacyChatSession(locale);
+      const localEntries = readChatSessionHistory(locale);
+      const list = await fetchSessionList();
+      if (isCancelled()) return;
+      const merged = mergeHistory(list.status === 'ok' ? list.sessions : null, localEntries);
+      if (list.status === 'failed' && !isCancelled()) {
+        setErrorMessage(chat.historyListError);
       }
-      if (stored) {
-        try {
-          const res = await fetch(`/api/advisor/sessions/${encodeURIComponent(stored)}`, {
-            credentials: 'same-origin',
-          });
-          if (res.ok) {
-            const body: unknown = await res.json().catch(() => null);
-            if (!cancelled) {
-              setSessionId(stored);
-              setBubbles(historyToBubbles(parseChatHistory(body)));
-              setOpening(false);
-              return;
-            }
-          } else if (res.status !== 404 && !cancelled) {
-            // Unusable history (but the session may still accept turns):
-            // keep the session and show a notice instead of losing it.
-            setSessionId(stored);
-            setErrorMessage(chat.historyError);
-            setOpening(false);
-            return;
-          }
-        } catch {
-          if (!cancelled) {
-            setSessionId(stored);
-            setErrorMessage(chat.historyError);
-            setOpening(false);
-            return;
-          }
+      const candidates: string[] = [];
+      for (const id of [
+        legacy,
+        ...localEntries.map((entry) => entry.id),
+        ...merged.map((item) => item.id),
+      ]) {
+        if (id && !candidates.includes(id)) candidates.push(id);
+      }
+      for (const candidate of candidates) {
+        if (isCancelled()) return;
+        const history = await fetchSessionHistory(candidate);
+        if (isCancelled()) return;
+        if (history) {
+          const preview = history.messages.find((message) => message.role === 'USER')?.content;
+          upsertChatSessionHistory(
+            locale,
+            preview
+              ? {
+                  id: candidate,
+                  preview: truncateSessionPreview(preview),
+                  updatedAt: history.updatedAt,
+                }
+              : { id: candidate, updatedAt: history.updatedAt },
+          );
+          const refreshed = readChatSessionHistory(locale);
+          const withPreview = new Map(refreshed.map((entry) => [entry.id, entry.preview]));
+          setSessions(
+            moveHistoryToFront(
+              mergeHistory(list.status === 'ok' ? list.sessions : null, refreshed).map((item) => ({
+                ...item,
+                messageCount: item.id === candidate ? history.messageCount : item.messageCount,
+                updatedAt: item.id === candidate ? history.updatedAt : item.updatedAt,
+                preview: withPreview.get(item.id) ?? item.preview,
+              })),
+              candidate,
+            ),
+          );
+          setSessionId(candidate);
+          setBubbles(historyToBubbles(history));
+          setOpening(false);
+          setHistoryLoading(false);
+          return;
         }
-        if (cancelled) return;
+        // Unreachable (purged or foreign): drop it from the browser history.
+        removeChatSessionFromHistory(locale, candidate);
       }
-      const id = await startFreshSession();
-      if (!cancelled) {
-        setOpenFailed(id === null);
-        setOpening(false);
+      if (isCancelled()) return;
+      setSessions(merged);
+      const id = await openSession();
+      if (isCancelled()) return;
+      if (id !== null) {
+        trackSession(id);
+        setSessionId(id);
+        setSessions((prev) =>
+          prev.some((item) => item.id === id) ? moveHistoryToFront(prev, id) : prev,
+        );
+        if (list.status === 'failed') setErrorMessage(chat.historyListError);
+        else setErrorMessage(null);
+      } else {
+        setOpenFailed(true);
       }
+      setOpening(false);
+      setHistoryLoading(false);
     }
     void init();
     return () => {
       cancelled = true;
     };
-  }, [chat.historyError, startFreshSession, storageKey]);
+    // Runs once per locale mount; session setters are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
 
   // Abort any in-flight stream on unmount.
   useEffect(
@@ -232,11 +396,8 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
           if (kind === 'not-found' && !options.rotated) {
             // The session is gone (retention purge or owner change):
             // rotate once and resend without duplicating the user bubble.
-            try {
-              window.localStorage.removeItem(storageKey);
-            } catch {
-              // Browsers sin almacenamiento: se sigue con la sesión nueva.
-            }
+            if (sid) removeChatSessionFromHistory(locale, sid);
+            setSessions((prev) => prev.filter((item) => item.id !== sid));
             setSessionId(null);
             const fresh = await startFreshSession();
             if (fresh !== null && !isAborted()) {
@@ -274,6 +435,36 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
           setPendingClarification(
             result.products.length === 0 && result.clarifyingQuestion !== undefined,
           );
+          // Keep the history entry fresh: first user message becomes the
+          // selector preview, and the turn count grows optimistically.
+          const now = new Date().toISOString();
+          setSessions((prev) => {
+            const existing = prev.find((item) => item.id === sid);
+            const preview = existing?.preview ?? truncateSessionPreview(content);
+            if (existing) {
+              return moveHistoryToFront(
+                prev.map((item) =>
+                  item.id === sid
+                    ? {
+                        ...item,
+                        preview,
+                        messageCount: item.messageCount + 2,
+                        updatedAt: now,
+                      }
+                    : item,
+                ),
+                sid,
+              );
+            }
+            return [{ id: sid, messageCount: 2, createdAt: now, updatedAt: now, preview }, ...prev];
+          });
+          upsertChatSessionHistory(locale, {
+            id: sid,
+            preview: truncateSessionPreview(
+              sessions.find((item) => item.id === sid)?.preview ?? content,
+            ),
+            updatedAt: now,
+          });
         }
       } finally {
         if (!isAborted()) {
@@ -282,16 +473,7 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
         }
       }
     },
-    [
-      chat.sessionError,
-      locale,
-      messages,
-      nextId,
-      sending,
-      sessionId,
-      startFreshSession,
-      storageKey,
-    ],
+    [chat.sessionError, locale, messages, nextId, sending, sessionId, sessions, startFreshSession],
   );
 
   const handleSubmit = useCallback(() => {
@@ -311,17 +493,83 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
     void send(lastSentRef.current, { appendUser: bubbles[bubbles.length - 1]?.role !== 'user' });
   }, [bubbles, openFailed, send, startFreshSession]);
 
+  const handleSelectSession = useCallback(
+    async (id: string): Promise<void> => {
+      if (id === sessionId || sending || startingNewChat || switchingSession) {
+        return;
+      }
+      abortRef.current?.abort();
+      setSwitchingSession(true);
+      setErrorMessage(null);
+      const history = await fetchSessionHistory(id);
+      if (history) {
+        const preview = history.messages.find((message) => message.role === 'USER')?.content;
+        upsertChatSessionHistory(
+          locale,
+          preview
+            ? { id, preview: truncateSessionPreview(preview), updatedAt: history.updatedAt }
+            : { id, updatedAt: history.updatedAt },
+        );
+        setSessions((prev) => {
+          const existing = prev.find((item) => item.id === id);
+          if (existing) {
+            return moveHistoryToFront(
+              prev.map((item) =>
+                item.id === id
+                  ? {
+                      ...item,
+                      preview: preview ? truncateSessionPreview(preview) : item.preview,
+                      messageCount: history.messageCount,
+                      updatedAt: history.updatedAt,
+                    }
+                  : item,
+              ),
+              id,
+            );
+          }
+          return [
+            {
+              id,
+              messageCount: history.messageCount,
+              createdAt: history.createdAt,
+              updatedAt: history.updatedAt,
+              preview: preview ? truncateSessionPreview(preview) : undefined,
+            },
+            ...prev,
+          ];
+        });
+        setSessionId(id);
+        setBubbles(historyToBubbles(history));
+        setPendingClarification(false);
+        lastSentRef.current = '';
+        setInput('');
+      } else {
+        // Purged or never owned: drop it so the selector never strands the user.
+        removeChatSessionFromHistory(locale, id);
+        setSessions((prev) => prev.filter((item) => item.id !== id));
+        setErrorMessage(chat.historyError);
+      }
+      setSwitchingSession(false);
+    },
+    [chat.historyError, locale, sending, sessionId, startingNewChat, switchingSession],
+  );
+
   const handleNewChat = useCallback(() => {
-    if (startingNewChat || sending) return;
+    if (startingNewChat || sending || switchingSession) return;
     abortRef.current?.abort();
     setStartingNewChat(true);
     setErrorMessage(null);
+    // The previous session stays in `sessions` + browser history: creating a
+    // new one never deletes the current conversation, it just stops showing it.
     void startFreshSession()
       .then((id) => {
         if (id === null) {
           setErrorMessage(chat.sessionError);
           return;
         }
+        setSessions((prev) =>
+          prev.some((item) => item.id === id) ? moveHistoryToFront(prev, id) : prev,
+        );
         setBubbles([]);
         setPendingClarification(false);
         lastSentRef.current = '';
@@ -329,7 +577,7 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       .finally(() => {
         setStartingNewChat(false);
       });
-  }, [chat.sessionError, sending, startFreshSession, startingNewChat]);
+  }, [chat.sessionError, sending, startFreshSession, startingNewChat, switchingSession]);
 
   const handleAddToCart = useCallback(
     (productId: string): Promise<{ ok: true } | { ok: false }> =>
@@ -342,6 +590,10 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
   const showStarters = bubbles.length === 0 && !sending && streamingText === null;
   const chips = showStarters ? chat.starters : pendingClarification ? chat.quickReplies : [];
   const chipsLabel = showStarters ? chat.startersLabel : chat.quickRepliesLabel;
+  const historyOptions: ChatHistoryOption[] = sessions.map((item) => ({
+    id: item.id,
+    label: formatHistoryLabel(item, locale, chat.conversationFallback),
+  }));
 
   if (opening) {
     return (
@@ -378,6 +630,13 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       onSubmit={handleSubmit}
       onNewChat={handleNewChat}
       startingNewChat={startingNewChat}
+      historyOptions={historyOptions}
+      currentSessionId={sessionId}
+      historyLoading={historyLoading}
+      switchingSession={switchingSession}
+      onSelectSession={(id) => {
+        void handleSelectSession(id);
+      }}
       errorMessage={errorMessage}
       onRetry={handleRetry}
       chips={chips}

@@ -3,13 +3,20 @@ import { ApiError } from './errors';
 import {
   asAdvisorCitation,
   asRecommendProduct,
+  chatSessionHistoryStorageKey,
   chatSessionStorageKey,
   classifyAdvisorError,
   createAdvisorApi,
+  migrateLegacyChatSession,
   parseChatHistory,
+  parseChatSessionList,
   parseRecommendResponse,
   parseSseFrames,
+  readChatSessionHistory,
+  removeChatSessionFromHistory,
   streamRecommendation,
+  truncateSessionPreview,
+  upsertChatSessionHistory,
 } from './advisor';
 import { createApiClient } from './client';
 
@@ -319,6 +326,52 @@ describe('createAdvisorApi', () => {
   it('builds a stable per-locale storage key', () => {
     expect(chatSessionStorageKey('es')).toBe('techadvisor:advisor-chat:es');
     expect(chatSessionStorageKey('en')).not.toBe(chatSessionStorageKey('es'));
+  });
+
+  it('parses a session list and rejects malformed ones', async () => {
+    const { fetchFn, calls } = okHandler([
+      {
+        id: 's1',
+        messageCount: 2,
+        createdAt: '2026-10-09T12:00:00.000Z',
+        updatedAt: '2026-10-09T12:01:00.000Z',
+      },
+    ]);
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    const list = await api.listSessions();
+    expect(list).toHaveLength(1);
+    expect(list[0]?.id).toBe('s1');
+    expect(calls[0]?.url).toBe('http://test/advisor/sessions');
+    expect(() => parseChatSessionList([{ id: 42 }])).toThrow('Invalid chat session list shape');
+  });
+
+  it('keeps a deduplicated, capped browser history and migrates the legacy slot', () => {
+    window.localStorage.clear();
+    expect(readChatSessionHistory('es')).toEqual([]);
+    window.localStorage.setItem(chatSessionStorageKey('es'), 'legacy-1');
+    expect(migrateLegacyChatSession('es')).toBe('legacy-1');
+    expect(readChatSessionHistory('es').map((entry) => entry.id)).toEqual(['legacy-1']);
+    // Migrating twice does not duplicate.
+    expect(migrateLegacyChatSession('es')).toBe('legacy-1');
+    expect(readChatSessionHistory('es')).toHaveLength(1);
+
+    upsertChatSessionHistory('es', { id: 's2', preview: 'Portátil para estudiar' });
+    expect(readChatSessionHistory('es').map((entry) => entry.id)).toEqual(['s2', 'legacy-1']);
+    // Re-upserting moves to the front and refreshes the current-session slot.
+    upsertChatSessionHistory('es', { id: 'legacy-1' });
+    expect(readChatSessionHistory('es').map((entry) => entry.id)).toEqual(['legacy-1', 's2']);
+    expect(window.localStorage.getItem(chatSessionStorageKey('es'))).toBe('legacy-1');
+
+    removeChatSessionFromHistory('es', 'legacy-1');
+    expect(readChatSessionHistory('es').map((entry) => entry.id)).toEqual(['s2']);
+
+    expect(chatSessionHistoryStorageKey('es')).not.toBe(chatSessionHistoryStorageKey('en'));
+    window.localStorage.clear();
+  });
+
+  it('truncates session previews to a single line', () => {
+    expect(truncateSessionPreview('  Hola\nmundo  ')).toBe('Hola mundo');
+    expect(truncateSessionPreview('x'.repeat(100), 60)).toHaveLength(60);
   });
 
   it('classifies advisor errors by status and code', () => {

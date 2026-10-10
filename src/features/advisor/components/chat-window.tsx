@@ -22,6 +22,11 @@ export interface ChatBubble {
   clarifying?: boolean;
 }
 
+export interface ChatHistoryOption {
+  id: string;
+  label: string;
+}
+
 export interface ChatWindowProps {
   bubbles: ChatBubble[];
   /** Live assistant text while streaming; null when idle. */
@@ -32,6 +37,12 @@ export interface ChatWindowProps {
   onSubmit: () => void;
   onNewChat: () => void;
   startingNewChat: boolean;
+  /** Saved sessions for the history selector (empty = none yet). */
+  historyOptions?: ChatHistoryOption[];
+  currentSessionId?: string | null;
+  historyLoading?: boolean;
+  switchingSession?: boolean;
+  onSelectSession?: (sessionId: string) => void;
   errorMessage: string | null;
   onRetry: () => void;
   chips: string[];
@@ -57,6 +68,11 @@ export function ChatWindow({
   onSubmit,
   onNewChat,
   startingNewChat,
+  historyOptions = [],
+  currentSessionId = null,
+  historyLoading = false,
+  switchingSession = false,
+  onSelectSession,
   errorMessage,
   onRetry,
   chips,
@@ -91,6 +107,9 @@ export function ChatWindow({
     handleChip(chip);
   };
 
+  const historyBusy = sending || startingNewChat || switchingSession;
+  const showHistory = historyLoading || historyOptions.length > 0 || currentSessionId !== null;
+
   return (
     <Stack gap="md">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -109,6 +128,39 @@ export function ChatWindow({
           {chat.newChat}
         </Button>
       </div>
+
+      {showHistory ? (
+        <div className="flex flex-col gap-1">
+          <label htmlFor="advisor-history" className="text-xs font-medium text-muted-foreground">
+            {chat.historyLabel}
+          </label>
+          {historyLoading ? (
+            <Text variant="small" tone="muted" role="status">
+              {chat.historyLoading}
+            </Text>
+          ) : historyOptions.length === 0 ? (
+            <Text variant="small" tone="muted">
+              {chat.historyEmpty}
+            </Text>
+          ) : (
+            <select
+              id="advisor-history"
+              className="h-9 rounded-md border border-border bg-surface px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              value={currentSessionId ?? ''}
+              disabled={historyBusy}
+              onChange={(event) => {
+                if (event.target.value) onSelectSession?.(event.target.value);
+              }}
+            >
+              {historyOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      ) : null}
 
       <div
         ref={logRef}

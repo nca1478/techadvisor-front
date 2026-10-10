@@ -161,6 +161,72 @@ describe('AdvisorChat', () => {
     expect(calls).not.toContain('POST /api/advisor/sessions');
   });
 
+  it('keeps the previous conversation selectable after starting a new chat', async () => {
+    let seq = 1;
+    stubFetch((url, init) => {
+      const method = init?.method ?? 'GET';
+      if (url === '/api/advisor/sessions' && method === 'GET') return jsonResponse(200, []);
+      if (url === '/api/advisor/sessions' && method === 'POST') {
+        seq += 1;
+        return jsonResponse(201, sessionPayload(`s${String(seq)}`));
+      }
+      if (url === '/api/advisor/sessions/s2/messages') return sseResponse(RECOMMEND_SSE);
+      if (url === '/api/advisor/sessions/s2') {
+        return jsonResponse(200, {
+          ...sessionPayload('s2'),
+          messageCount: 2,
+          messages: [
+            {
+              id: 'm1',
+              role: 'USER',
+              content: 'Portátil para estudiar',
+              citations: [],
+              products: [],
+              createdAt: '2026-10-09T12:00:00.000Z',
+            },
+            {
+              id: 'm2',
+              role: 'ASSISTANT',
+              content: 'Estas opciones encajan [1].',
+              citations: [],
+              products: [],
+              createdAt: '2026-10-09T12:01:00.000Z',
+            },
+          ],
+        });
+      }
+      if (url === '/api/advisor/sessions/s3') {
+        return jsonResponse(200, { ...sessionPayload('s3'), messageCount: 0, messages: [] });
+      }
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    await screen.findByText(messages.chat.startersLabel);
+
+    fireEvent.change(screen.getByLabelText(messages.chat.inputLabel), {
+      target: { value: 'Portátil para estudiar' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.send }));
+    expect((await screen.findAllByText(/Estas opciones encajan/)).length).toBeGreaterThanOrEqual(1);
+
+    // Starting a new conversation clears the view but preserves the old one.
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.newChat }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole('combobox', { name: messages.chat.historyLabel }),
+      ).toBeInTheDocument();
+    });
+    const history = screen.getByRole('combobox', { name: messages.chat.historyLabel });
+    expect(history.querySelectorAll('option')).toHaveLength(2);
+    expect(screen.queryByText('Portátil para estudiar')).not.toBeInTheDocument();
+
+    // Switching back restores the previous conversation from the backend.
+    fireEvent.change(history, { target: { value: 's2' } });
+    expect(await screen.findByText('Portátil para estudiar')).toBeInTheDocument();
+    expect((await screen.findAllByText(/Estas opciones encajan/)).length).toBeGreaterThanOrEqual(1);
+  });
+
   it('shows a rate-limit alert with retry that resends without duplicating the question', async () => {
     let attempts = 0;
     stubFetch((url) => {

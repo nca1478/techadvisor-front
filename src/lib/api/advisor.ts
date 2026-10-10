@@ -204,6 +204,129 @@ export function chatSessionStorageKey(locale: string): string {
   return `techadvisor:advisor-chat:${locale}`;
 }
 
+/** localStorage key for the multi-session history (per locale). */
+export function chatSessionHistoryStorageKey(locale: string): string {
+  return `techadvisor:advisor-chat:history:${locale}`;
+}
+
+/** Maximum sessions kept in the browser history (guests included). */
+export const ADVISOR_HISTORY_LIMIT = 20;
+
+export interface ChatSessionHistoryEntry {
+  id: string;
+  /** First user message of the session, truncated for display. */
+  preview?: string;
+  updatedAt?: string;
+}
+
+const chatSessionHistoryEntrySchema = z.object({
+  id: z.string().min(1),
+  preview: z.string().max(120).optional(),
+  updatedAt: z.string().optional(),
+});
+
+const chatSessionListSchema = z.array(chatSessionSchema);
+
+/** Parses the backend session list (`GET /advisor/sessions`). Throws on shape mismatch. */
+export function parseChatSessionList(value: unknown): ChatSession[] {
+  const parsed = chatSessionListSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error('Invalid chat session list shape');
+  }
+  return parsed.data;
+}
+
+function readStorage(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Private mode: history simply does not persist.
+  }
+}
+
+/** Reads the browser-side session history (tolerates corrupt JSON). */
+export function readChatSessionHistory(locale: string): ChatSessionHistoryEntry[] {
+  const raw = readStorage(chatSessionHistoryStorageKey(locale));
+  if (!raw) return [];
+  let parsed: unknown = null;
+  try {
+    parsed = JSON.parse(raw) as unknown;
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const entries: ChatSessionHistoryEntry[] = [];
+  for (const item of parsed) {
+    const entry = chatSessionHistoryEntrySchema.safeParse(item);
+    if (entry.success) entries.push(entry.data);
+  }
+  return entries.slice(0, ADVISOR_HISTORY_LIMIT);
+}
+
+function persistChatSessionHistory(locale: string, entries: ChatSessionHistoryEntry[]): void {
+  writeStorage(
+    chatSessionHistoryStorageKey(locale),
+    JSON.stringify(entries.slice(0, ADVISOR_HISTORY_LIMIT)),
+  );
+}
+
+/**
+ * Upserts one session at the front of the browser history (deduplicated by
+ * id, capped). Also refreshes the legacy single-session key so old code
+ * paths keep restoring the current conversation.
+ */
+export function upsertChatSessionHistory(
+  locale: string,
+  entry: ChatSessionHistoryEntry,
+): ChatSessionHistoryEntry[] {
+  const rest = readChatSessionHistory(locale).filter((item) => item.id !== entry.id);
+  const next = [entry, ...rest].slice(0, ADVISOR_HISTORY_LIMIT);
+  persistChatSessionHistory(locale, next);
+  writeStorage(chatSessionStorageKey(locale), entry.id);
+  return next;
+}
+
+export function removeChatSessionFromHistory(
+  locale: string,
+  sessionId: string,
+): ChatSessionHistoryEntry[] {
+  const next = readChatSessionHistory(locale).filter((item) => item.id !== sessionId);
+  persistChatSessionHistory(locale, next);
+  return next;
+}
+
+/**
+ * One-time migration of the legacy single-session slot into the history
+ * list. Returns the legacy id (if any) without duplicating existing entries.
+ */
+export function migrateLegacyChatSession(locale: string): string | null {
+  const legacy = readStorage(chatSessionStorageKey(locale));
+  if (!legacy) return null;
+  const known = readChatSessionHistory(locale).some((item) => item.id === legacy);
+  if (!known) {
+    persistChatSessionHistory(
+      locale,
+      [{ id: legacy }, ...readChatSessionHistory(locale)].slice(0, ADVISOR_HISTORY_LIMIT),
+    );
+  }
+  return legacy;
+}
+
+/** Shortens the first user message for the history selector. Pure. */
+export function truncateSessionPreview(text: string, maxLength = 60): string {
+  const singleLine = text.replace(/\s+/g, ' ').trim();
+  if (singleLine.length <= maxLength) return singleLine;
+  return `${singleLine.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
 interface ErrorBody {
   code?: unknown;
   message?: unknown;
@@ -366,6 +489,10 @@ export function createAdvisorApi(client: ApiClient = createApiClient()) {
     createSession: async (): Promise<ChatSession> => {
       const raw = await client.post<unknown>('/advisor/sessions', {});
       return parseChatSession(raw);
+    },
+    listSessions: async (): Promise<ChatSession[]> => {
+      const raw = await client.get<unknown>('/advisor/sessions');
+      return parseChatSessionList(raw);
     },
     getSessionHistory: async (sessionId: string): Promise<ChatHistory> => {
       const raw = await client.get<unknown>(`/advisor/sessions/${encodeURIComponent(sessionId)}`);

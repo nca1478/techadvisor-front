@@ -52,6 +52,29 @@ test('reloading the chat page restores the conversation from history', async ({ 
   await expect(restored.getByRole('link', { name: /Mock Laptop 13/ }).first()).toBeVisible();
 });
 
+test('starting a new chat preserves the previous conversation in the history', async ({ page }) => {
+  // Unique wording so the history option is unambiguous even though the mock
+  // backend shares sessions across tests in this file.
+  const question = 'Portátil para teletrabajo con buena batería';
+  await page.goto('/es/asesor');
+  await page.getByLabel('Escribe tu mensaje').fill(question);
+  await page.getByRole('button', { name: 'Enviar' }).click();
+  const log = page.getByRole('log', { name: 'Conversación con el asesor' });
+  await expect(log.getByText(question)).toBeVisible();
+  await expect(log.getByText(/encajan con tu presupuesto/).first()).toBeVisible({ timeout: 15000 });
+
+  await page.getByRole('button', { name: 'Nueva conversación' }).click();
+  const history = page.getByRole('combobox', { name: 'Conversaciones guardadas' });
+  const savedOption = history.locator('option', { hasText: question });
+  await expect(savedOption).toBeAttached();
+  await expect(log.getByText(question)).toBeHidden();
+
+  const savedValue = await savedOption.first().getAttribute('value');
+  await history.selectOption(savedValue ?? '');
+  await expect(log.getByText(question)).toBeVisible();
+  await expect(log.getByText(/encajan con tu presupuesto/).first()).toBeVisible();
+});
+
 test('clarification shows quick replies that fill the composer', async ({ page }) => {
   await page.goto('/es/asesor');
   await expect(page.getByText('Empieza con un ejemplo')).toBeVisible();
