@@ -46,7 +46,9 @@ export function InventoryView({
     params.set('page', String(next.page ?? page));
     const productId = next.productId === undefined ? selectedProductId : next.productId;
     if (productId) params.set('productId', productId);
-    router.push(`/${locale}/admin/inventario?${params.toString()}`);
+    // Sin scroll al principio: la paginación vive junto a la tabla, así que
+    // conservar la posición evita perderla (igual que en documentos).
+    router.push(`/${locale}/admin/inventario?${params.toString()}`, { scroll: false });
   }
 
   return (
@@ -60,89 +62,86 @@ export function InventoryView({
         <Text tone="muted">{messages.admin.products.empty}</Text>
       ) : (
         <Stack gap="md">
-          <Text variant="small" tone="muted" role="status">
-            {messages.admin.totalCount.replace('{count}', String(data.total))}
-          </Text>
           <Card padding="none">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {inventory.tableNumber}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {inventory.tableProduct}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {inventory.tableStock}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {inventory.tableReserved}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {inventory.tableAvailable}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    <span className="sr-only">{inventory.tableActions}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map((product, index) => {
-                  const selected = product.id === selectedProductId;
-                  return (
-                    <tr key={product.id} className="border-b border-border last:border-0">
-                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                        {(data.page - 1) * data.limit + index + 1}
-                      </td>
-                      <th scope="row" className="px-4 py-3 font-medium">
-                        {product.name}
-                        <Text variant="caption" tone="muted" as="span" className="block">
-                          {product.sku}
-                        </Text>
-                      </th>
-                      <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
-                      <td className="px-4 py-3 text-right font-bold tabular-nums">
-                        {availableUnits(product)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Stack direction="horizontal" gap="md" align="center">
-                          <Button
-                            variant={selected ? 'primary' : 'secondary'}
-                            size="sm"
-                            onClick={() => {
-                              navigate({ productId: selected ? null : product.id, page: 1 });
-                            }}
-                          >
-                            {inventory.adjust}
-                          </Button>
-                          <Link
-                            href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}
-                          >
-                            {messages.admin.orders.edit}
-                          </Link>
-                        </Stack>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {inventory.tableNumber}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {inventory.tableProduct}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {inventory.tableStock}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {inventory.tableReserved}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {inventory.tableAvailable}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      <span className="sr-only">{inventory.tableActions}</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.data.map((product, index) => {
+                    const selected = product.id === selectedProductId;
+                    return (
+                      <tr key={product.id} className="border-b border-border last:border-0">
+                        <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                          {(data.page - 1) * data.limit + index + 1}
+                        </td>
+                        <th scope="row" className="px-4 py-3 font-medium">
+                          {product.name}
+                          <Text variant="caption" tone="muted" as="span" className="block">
+                            {product.sku}
+                          </Text>
+                        </th>
+                        <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
+                        <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
+                        <td className="px-4 py-3 text-right font-bold tabular-nums">
+                          {availableUnits(product)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Stack direction="horizontal" gap="md" align="center">
+                            <Button
+                              variant={selected ? 'primary' : 'secondary'}
+                              size="sm"
+                              onClick={() => {
+                                navigate({ productId: selected ? null : product.id, page: 1 });
+                              }}
+                            >
+                              {inventory.adjust}
+                            </Button>
+                            <Link
+                              href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}
+                            >
+                              {messages.admin.orders.edit}
+                            </Link>
+                          </Stack>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </Card>
           <Pagination
             page={data.page}
