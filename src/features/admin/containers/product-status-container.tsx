@@ -44,7 +44,7 @@ function StatusActionButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium leading-normal',
+        'inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium leading-normal',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         badgeTones[tone],
       )}
@@ -111,7 +111,7 @@ export function ProductStatusContainer({
 
   return (
     <Stack gap="sm">
-      <Stack direction="horizontal" gap="md" align="center" wrap>
+      <Stack direction="horizontal" gap="md" align="center">
         <ProductStatusBadge status={status} messages={productsMessages} />
         {STATUSES.filter((candidate) => candidate !== status).map((candidate) => (
           <StatusActionButton
