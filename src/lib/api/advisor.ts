@@ -2,10 +2,11 @@ import { z } from 'zod';
 import { type ApiClient, createApiClient } from './client';
 
 // mantener en sync con backend: POST /api/v1/advisor/product-qa
-// (ProductQaResponseDto) y POST /api/v1/advisor/feedback
-// (AdvisorFeedbackResponseDto, stub append-only).
-// Tipos locales a propósito: el contrato OpenAPI ya incluye advisor, pero
-// el BFF valida la forma mínima que el widget necesita.
+// (ProductQaResponseDto, con `sessionId` opcional), POST
+// /api/v1/advisor/sessions (ChatSessionResponseDto) y POST
+// /api/v1/advisor/feedback (AdvisorFeedbackResponseDto, stub append-only).
+// Tipos locales a propósito: el BFF valida la forma mínima que el widget
+// necesita (ver src/lib/api/schema.d.ts para el contrato OpenAPI completo).
 
 export interface AdvisorCitation {
   n: number;
@@ -22,6 +23,14 @@ export interface ProductQaResponse {
 }
 
 export type FeedbackValue = 'up' | 'down';
+
+/** Minimal chat session opened for the caller (user or guest). */
+export interface ChatSession {
+  id: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface AdvisorFeedbackRequest {
   productId: string;
@@ -53,6 +62,21 @@ const feedbackBodySchema = z.object({
   value: z.enum(['up', 'down']),
 });
 
+const chatSessionSchema = z.object({
+  id: z.string().min(1),
+  messageCount: z.number().int().min(0),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+function parseChatSession(value: unknown): ChatSession {
+  const parsed = chatSessionSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error('Invalid chat session shape');
+  }
+  return parsed.data;
+}
+
 function parseProductQaResponse(value: unknown): ProductQaResponse {
   const parsed = productQaResponseSchema.safeParse(value);
   if (!parsed.success) {
@@ -71,9 +95,15 @@ export function createAdvisorApi(client: ApiClient = createApiClient()) {
       productId: string;
       question: string;
       locale?: string;
+      /** Owned chat session to record the turn in; omitted = stateless. */
+      sessionId?: string;
     }): Promise<ProductQaResponse> => {
       const raw = await client.post<unknown>('/advisor/product-qa', input);
       return parseProductQaResponse(raw);
+    },
+    createSession: async (): Promise<ChatSession> => {
+      const raw = await client.post<unknown>('/advisor/sessions', {});
+      return parseChatSession(raw);
     },
     sendFeedback: (input: AdvisorFeedbackRequest): Promise<{ ok: boolean }> => {
       const body = feedbackBodySchema.parse(input);

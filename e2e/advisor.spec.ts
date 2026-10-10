@@ -14,8 +14,9 @@ test('advisor answers with citations and accepts feedback', async ({ page }) => 
 
   await expect(widget.getByText(/batería/i).first()).toBeVisible();
   await expect(widget.getByRole('button', { name: /manual/i }).first()).toBeVisible();
-  // Disclaimer is always visible.
+  // Disclaimer and privacy note are always visible.
   await expect(widget.getByText(/Solo orientativo/)).toBeVisible();
+  await expect(widget.getByText(/datos personales/)).toBeVisible();
 
   // Expand the citation to see the fragment.
   await widget

@@ -206,6 +206,9 @@ export function AdvisorView({
         <Text variant="caption" tone="muted">
           {messages.disclaimer}
         </Text>
+        <Text variant="caption" tone="muted">
+          {messages.privacyNote}
+        </Text>
       </Stack>
     </Card>
   );

@@ -152,6 +152,7 @@
     "feedbackUp": "Útil",
     "feedbackDown": "No útil",
     "disclaimer": "Solo orientativo: las respuestas citan documentos, pero confirma siempre en la ficha del producto.",
+    "privacyNote": "Tu conversación se guarda para dar continuidad al asesoramiento. Evita incluir datos personales como tu nombre, correo o dirección.",
     "suggested": {
       "suggested-laptops-battery": "¿Cuánto dura la batería?",
       "suggested-laptops-ram": "¿Se puede ampliar la memoria RAM?",

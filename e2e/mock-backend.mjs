@@ -73,6 +73,8 @@ const state = {
   cart: { id: 'cart-mock', currency: 'USD', locale: 'en', items: [], totalAmount: 0, itemCount: 0 },
   orders: [],
   orderSeq: 0,
+  sessions: [],
+  sessionSeq: 0,
 };
 
 function uniformError(statusCode, code, message) {
@@ -412,7 +414,19 @@ async function handler(req, res) {
     return;
   }
 
-  // Advisor (fake adapters): cited answer, abstention, rate limit, feedback stub.
+  // Advisor (fake adapters): chat sessions, cited answer, abstention, rate limit, feedback stub.
+  if (method === 'POST' && path === '/advisor/sessions') {
+    state.sessionSeq += 1;
+    const session = {
+      id: `session-mock-${state.sessionSeq}`,
+      messageCount: 0,
+      createdAt: now(),
+      updatedAt: now(),
+    };
+    state.sessions.push(session);
+    send(res, 201, session);
+    return;
+  }
   if (method === 'POST' && path === '/advisor/product-qa') {
     const product = PRODUCTS.find((candidate) => candidate.id === body.productId);
     if (!product) {

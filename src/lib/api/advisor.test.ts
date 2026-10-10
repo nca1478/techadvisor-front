@@ -50,6 +50,38 @@ describe('createAdvisorApi', () => {
     expect(typeof rawBody === 'string' && rawBody.includes('p1')).toBe(true);
   });
 
+  it('forwards an owned sessionId when provided', async () => {
+    const { fetchFn, calls } = okHandler({ answer: 'Ok [1].', citations: [], abstained: false });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    await api.askProduct({
+      productId: 'p1',
+      question: '¿Batería?',
+      locale: 'es',
+      sessionId: 'session-1',
+    });
+    const rawBody = calls[0]?.init?.body;
+    expect(typeof rawBody === 'string' && rawBody.includes('session-1')).toBe(true);
+  });
+
+  it('creates a chat session and parses it', async () => {
+    const { fetchFn, calls } = okHandler({
+      id: 'session-1',
+      messageCount: 0,
+      createdAt: '2026-10-09T12:00:00.000Z',
+      updatedAt: '2026-10-09T12:00:00.000Z',
+    });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    const session = await api.createSession();
+    expect(session).toMatchObject({ id: 'session-1', messageCount: 0 });
+    expect(calls[0]?.url).toBe('http://test/advisor/sessions');
+  });
+
+  it('rejects malformed sessions instead of using them', async () => {
+    const { fetchFn } = okHandler({ id: 42 });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    await expect(api.createSession()).rejects.toThrow('Invalid chat session shape');
+  });
+
   it('parses an abstention distinctly', async () => {
     const { fetchFn } = okHandler({
       answer: 'No tengo esa información.',

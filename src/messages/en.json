@@ -152,6 +152,7 @@
     "feedbackUp": "Helpful",
     "feedbackDown": "Not helpful",
     "disclaimer": "Guidance only: answers quote documents, but always confirm on the product page.",
+    "privacyNote": "Your conversation is stored to keep advice consistent. Avoid sharing personal details like your name, email or address.",
     "suggested": {
       "suggested-laptops-battery": "How long does the battery last?",
       "suggested-laptops-ram": "Can the RAM be expanded?",

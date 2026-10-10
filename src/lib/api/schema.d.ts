@@ -813,6 +813,75 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/advisor/sessions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List the caller's own chat sessions (newest first) */
+    get: operations['ChatSessionsController_listSessions'];
+    put?: never;
+    /** Create a chat session (authenticated user, or anonymous guest) */
+    post: operations['ChatSessionsController_createSession'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/advisor/sessions/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read one owned session with its message history */
+    get: operations['ChatSessionsController_getSession'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/advisor/sessions/{id}/messages': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Append one message to an owned session (bounded history) */
+    post: operations['ChatSessionsController_addMessage'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/advisor/sessions/cleanup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Purge anonymous sessions past the retention window (admin job trigger) */
+    post: operations['ChatSessionsController_cleanupSessions'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1757,6 +1826,119 @@ export interface components {
        * @example true
        */
       ok: boolean;
+    };
+    ChatSessionResponseDto: {
+      /**
+       * @description Chat session id (UUID).
+       * @example session-id
+       */
+      id: string;
+      /**
+       * @description Messages stored in this session.
+       * @example 3
+       */
+      messageCount: number;
+      /**
+       * Format: date-time
+       * @description Session creation time (ISO 8601).
+       * @example 2026-10-09T12:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Last session update time (ISO 8601).
+       * @example 2026-10-09T12:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    ChatMessageResponseDto: {
+      /**
+       * @description Chat message id (UUID).
+       * @example message-id
+       */
+      id: string;
+      /**
+       * @description Message author.
+       * @example USER
+       * @enum {string}
+       */
+      role: 'USER' | 'ASSISTANT';
+      /**
+       * @description Message text.
+       * @example ¿Cuánto dura la batería?
+       */
+      content: string;
+      /**
+       * @description Validated citations shown with the answer.
+       * @example []
+       */
+      citations: string[];
+      /**
+       * @description Product cards shown with the answer.
+       * @example []
+       */
+      products: string[];
+      /**
+       * Format: date-time
+       * @description Creation time (ISO 8601).
+       * @example 2026-10-09T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    ChatSessionHistoryResponseDto: {
+      /**
+       * @description Chat session id (UUID).
+       * @example session-id
+       */
+      id: string;
+      /**
+       * @description Messages stored in this session.
+       * @example 3
+       */
+      messageCount: number;
+      /**
+       * Format: date-time
+       * @description Session creation time (ISO 8601).
+       * @example 2026-10-09T12:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Last session update time (ISO 8601).
+       * @example 2026-10-09T12:00:00.000Z
+       */
+      updatedAt: string;
+      messages: components['schemas']['ChatMessageResponseDto'][];
+    };
+    CreateChatMessageRequestDto: {
+      /**
+       * @description Message author.
+       * @example USER
+       * @enum {string}
+       */
+      role: 'USER' | 'ASSISTANT';
+      /**
+       * @description Message text (non-empty; max length from ADVISOR_MESSAGE_MAX_LENGTH).
+       * @example Busco un portátil para estudiar, máx. 800 USD.
+       */
+      content: string;
+      /**
+       * @description Citations shown with the answer.
+       * @example []
+       */
+      citations?: string[];
+      /**
+       * @description Product cards shown with the answer.
+       * @example []
+       */
+      products?: string[];
+    };
+    ChatSessionsCleanupResponseDto: {
+      /**
+       * @description Anonymous sessions deleted by this run.
+       * @example 12
+       */
+      deleted: number;
     };
   };
   responses: never;
@@ -4680,6 +4862,303 @@ export interface operations {
       };
       /** @description Bad request. */
       400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_listSessions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ChatSessionResponseDto'][];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Authentication required. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_createSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ChatSessionResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_getSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ChatSessionHistoryResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Unknown session (or owned by another user). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_addMessage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateChatMessageRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ChatMessageResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Unknown session (or owned by another user). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_cleanupSessions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ChatSessionsCleanupResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Authentication required. */
+      401: {
         headers: {
           [name: string]: unknown;
         };

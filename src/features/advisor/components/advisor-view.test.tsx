@@ -35,6 +35,7 @@ describe('AdvisorView', () => {
     expect(screen.getByLabelText(messages.questionLabel)).toBeInTheDocument();
     expect(screen.getByText(messages.suggestedLabel)).toBeInTheDocument();
     expect(screen.getByText(messages.disclaimer)).toBeInTheDocument();
+    expect(screen.getByText(messages.privacyNote)).toBeInTheDocument();
   });
 
   it('announces loading via a status region', () => {
