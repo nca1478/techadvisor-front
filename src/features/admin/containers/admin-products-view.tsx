@@ -56,7 +56,9 @@ export function AdminProductsView({
       ...(merged.q === '' ? {} : { q: merged.q }),
       page: merged.page,
     });
-    router.push(`/${locale}/admin/productos${search}`);
+    // Sin scroll al principio: filtros y paginación viven junto a la tabla,
+    // así que conservar la posición evita perderla (igual que en documentos).
+    router.push(`/${locale}/admin/productos${search}`, { scroll: false });
   }
 
   return (
