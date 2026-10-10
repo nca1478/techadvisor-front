@@ -113,6 +113,15 @@ describe('CartPageContainer compatibility', () => {
     });
   });
 
+  it('renders compatibility below the items and the summary', async () => {
+    stubFetch(incompatibilityPayload());
+    renderCart();
+
+    const alert = await screen.findByText(/es DDR4, pero la placa solo acepta DDR5/);
+    const checkout = screen.getByRole('button', { name: messages.summary.checkout });
+    expect(alert.compareDocumentPosition(checkout) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+
   it('checks out directly when the build is compatible', async () => {
     stubFetch({ compatible: true, issues: [] });
     renderCart();

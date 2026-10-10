@@ -111,28 +111,6 @@ export function CartPageContainer({
               {messages.updateError}: {actionError}
             </Text>
           ) : null}
-          {compatibility.status === 'loading' ? (
-            <Text tone="muted" role="status">
-              {messages.compatibility.checking}
-            </Text>
-          ) : null}
-          {compatibility.status === 'ready' && compatibility.issues.length > 0 ? (
-            <CompatibilityAlert
-              compatible={compatibility.compatible}
-              issues={compatibility.issues}
-              products={cart.items.map((item) => ({
-                id: item.productId,
-                slug: item.slug,
-                name: item.name,
-              }))}
-              locale={locale}
-              title={messages.compatibility.title}
-              okLabel={messages.compatibility.ok}
-              errorBadge={messages.compatibility.errorBadge}
-              warningBadge={messages.compatibility.warningBadge}
-              viewProductLabel={messages.compatibility.viewProduct}
-            />
-          ) : null}
           <Grid columns="two" gap="lg">
             <ul className="flex flex-col gap-3">
               {cart.items.map((item) => (
@@ -172,6 +150,28 @@ export function CartPageContainer({
               }}
             />
           </Grid>
+          {compatibility.status === 'loading' ? (
+            <Text tone="muted" role="status">
+              {messages.compatibility.checking}
+            </Text>
+          ) : null}
+          {compatibility.status === 'ready' && compatibility.issues.length > 0 ? (
+            <CompatibilityAlert
+              compatible={compatibility.compatible}
+              issues={compatibility.issues}
+              products={cart.items.map((item) => ({
+                id: item.productId,
+                slug: item.slug,
+                name: item.name,
+              }))}
+              locale={locale}
+              title={messages.compatibility.title}
+              okLabel={messages.compatibility.ok}
+              errorBadge={messages.compatibility.errorBadge}
+              warningBadge={messages.compatibility.warningBadge}
+              viewProductLabel={messages.compatibility.viewProduct}
+            />
+          ) : null}
         </Stack>
       </Section>
     </Container>
