@@ -6,15 +6,23 @@ import { cn } from '@/components/ui/cn';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
-import {
-  PRODUCT_STATUS_TONES,
-  ProductStatusBadge,
-} from '@/features/admin/components/product-status-badge';
+import { ProductStatusBadge } from '@/features/admin/components/product-status-badge';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import type { AdminProduct, AdminProductStatus } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
 const STATUSES: AdminProductStatus[] = ['DRAFT', 'ACTIVE', 'ARCHIVED'];
+
+/**
+ * Button tones per target status: same language as the status badges,
+ * except "move to draft", which uses the brand tint (primary) instead of
+ * neutral gray so it stands out from the inactive background.
+ */
+const ACTION_TONES: Record<AdminProductStatus, BadgeTone> = {
+  DRAFT: 'primary',
+  ACTIVE: 'success',
+  ARCHIVED: 'warning',
+};
 
 /**
  * Badge-styled action button: the exact `Badge` pill (shape, tint, dot)
@@ -108,7 +116,7 @@ export function ProductStatusContainer({
         {STATUSES.filter((candidate) => candidate !== status).map((candidate) => (
           <StatusActionButton
             key={candidate}
-            tone={PRODUCT_STATUS_TONES[candidate]}
+            tone={ACTION_TONES[candidate]}
             onClick={() => {
               setTarget(candidate);
             }}
