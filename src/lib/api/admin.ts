@@ -102,6 +102,7 @@ export interface AdminOrderListQuery {
 
 export interface AdminDocumentListQuery {
   status?: AdminDocumentStatus;
+  type?: AdminDocumentType;
   page?: number;
   limit?: number;
 }
@@ -129,7 +130,9 @@ export function isDocumentProcessing(status: string): boolean {
   return status === 'PENDING' || status === 'PROCESSING';
 }
 
-export function toAdminQuery(query: AdminProductListQuery | AdminOrderListQuery): string {
+export function toAdminQuery(
+  query: AdminProductListQuery | AdminOrderListQuery | AdminDocumentListQuery,
+): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(query)) {
     if (value === undefined || value === null || value === '') continue;

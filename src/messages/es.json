@@ -657,6 +657,7 @@
       "registerError": "No se pudo registrar la URL.",
       "statusFilter": "Estado",
       "allStatuses": "Todos los estados",
+      "allTypes": "Todos los tipos",
       "tableNumber": "No",
       "status_PENDING": "Pendiente",
       "status_PROCESSING": "Procesando",

@@ -31,6 +31,7 @@ import type { Dictionary } from '@/lib/i18n/index';
 
 export interface AdminDocumentsQuery {
   status: AdminDocumentStatus | '';
+  type: AdminDocumentType | '';
   page: number;
 }
 
@@ -153,6 +154,7 @@ export function AdminDocumentsView({
     const merged: AdminDocumentsQuery = { ...query, ...next };
     const search = toAdminQuery({
       ...(merged.status === '' ? {} : { status: merged.status }),
+      ...(merged.type === '' ? {} : { type: merged.type }),
       page: merged.page,
     });
     router.push(`/${locale}/admin/documentos${search}`);
@@ -291,25 +293,13 @@ export function AdminDocumentsView({
     { value: 'READY', label: docs.status_READY },
     { value: 'FAILED', label: docs.status_FAILED },
   ];
+  const documentTypeOptions = [{ value: '', label: docs.allTypes }, ...typeOptions];
   const totalPages = data?.totalPages ?? 1;
   const page = data?.page ?? query.page;
 
   return (
     <Stack gap="md">
       <AdminHeaderCard title={docs.title} subtitle={docs.subtitle} />
-      <AdminFiltersCard>
-        <div className="min-w-44">
-          <Select
-            label={docs.statusFilter}
-            name="status"
-            value={query.status}
-            options={statusOptions}
-            onChange={(event) => {
-              navigate({ status: event.target.value as AdminDocumentsQuery['status'], page: 1 });
-            }}
-          />
-        </div>
-      </AdminFiltersCard>
 
       <Card>
         <Stack gap="md">
@@ -482,6 +472,31 @@ export function AdminDocumentsView({
           ) : null}
         </Stack>
       </Card>
+
+      <AdminFiltersCard>
+        <div className="min-w-44">
+          <Select
+            label={docs.statusFilter}
+            name="status"
+            value={query.status}
+            options={statusOptions}
+            onChange={(event) => {
+              navigate({ status: event.target.value as AdminDocumentsQuery['status'], page: 1 });
+            }}
+          />
+        </div>
+        <div className="min-w-44">
+          <Select
+            label={docs.typeLabel}
+            name="type"
+            value={query.type}
+            options={documentTypeOptions}
+            onChange={(event) => {
+              navigate({ type: event.target.value as AdminDocumentsQuery['type'], page: 1 });
+            }}
+          />
+        </div>
+      </AdminFiltersCard>
 
       {loadError ? (
         <Text role="alert" className="text-destructive">

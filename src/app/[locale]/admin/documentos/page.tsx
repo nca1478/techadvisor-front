@@ -6,8 +6,8 @@ import {
   type AdminDocumentsQuery,
 } from '@/features/admin/containers/admin-documents-view';
 import { backendFetch } from '@/lib/api/backend';
-import type { AdminDocumentList, AdminDocumentStatus } from '@/lib/api/admin';
-import { toAdminQuery } from '@/lib/api/admin';
+import type { AdminDocumentList, AdminDocumentStatus, AdminDocumentType } from '@/lib/api/admin';
+import { ADMIN_DOCUMENT_TYPES, toAdminQuery } from '@/lib/api/admin';
 import { isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
 
@@ -52,6 +52,12 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
   const status: AdminDocumentsQuery['status'] = (STATUSES as readonly string[]).includes(rawStatus)
     ? (rawStatus as AdminDocumentStatus)
     : '';
+  const rawType = firstParam(queryParams, 'type');
+  const type: AdminDocumentsQuery['type'] = (ADMIN_DOCUMENT_TYPES as readonly string[]).includes(
+    rawType,
+  )
+    ? (rawType as AdminDocumentType)
+    : '';
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
 
   const store = await cookies();
@@ -61,18 +67,19 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
     .join('; ');
   const search = toAdminQuery({
     ...(status === '' ? {} : { status }),
+    ...(type === '' ? {} : { type }),
     page,
-    limit: 20,
+    limit: 10,
   });
   const result = await backendFetch(`/admin/documents${search}`, { method: 'GET', cookieHeader });
   const data = result.status === 200 && isDocumentList(result.body) ? result.body : null;
 
   return (
     <AdminDocumentsView
-      key={`${status}-${String(page)}`}
+      key={`${status}-${type}-${String(page)}`}
       data={data}
       loadError={data === null}
-      query={{ status, page }}
+      query={{ status, type, page }}
       locale={locale}
       messages={messages}
     />
