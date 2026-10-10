@@ -47,12 +47,12 @@ export function CompareTable({
   messages: CompareTableMessages;
 }) {
   return (
-    <div className="overflow-x-auto rounded-md border border-border">
-      <table className="w-full min-w-[560px] border-collapse bg-background text-sm">
+    <div className="overflow-x-auto rounded-md border border-border bg-surface">
+      <table className="w-full min-w-[560px] border-collapse bg-surface text-sm">
         <caption className="sr-only">{messages.feature}</caption>
         <thead>
           <tr>
-            <th scope="col" className="border-b border-border p-3 text-left font-medium">
+            <th scope="col" className="border-b border-border bg-surface p-3 text-left font-medium">
               <Text variant="small" tone="muted" as="span">
                 {messages.feature}
               </Text>
@@ -61,7 +61,7 @@ export function CompareTable({
               <th
                 key={product.productId}
                 scope="col"
-                className="border-b border-border p-3 text-left"
+                className="border-b border-border bg-surface p-3 text-left"
               >
                 <Link href={`/${locale}/productos/${product.slug}`} ariaLabel={product.name}>
                   {product.name}
@@ -76,7 +76,10 @@ export function CompareTable({
             const highlighted = best.size > 0;
             return (
               <tr key={row.key} data-row={row.key} data-highlighted={highlighted || undefined}>
-                <th scope="row" className="border-b border-border p-3 text-left font-medium">
+                <th
+                  scope="row"
+                  className="border-b border-border bg-surface p-3 text-left font-medium"
+                >
                   {rowLabel(row.key, specLabels, messages.priceRow)}
                 </th>
                 {products.map((product, index) => {
@@ -95,8 +98,8 @@ export function CompareTable({
                       data-best={isBest || undefined}
                       className={
                         isBest
-                          ? 'border-b border-border bg-success-subtle p-3 font-semibold'
-                          : 'border-b border-border p-3'
+                          ? 'border-b border-border bg-surface p-3 font-semibold'
+                          : 'border-b border-border bg-surface p-3'
                       }
                     >
                       {cell}
