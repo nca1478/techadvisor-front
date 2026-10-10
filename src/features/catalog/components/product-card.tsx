@@ -5,6 +5,10 @@ import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
+import {
+  CompareToggle,
+  type CompareToggleMessages,
+} from '@/features/compare/components/compare-toggle';
 import { primaryImage } from '@/lib/api/catalog';
 import type { ProductListItem } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -16,13 +20,26 @@ export interface ProductCardProps {
   currency: string;
   messages: Dictionary['catalog'];
   detailHref: string;
+  compare?: {
+    checked: boolean;
+    disabled: boolean;
+    messages: CompareToggleMessages;
+    onToggle: (productId: string) => void;
+  };
 }
 
 /**
  * Presentational product tile: image > name > price > action. No fetching,
  * no formatting outside `formatPrice`, no hardcoded copy (all via messages).
  */
-export function ProductCard({ product, locale, currency, messages, detailHref }: ProductCardProps) {
+export function ProductCard({
+  product,
+  locale,
+  currency,
+  messages,
+  detailHref,
+  compare,
+}: ProductCardProps) {
   const image = primaryImage(product);
   const price = formatPrice(product.priceAmount, currency, locale);
 
@@ -57,6 +74,16 @@ export function ProductCard({ product, locale, currency, messages, detailHref }:
           addedLabel={messages.addToCartAdded}
           errorLabel={messages.addToCartError}
         />
+        {compare ? (
+          <CompareToggle
+            productId={product.id}
+            productName={product.name}
+            checked={compare.checked}
+            disabled={compare.disabled}
+            messages={compare.messages}
+            onToggle={compare.onToggle}
+          />
+        ) : null}
       </Stack>
     </Card>
   );

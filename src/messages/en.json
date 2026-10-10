@@ -175,6 +175,49 @@
       "suggested-default-manual": "What does the manual say?"
     }
   },
+  "compare": {
+    "title": "Compare",
+    "toggle": {
+      "select": "Compare",
+      "selected": "In comparison",
+      "full": "Max 3 to compare"
+    },
+    "bar": {
+      "status": "{count}/{max} to compare",
+      "view": "Compare now",
+      "clear": "Clear"
+    },
+    "page": {
+      "title": "Compare products",
+      "subtitle": "Table with real catalog data and an advisor summary with sources.",
+      "loading": "Comparing products…",
+      "loadError": "The comparison could not be completed.",
+      "retry": "Try again",
+      "needTwo": "Pick at least 2 products to compare (max 3).",
+      "browseProducts": "Browse products",
+      "useCaseLabel": "What will you use it for? (optional)",
+      "useCasePlaceholder": "e.g. gaming at 1080p",
+      "compareAction": "Refresh summary",
+      "table": {
+        "feature": "Feature",
+        "best": "Best",
+        "missing": "—",
+        "priceRow": "Price"
+      },
+      "summary": {
+        "title": "Advisor summary",
+        "disclaimer": "Guidance over the table and documents; the table data wins.",
+        "sources": "Sources",
+        "showSnippet": "Show excerpt",
+        "hideSnippet": "Hide"
+      },
+      "compatibilityTitle": "Compatibility between these products",
+      "compatibilityOk": "Compatible",
+      "compatibilityErrorBadge": "Error",
+      "compatibilityWarningBadge": "Warning",
+      "viewProduct": "View product"
+    }
+  },
   "auth": {
     "loginTitle": "Sign in",
     "loginSubtitle": "Welcome back. Sign in to check out and see your orders.",
@@ -246,6 +289,15 @@
     "empty": "Your cart is empty.",
     "browseProducts": "Browse products",
     "updateError": "Could not update the cart",
+    "compatibility": {
+      "title": "Your build compatibility",
+      "checking": "Checking compatibility…",
+      "ok": "Compatible",
+      "errorBadge": "Error",
+      "warningBadge": "Warning",
+      "viewProduct": "View product",
+      "acknowledge": "I have reviewed the compatibility notices and want to continue with the purchase."
+    },
     "line": {
       "remove": "Remove",
       "increase": "Increase quantity",

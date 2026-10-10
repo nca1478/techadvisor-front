@@ -175,6 +175,49 @@
       "suggested-default-manual": "¿Qué dice el manual?"
     }
   },
+  "compare": {
+    "title": "Comparar",
+    "toggle": {
+      "select": "Comparar",
+      "selected": "En comparación",
+      "full": "Máximo 3 para comparar"
+    },
+    "bar": {
+      "status": "{count}/{max} para comparar",
+      "view": "Comparar ahora",
+      "clear": "Limpiar"
+    },
+    "page": {
+      "title": "Comparar productos",
+      "subtitle": "Tabla con datos reales del catálogo y resumen del asesor con fuentes.",
+      "loading": "Comparando productos…",
+      "loadError": "No se pudo completar la comparación.",
+      "retry": "Reintentar",
+      "needTwo": "Elige al menos 2 productos para comparar (máximo 3).",
+      "browseProducts": "Ver productos",
+      "useCaseLabel": "¿Para qué lo usarás? (opcional)",
+      "useCasePlaceholder": "p. ej. jugar en 1080p",
+      "compareAction": "Actualizar resumen",
+      "table": {
+        "feature": "Característica",
+        "best": "Mejor",
+        "missing": "—",
+        "priceRow": "Precio"
+      },
+      "summary": {
+        "title": "Resumen del asesor",
+        "disclaimer": "Resumen orientativo sobre la tabla y los documentos; los datos de la tabla mandan.",
+        "sources": "Fuentes",
+        "showSnippet": "Ver fragmento",
+        "hideSnippet": "Ocultar"
+      },
+      "compatibilityTitle": "Compatibilidad entre estos productos",
+      "compatibilityOk": "Compatible",
+      "compatibilityErrorBadge": "Error",
+      "compatibilityWarningBadge": "Aviso",
+      "viewProduct": "Ver producto"
+    }
+  },
   "auth": {
     "loginTitle": "Iniciar sesión",
     "loginSubtitle": "Bienvenido de nuevo. Inicia sesión para pagar y ver tus pedidos.",
@@ -246,6 +289,15 @@
     "empty": "Tu carrito está vacío.",
     "browseProducts": "Ver productos",
     "updateError": "No se pudo actualizar el carrito",
+    "compatibility": {
+      "title": "Compatibilidad de tu equipo",
+      "checking": "Comprobando compatibilidad…",
+      "ok": "Compatible",
+      "errorBadge": "Error",
+      "warningBadge": "Aviso",
+      "viewProduct": "Ver producto",
+      "acknowledge": "He revisado los avisos de compatibilidad y quiero continuar con la compra."
+    },
     "line": {
       "remove": "Quitar",
       "increase": "Aumentar cantidad",

@@ -7,6 +7,9 @@ import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { CatalogBrand, CatalogCategory, PaginatedProducts } from '@/lib/api/catalog';
+import { COMPARE_MAX_PRODUCTS } from '@/lib/api/compare';
+import { CompareBar } from '@/features/compare/components/compare-bar';
+import { useCompareSelection } from '@/features/compare/compare-selection-context';
 import type { Locale } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n/index';
 import { CatalogEmpty, CatalogError } from '../components/catalog-states';
@@ -46,6 +49,7 @@ export function ProductListView({
   inStockOnly,
 }: ProductListViewProps) {
   const { values, update, isPending } = useListingQuery();
+  const compare = useCompareSelection();
 
   if (loadError || initialData === null) {
     return (
@@ -97,6 +101,14 @@ export function ProductListView({
             {formatCount(messages.catalog.results, meta.total)}
           </Text>
 
+          <CompareBar
+            count={compare.count}
+            max={COMPARE_MAX_PRODUCTS}
+            href={compare.compareHref(locale)}
+            messages={messages.compare.bar}
+            onClear={compare.clear}
+          />
+
           {visible.length === 0 ? (
             <CatalogEmpty title={messages.common.emptyTitle} message={messages.catalog.empty} />
           ) : (
@@ -110,6 +122,12 @@ export function ProductListView({
                 currency={currency}
                 messages={messages.catalog}
                 detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+                compareFor={(product) => ({
+                  checked: compare.isSelected(product.id),
+                  disabled: !compare.canAdd(product.id),
+                  messages: messages.compare.toggle,
+                  onToggle: compare.toggle,
+                })}
               />
             </div>
           )}

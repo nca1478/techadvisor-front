@@ -2,9 +2,17 @@ import { Card } from '@/components/ui/card';
 import { Grid } from '@/components/ui/grid';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import type { CompareToggleMessages } from '@/features/compare/components/compare-toggle';
 import type { ProductListItem } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
 import { ProductCard } from './product-card';
+
+export interface CompareSlot {
+  checked: boolean;
+  disabled: boolean;
+  messages: CompareToggleMessages;
+  onToggle: (productId: string) => void;
+}
 
 export interface ProductCardGridProps {
   products: ProductListItem[];
@@ -12,6 +20,7 @@ export interface ProductCardGridProps {
   currency: string;
   messages: Dictionary['catalog'];
   detailHrefFor: (slug: string) => string;
+  compareFor?: (product: ProductListItem) => CompareSlot;
 }
 
 /** Presentational product grid (uses the `products` Grid preset). */
@@ -21,6 +30,7 @@ export function ProductCardGrid({
   currency,
   messages,
   detailHrefFor,
+  compareFor,
 }: ProductCardGridProps) {
   return (
     <Grid columns="products" gap="md">
@@ -32,6 +42,7 @@ export function ProductCardGrid({
           currency={currency}
           messages={messages}
           detailHref={detailHrefFor(product.slug)}
+          compare={compareFor?.(product)}
         />
       ))}
     </Grid>

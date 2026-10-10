@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import en from '@/messages/en.json';
 import { CartProvider } from '@/features/cart/cart-context';
+import { CompareSelectionProvider } from '@/features/compare/compare-selection-context';
 import type { ProductListItem } from '@/lib/api/catalog';
 import { ProductListView } from './product-list-view';
 
@@ -61,19 +62,21 @@ function renderView() {
   );
   render(
     <CartProvider>
-      <ProductListView
-        initialData={{
-          data: [product()],
-          meta: { page: 1, limit: 12, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
-        }}
-        loadError={false}
-        categories={[]}
-        brands={[]}
-        locale="en"
-        currency="USD"
-        messages={en}
-        inStockOnly={false}
-      />
+      <CompareSelectionProvider>
+        <ProductListView
+          initialData={{
+            data: [product()],
+            meta: { page: 1, limit: 12, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
+          }}
+          loadError={false}
+          categories={[]}
+          brands={[]}
+          locale="en"
+          currency="USD"
+          messages={en}
+          inStockOnly={false}
+        />
+      </CompareSelectionProvider>
     </CartProvider>,
   );
 }

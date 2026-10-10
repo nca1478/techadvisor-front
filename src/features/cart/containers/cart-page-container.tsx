@@ -11,6 +11,18 @@ import { Text } from '@/components/ui/text';
 import { useCart } from '../cart-context';
 import { CartLine, type CartLineMessages } from '../components/cart-line';
 import { CartSummary, type CartSummaryMessages } from '../components/cart-summary';
+import { CompatibilityAlert } from '../components/compatibility-alert';
+import { useCompatibility } from '../hooks/use-compatibility';
+
+export interface CartCompatibilityMessages {
+  title: string;
+  ok: string;
+  errorBadge: string;
+  warningBadge: string;
+  viewProduct: string;
+  acknowledge: string;
+  checking: string;
+}
 
 export interface CartPageMessages {
   title: string;
@@ -23,6 +35,7 @@ export interface CartPageMessages {
   updateError: string;
   line: CartLineMessages;
   summary: CartSummaryMessages;
+  compatibility: CartCompatibilityMessages;
 }
 
 /** Cart page container: list with qty controls + server-total summary. */
@@ -35,6 +48,15 @@ export function CartPageContainer({
 }) {
   const { status, cart, error, reload, updateQty, removeItem } = useCart();
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const productIds = cart?.items.map((item) => item.productId) ?? [];
+  const compatibility = useCompatibility(productIds, locale);
+
+  // La confirmación explícita caduca si cambia el conjunto de avisos (sin
+  // efectos: se deriva durante el render comparando la clave).
+  const issueKey = compatibility.issues.map((issue) => issue.messageKey).join('|');
+  const [ack, setAck] = useState({ key: issueKey, checked: false });
+  const acknowledged = ack.key === issueKey && ack.checked;
 
   if (status === 'loading') {
     return (
@@ -89,6 +111,28 @@ export function CartPageContainer({
               {messages.updateError}: {actionError}
             </Text>
           ) : null}
+          {compatibility.status === 'loading' ? (
+            <Text tone="muted" role="status">
+              {messages.compatibility.checking}
+            </Text>
+          ) : null}
+          {compatibility.status === 'ready' && compatibility.issues.length > 0 ? (
+            <CompatibilityAlert
+              compatible={compatibility.compatible}
+              issues={compatibility.issues}
+              products={cart.items.map((item) => ({
+                id: item.productId,
+                slug: item.slug,
+                name: item.name,
+              }))}
+              locale={locale}
+              title={messages.compatibility.title}
+              okLabel={messages.compatibility.ok}
+              errorBadge={messages.compatibility.errorBadge}
+              warningBadge={messages.compatibility.warningBadge}
+              viewProductLabel={messages.compatibility.viewProduct}
+            />
+          ) : null}
           <Grid columns="two" gap="lg">
             <ul className="flex flex-col gap-3">
               {cart.items.map((item) => (
@@ -118,7 +162,14 @@ export function CartPageContainer({
               locale={locale}
               checkoutHref={`/${locale}/checkout`}
               productsHref={`/${locale}/productos`}
-              messages={messages.summary}
+              messages={{ ...messages.summary, acknowledge: messages.compatibility.acknowledge }}
+              compatibilityGate={{
+                required: compatibility.hasErrors,
+                checked: acknowledged,
+                onChange: (checked) => {
+                  setAck({ key: issueKey, checked });
+                },
+              }}
             />
           </Grid>
         </Stack>

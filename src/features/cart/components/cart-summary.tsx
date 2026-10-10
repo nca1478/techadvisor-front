@@ -10,6 +10,14 @@ export interface CartSummaryMessages {
   total: string;
   checkout: string;
   continueShopping: string;
+  acknowledge?: string;
+}
+
+export interface CompatibilityGate {
+  /** True cuando hay errores de compatibilidad: exige confirmación explícita. */
+  required: boolean;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
 }
 
 /**
@@ -24,6 +32,7 @@ export function CartSummary({
   checkoutHref,
   productsHref,
   messages,
+  compatibilityGate,
 }: {
   totalAmount: number;
   itemCount: number;
@@ -32,7 +41,9 @@ export function CartSummary({
   checkoutHref: string;
   productsHref: string;
   messages: CartSummaryMessages;
+  compatibilityGate?: CompatibilityGate;
 }) {
+  const blocked = compatibilityGate?.required === true && !compatibilityGate.checked;
   return (
     <Card>
       <Stack gap="md">
@@ -52,7 +63,20 @@ export function CartSummary({
             {formatPrice(totalAmount, currency, locale)}
           </Text>
         </Stack>
-        <Button size="lg" href={checkoutHref}>
+        {compatibilityGate?.required === true ? (
+          <label className="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={compatibilityGate.checked}
+              onChange={(event) => {
+                compatibilityGate.onChange(event.target.checked);
+              }}
+              className="mt-0.5 h-4 w-4 accent-primary"
+            />
+            <span>{messages.acknowledge ?? ''}</span>
+          </label>
+        ) : null}
+        <Button size="lg" href={blocked ? undefined : checkoutHref} disabled={blocked}>
           {messages.checkout}
         </Button>
         <Button variant="secondary" href={productsHref}>

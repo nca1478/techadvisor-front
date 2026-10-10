@@ -58,6 +58,31 @@ export type {
 export type { LoginRequest, RefreshRequest, RegisterRequest, TokenPair } from './auth';
 export { createCartApi, type AddCartItem, type Cart, type CartApi, type CartItem } from './cart';
 export type { UpdateCartItem } from './cart';
+export {
+  COMPARE_MAX_PRODUCTS,
+  COMPARE_MIN_PRODUCTS,
+  createCompareApi,
+  parseCompareIds,
+  parseCompareResponse,
+  type CompareApi,
+  type CompareCitation,
+  type CompareCompatibility,
+  type CompareInput,
+  type CompareProduct,
+  type CompareResponse,
+  type CompareTableRow,
+} from './compare';
+export {
+  compatibilityHasErrors,
+  createCompatibilityApi,
+  parseCompatibilityResult,
+  sortCompatibilityIssues,
+  type CompatibilityApi,
+  type CompatibilityCheckInput,
+  type CompatibilityIssue,
+  type CompatibilityResult,
+  type CompatibilitySeverity,
+} from './compatibility';
 export { createCatalogApi, nullableString, primaryImage, productImageAlt } from './catalog';
 export type {
   CatalogApi,

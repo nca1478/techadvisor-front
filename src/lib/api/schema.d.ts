@@ -796,6 +796,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/advisor/compare': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Compare 2-3 products: SQL table + cited LLM summary */
+    post: operations['AdvisorController_compareProducts'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/advisor/feedback': {
     parameters: {
       query?: never;
@@ -842,7 +859,8 @@ export interface paths {
     get: operations['ChatSessionsController_getSession'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** Permanently delete one owned session with its messages */
+    delete: operations['ChatSessionsController_deleteSession'];
     options?: never;
     head?: never;
     patch?: never;
@@ -857,8 +875,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Append one message to an owned session (bounded history) */
-    post: operations['ChatSessionsController_addMessage'];
+    /** Append one message (legacy role+content, 201) or run the buying advisor (content only: 200 JSON, or SSE with Accept: text/event-stream) */
+    post: operations['ChatSessionsController_postSessionMessage'];
     delete?: never;
     options?: never;
     head?: never;
@@ -876,6 +894,23 @@ export interface paths {
     put?: never;
     /** Purge anonymous sessions past the retention window (admin job trigger) */
     post: operations['ChatSessionsController_cleanupSessions'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/compatibility/check': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Check compatibility of a set of products (deterministic, no LLM) */
+    post: operations['CompatibilityController_checkCompatibility'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1792,6 +1827,124 @@ export interface components {
        */
       abstained: boolean;
     };
+    CompareRequestDto: {
+      /**
+       * @description Ids of the 2..3 ACTIVE products to compare (unique UUIDs).
+       * @example [
+       *       "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+       *       "6ba7b811-9dad-11d1-80b4-00c04fd430c8"
+       *     ]
+       */
+      productIds: string[];
+      /**
+       * @description Use case the summary focuses on (1..500 chars).
+       * @example gaming en 1080p
+       */
+      useCase?: string;
+      /**
+       * @description BCP 47 summary locale; defaults server-side.
+       * @example es
+       */
+      locale?: string;
+    };
+    CompareProductDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      productId: string;
+      /** @example Auriculares X200 */
+      name: string;
+      /** @example auriculares-x200 */
+      slug: string;
+      /**
+       * @description Base price in minor units.
+       * @example 10000
+       */
+      priceAmount: number;
+      /**
+       * @description ISO 4217 currency of priceAmount.
+       * @example USD
+       */
+      currency: string;
+      /**
+       * @description Structured specs from SQL.
+       * @example {
+       *       "ram_gb": 16
+       *     }
+       */
+      specs: Record<string, never>;
+    };
+    CompareTableRowDto: {
+      /**
+       * @description Spec key, or 'price_amount' for the SQL price row.
+       * @example ram_gb
+       */
+      key: string;
+      /**
+       * @description Raw values per product column (null when the product lacks the spec).
+       * @example [
+       *       16,
+       *       32
+       *     ]
+       */
+      values: string[];
+      /**
+       * @description Column indexes holding the best value (empty when not objective).
+       * @example [
+       *       1
+       *     ]
+       */
+      best: string[];
+      /**
+       * @description Objective direction ('higher' | 'lower'), or null for text/enum rows.
+       * @example higher
+       */
+      direction: Record<string, never> | null;
+    };
+    CompatibilityIssueDto: {
+      /**
+       * @description Rule that produced this finding.
+       * @example cpu-socket
+       */
+      rule: string;
+      /**
+       * @description Errors prove incompatibility; warnings signal uncertainty.
+       * @example error
+       * @enum {string}
+       */
+      severity: 'error' | 'warning';
+      /**
+       * @description Ids of the products involved in this finding.
+       * @example [
+       *       "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+       *     ]
+       */
+      productIds: string[];
+      /**
+       * @description Stable i18n key of the message (es + en available).
+       * @example cpu-socket.mismatch
+       */
+      messageKey: string;
+      /**
+       * @description Human-readable message in the requested locale.
+       * @example El procesador "Ryzen 5" usa socket AM5, pero la placa "PRO B660M" usa socket LGA1700.
+       */
+      message: string;
+    };
+    CompareCompatibilityDto: {
+      /** @example false */
+      compatible: boolean;
+      issues: components['schemas']['CompatibilityIssueDto'][];
+    };
+    CompareResponseDto: {
+      products: components['schemas']['CompareProductDto'][];
+      table: components['schemas']['CompareTableRowDto'][];
+      compatibility: components['schemas']['CompareCompatibilityDto'];
+      /**
+       * @description LLM summary over the table and evidence, with [n] citation markers.
+       * @example El modelo B ofrece más RAM [1] por un precio menor.
+       */
+      summary: string;
+      citations: components['schemas']['ProductQaCitationDto'][];
+    };
     AdvisorFeedbackRequestDto: {
       /**
        * @description Asked-about product id, when the vote comes from a product page.
@@ -1910,28 +2063,22 @@ export interface components {
       updatedAt: string;
       messages: components['schemas']['ChatMessageResponseDto'][];
     };
-    CreateChatMessageRequestDto: {
+    RecommendRequestDto: {
       /**
-       * @description Message author.
-       * @example USER
-       * @enum {string}
-       */
-      role: 'USER' | 'ASSISTANT';
-      /**
-       * @description Message text (non-empty; max length from ADVISOR_MESSAGE_MAX_LENGTH).
-       * @example Busco un portátil para estudiar, máx. 800 USD.
+       * @description User message starting (or continuing) the buying conversation.
+       * @example Busco un portátil para estudiar ingeniería, máx. 800 USD.
        */
       content: string;
       /**
-       * @description Citations shown with the answer.
-       * @example []
+       * @description BCP 47 answer locale; defaults server-side.
+       * @example es
        */
-      citations?: string[];
+      locale?: string;
       /**
-       * @description Product cards shown with the answer.
-       * @example []
+       * @description ISO 4217 session currency for budget and prices; defaults server-side.
+       * @example USD
        */
-      products?: string[];
+      currency?: string;
     };
     ChatSessionsCleanupResponseDto: {
       /**
@@ -1939,6 +2086,28 @@ export interface components {
        * @example 12
        */
       deleted: number;
+    };
+    CompatibilityCheckRequestDto: {
+      /**
+       * @description Product ids to check together (1..20 unique UUIDs).
+       * @example [
+       *       "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+       *     ]
+       */
+      productIds: string[];
+      /**
+       * @description BCP 47 locale for issue messages; defaults server-side.
+       * @example es
+       */
+      locale?: string;
+    };
+    CompatibilityCheckResponseDto: {
+      /**
+       * @description True only when every rule passed with complete data. Any warning (missing data) makes it false: without enough evidence compatibility is never claimed.
+       * @example false
+       */
+      compatible: boolean;
+      issues: components['schemas']['CompatibilityIssueDto'][];
     };
   };
   responses: never;
@@ -4839,6 +5008,65 @@ export interface operations {
       };
     };
   };
+  AdvisorController_compareProducts: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CompareRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CompareResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Product not found or not active. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
   AdvisorController_recordFeedback: {
     parameters: {
       query?: never;
@@ -5072,7 +5300,54 @@ export interface operations {
       };
     };
   };
-  ChatSessionsController_addMessage: {
+  ChatSessionsController_deleteSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Unknown session (or owned by another user). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ChatSessionsController_postSessionMessage: {
     parameters: {
       query?: never;
       header?: never;
@@ -5081,7 +5356,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateChatMessageRequestDto'];
+        'application/json': components['schemas']['RecommendRequestDto'];
       };
     };
     responses: {
@@ -5177,6 +5452,56 @@ export interface operations {
       };
       /** @description Rate limit exceeded. */
       429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  CompatibilityController_checkCompatibility: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CompatibilityCheckRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CompatibilityCheckResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Unknown product id. */
+      404: {
         headers: {
           [name: string]: unknown;
         };

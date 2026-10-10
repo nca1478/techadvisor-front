@@ -8,7 +8,11 @@
  * both SSR and the `/api/*` BFF proxies with a single fixture.
  *
  * Shapes mirror `src/lib/api/schema.d.ts` (generated OpenAPI contract).
- * Stateful in memory: one cart, one user, N orders. Payment confirmation is
+ * Stateful in memory: owner-scoped carts (guest `sid`, minted here when
+ * absent, or Bearer token), one user, N orders. Owner scoping keeps
+ * parallel Playwright workers (`fullyParallel`) from seeing each other's
+ * lines (each worker has its own browser context and cookies). Payment
+ * confirmation is
  * simulated: `POST /payments/checkout` flips the order to `PAID`, standing
  * in for the Stripe webhook + `stripe listen` flow used against the real
  * backend (see README "E2E against the real backend").
@@ -55,6 +59,11 @@ function productFixture(overrides) {
   };
 }
 
+const BOARD_DDR5_ID = '22222222-2222-4222-8222-222222222222';
+const RAM_DDR4_ID = '33333333-3333-4333-8333-333333333333';
+const CPU_AM4_ID = '44444444-4444-4444-8444-444444444444';
+const BOARD_LGA1700_ID = '55555555-5555-4555-8555-555555555555';
+
 const PRODUCTS = [
   productFixture({}),
   productFixture({
@@ -68,9 +77,86 @@ const PRODUCTS = [
   }),
 ];
 
+const COMPAT_FIXTURES = [
+  productFixture({
+    id: BOARD_DDR5_ID,
+    sku: 'MOCK-BOARD-DDR5',
+    name: 'Mock Board DDR5',
+    slug: 'mock-board-ddr5',
+    description:
+      'A mock AM5 motherboard that only accepts DDR5 memory. Fixture for compatibility e2e.',
+    priceAmount: 18900,
+    specs: { socket: 'AM5', ram_type: 'DDR5', form_factor: 'ATX' },
+    category: {
+      id: 'cat-boards',
+      name: 'Motherboards',
+      slug: 'motherboards',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: RAM_DDR4_ID,
+    sku: 'MOCK-RAM-DDR4',
+    name: 'Mock RAM DDR4',
+    slug: 'mock-ram-ddr4',
+    description: 'A mock DDR4 memory kit. Fixture for compatibility e2e (mismatches DDR5 boards).',
+    priceAmount: 4900,
+    specs: { ram_type: 'DDR4', ram_gb: 16, speed_mt_s: 3200 },
+    category: {
+      id: 'cat-ram',
+      name: 'Memory',
+      slug: 'memory',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: CPU_AM4_ID,
+    sku: 'MOCK-CPU-AM4',
+    name: 'Mock CPU AM4',
+    slug: 'mock-cpu-am4',
+    description: 'A mock AM4 processor. Fixture for compatibility e2e (mismatches LGA1700 boards).',
+    priceAmount: 12900,
+    specs: { socket: 'AM4', cores: 6, threads: 12 },
+    category: {
+      id: 'cat-cpu',
+      name: 'Processors',
+      slug: 'processors',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: BOARD_LGA1700_ID,
+    sku: 'MOCK-BOARD-LGA1700',
+    name: 'Mock Board LGA1700',
+    slug: 'mock-board-lga1700',
+    description: 'A mock LGA1700 motherboard. Fixture for compatibility e2e (mismatches AM4 CPUs).',
+    priceAmount: 15900,
+    specs: { socket: 'LGA1700', ram_type: 'DDR4', form_factor: 'mATX' },
+    category: {
+      id: 'cat-boards',
+      name: 'Motherboards',
+      slug: 'motherboards',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+];
+
+// Listing fixtures stay minimal (existing tests assert on them); detail,
+// cart and compatibility/compare resolve the full catalog.
+const ALL_PRODUCTS = [...PRODUCTS, ...COMPAT_FIXTURES];
+
 const state = {
   user: null,
-  cart: { id: 'cart-mock', currency: 'USD', locale: 'en', items: [], totalAmount: 0, itemCount: 0 },
+  carts: {},
+  cartSeq: 0,
   orders: [],
   orderSeq: 0,
   sessions: [],
@@ -144,10 +230,51 @@ function toCartItem(product, qty) {
   };
 }
 
-function recomputeCart() {
-  const items = state.cart.items;
-  state.cart.totalAmount = items.reduce((sum, item) => sum + item.lineTotalAmount, 0);
-  state.cart.itemCount = items.reduce((sum, item) => sum + item.qty, 0);
+function recomputeCart(cart) {
+  cart.totalAmount = cart.items.reduce((sum, item) => sum + item.lineTotalAmount, 0);
+  cart.itemCount = cart.items.reduce((sum, item) => sum + item.qty, 0);
+}
+
+function newCart() {
+  state.cartSeq += 1;
+  return {
+    id: `cart-mock-${state.cartSeq}`,
+    currency: 'USD',
+    locale: 'en',
+    items: [],
+    totalAmount: 0,
+    itemCount: 0,
+  };
+}
+
+/**
+ * Owner-scoped carts (mirrors the real backend's guest `sid` + user carts).
+ * Playwright runs tests in parallel workers with isolated browser contexts
+ * (`fullyParallel`), so cookie isolation keeps every test's cart separate:
+ * authenticated callers scope by Bearer token, guests by `sid` (minted here
+ * when absent, forwarded to the browser via `set-cookie`).
+ */
+function cartFor(req) {
+  const token = bearerToken(req);
+  if (token) {
+    const key = `user:${token}`;
+    if (!state.carts[key]) state.carts[key] = newCart();
+    return { cart: state.carts[key], setCookie: null };
+  }
+  let sid = parseCookies(req).sid;
+  let setCookie = null;
+  if (!sid) {
+    state.sidSeq += 1;
+    sid = `mock-sid-${state.sidSeq}`;
+    setCookie = `sid=${sid}; Path=/; HttpOnly`;
+  }
+  const key = `anon:${sid}`;
+  if (!state.carts[key]) state.carts[key] = newCart();
+  return { cart: state.carts[key], setCookie };
+}
+
+function cartHeaders(slot) {
+  return slot.setCookie ? { 'set-cookie': slot.setCookie } : {};
 }
 
 function mockUser(email, name) {
@@ -254,7 +381,7 @@ async function handler(req, res) {
 
   const detailMatch = path.match(/^\/catalog\/products\/([^/]+)$/);
   if (method === 'GET' && detailMatch) {
-    const product = PRODUCTS.find((candidate) => candidate.slug === detailMatch[1]);
+    const product = ALL_PRODUCTS.find((candidate) => candidate.slug === detailMatch[1]);
     if (!product) {
       const err = uniformError(404, 'NOT_FOUND', 'Product not found');
       send(res, err.status, err.body);
@@ -318,37 +445,42 @@ async function handler(req, res) {
     return;
   }
 
-  // Cart
+  // Cart (owner-scoped, see `cartFor`)
   if (method === 'GET' && path === '/cart') {
-    send(res, 200, state.cart);
+    const slot = cartFor(req);
+    send(res, 200, slot.cart, cartHeaders(slot));
     return;
   }
 
   if (method === 'POST' && path === '/cart/items') {
-    const product = PRODUCTS.find((candidate) => candidate.id === body.productId);
+    const slot = cartFor(req);
+    const cart = slot.cart;
+    const product = ALL_PRODUCTS.find((candidate) => candidate.id === body.productId);
     if (!product) {
       const err = uniformError(404, 'NOT_FOUND', 'Product not found');
       send(res, err.status, err.body);
       return;
     }
     const qty = typeof body.qty === 'number' && body.qty > 0 ? Math.floor(body.qty) : 1;
-    const existing = state.cart.items.find((item) => item.productId === product.id);
+    const existing = cart.items.find((item) => item.productId === product.id);
     if (existing) {
       existing.qty += qty;
       existing.lineTotalAmount = existing.unitPriceAmount * existing.qty;
     } else {
-      state.cart.items.push(toCartItem(product, qty));
+      cart.items.push(toCartItem(product, qty));
     }
-    recomputeCart();
-    send(res, 200, state.cart);
+    recomputeCart(cart);
+    send(res, 200, cart, cartHeaders(slot));
     return;
   }
 
   const cartItemMatch = path.match(/^\/cart\/items\/([^/]+)$/);
   if (cartItemMatch && (method === 'PATCH' || method === 'DELETE')) {
+    const slot = cartFor(req);
+    const cart = slot.cart;
     const productId = decodeURIComponent(cartItemMatch[1]);
     if (method === 'DELETE') {
-      state.cart.items = state.cart.items.filter((item) => item.productId !== productId);
+      cart.items = cart.items.filter((item) => item.productId !== productId);
     } else {
       const qty = typeof body.qty === 'number' ? Math.floor(body.qty) : NaN;
       if (!Number.isInteger(qty) || qty < 0) {
@@ -357,9 +489,9 @@ async function handler(req, res) {
         return;
       }
       if (qty === 0) {
-        state.cart.items = state.cart.items.filter((item) => item.productId !== productId);
+        cart.items = cart.items.filter((item) => item.productId !== productId);
       } else {
-        const line = state.cart.items.find((item) => item.productId === productId);
+        const line = cart.items.find((item) => item.productId === productId);
         if (!line) {
           const err = uniformError(404, 'NOT_FOUND', 'Cart line not found');
           send(res, err.status, err.body);
@@ -369,19 +501,45 @@ async function handler(req, res) {
         line.lineTotalAmount = line.unitPriceAmount * qty;
       }
     }
-    recomputeCart();
-    send(res, 200, state.cart);
+    recomputeCart(cart);
+    send(res, 200, cart, cartHeaders(slot));
     return;
   }
 
   if (method === 'POST' && path === '/cart/merge') {
-    send(res, 200, state.cart);
+    // Move guest lines into the user cart (mirrors the real backend).
+    const token = bearerToken(req);
+    const sid = parseCookies(req).sid;
+    if (token && sid) {
+      const guest = state.carts[`anon:${sid}`];
+      if (guest && guest.items.length > 0) {
+        const userKey = `user:${token}`;
+        if (!state.carts[userKey]) state.carts[userKey] = newCart();
+        const userCart = state.carts[userKey];
+        for (const item of guest.items) {
+          const existing = userCart.items.find((line) => line.productId === item.productId);
+          if (existing) {
+            existing.qty += item.qty;
+            existing.lineTotalAmount = existing.unitPriceAmount * existing.qty;
+          } else {
+            userCart.items.push({ ...item });
+          }
+        }
+        recomputeCart(userCart);
+        guest.items = [];
+        recomputeCart(guest);
+      }
+    }
+    const slot = cartFor(req);
+    send(res, 200, slot.cart, cartHeaders(slot));
     return;
   }
 
   // Orders
   if (method === 'POST' && path === '/orders') {
-    if (state.cart.items.length === 0) {
+    const slot = cartFor(req);
+    const cart = slot.cart;
+    if (cart.items.length === 0) {
       const err = uniformError(400, 'BAD_REQUEST', 'Cart is empty');
       send(res, err.status, err.body);
       return;
@@ -390,11 +548,11 @@ async function handler(req, res) {
     const order = {
       id: `order-mock-${state.orderSeq}`,
       status: 'PENDING_PAYMENT',
-      currency: state.cart.currency,
-      totalAmount: state.cart.totalAmount,
-      itemCount: state.cart.itemCount,
+      currency: cart.currency,
+      totalAmount: cart.totalAmount,
+      itemCount: cart.itemCount,
       shipping: body.shipping ?? {},
-      items: state.cart.items.map((item) => ({
+      items: cart.items.map((item) => ({
         productId: item.productId,
         name: item.name,
         slug: item.slug,
@@ -406,9 +564,9 @@ async function handler(req, res) {
       updatedAt: now(),
     };
     state.orders.push(order);
-    state.cart.items = [];
-    recomputeCart();
-    send(res, 201, order);
+    cart.items = [];
+    recomputeCart(cart);
+    send(res, 201, order, cartHeaders(slot));
     return;
   }
 
@@ -458,6 +616,114 @@ async function handler(req, res) {
       provider: 'stripe',
       sessionId: 'cs_test_mock',
       checkoutUrl: `${WEB_URL}/en/checkout/exito?orderId=${encodeURIComponent(order.id)}`,
+    });
+    return;
+  }
+
+  // Compatibility (deterministic mock of the rule engine): DDR4 memory in a
+  // DDR5 board is an error; an AM4 CPU in an LGA1700 board is an error.
+  // Anything else in the fixture set is compatible.
+  function mockCompatibilityCheck(ids) {
+    const issues = [];
+    const has = (id) => ids.includes(id);
+    if (has(RAM_DDR4_ID) && has(BOARD_DDR5_ID)) {
+      issues.push({
+        rule: 'ram-type',
+        severity: 'error',
+        productIds: [RAM_DDR4_ID, BOARD_DDR5_ID],
+        messageKey: 'ram-type.mismatch',
+        message:
+          'Memory "Mock RAM DDR4" is DDR4, but board "Mock Board DDR5" only accepts DDR5. They are not compatible.',
+      });
+    }
+    if (has(CPU_AM4_ID) && has(BOARD_LGA1700_ID)) {
+      issues.push({
+        rule: 'cpu-socket',
+        severity: 'error',
+        productIds: [CPU_AM4_ID, BOARD_LGA1700_ID],
+        messageKey: 'cpu-socket.mismatch',
+        message:
+          'Processor "Mock CPU AM4" uses socket AM4, but board "Mock Board LGA1700" uses socket LGA1700. They are not compatible.',
+      });
+    }
+    return { compatible: issues.length === 0, issues };
+  }
+
+  if (method === 'POST' && path === '/compatibility/check') {
+    const ids = Array.isArray(body.productIds) ? body.productIds : [];
+    const unknown = ids.filter((id) => !ALL_PRODUCTS.some((product) => product.id === id));
+    if (unknown.length > 0) {
+      const err = uniformError(404, 'NOT_FOUND', `Products not found: ${unknown.join(', ')}`);
+      send(res, err.status, err.body);
+      return;
+    }
+    send(res, 200, mockCompatibilityCheck([...new Set(ids)]));
+    return;
+  }
+
+  // Compare (SQL table + cited summary mock): 2..3 known ids, price row with
+  // the cheapest highlighted, plus the deterministic compatibility verdict.
+  if (method === 'POST' && path === '/advisor/compare') {
+    const ids = Array.isArray(body.productIds) ? [...new Set(body.productIds)] : [];
+    if (ids.length < 2 || ids.length > 3) {
+      const err = uniformError(400, 'BAD_REQUEST', 'productIds must contain 2 or 3 product ids');
+      send(res, err.status, err.body);
+      return;
+    }
+    const ordered = [];
+    for (const id of ids) {
+      const product = ALL_PRODUCTS.find((candidate) => candidate.id === id);
+      if (!product) {
+        const err = uniformError(404, 'NOT_FOUND', `Products not found: ${id}`);
+        send(res, err.status, err.body);
+        return;
+      }
+      ordered.push(product);
+    }
+    const sameCurrency = ordered.every((product) => product.currency === ordered[0].currency);
+    const minPrice = Math.min(...ordered.map((product) => product.priceAmount));
+    const table = [
+      {
+        key: 'price_amount',
+        values: ordered.map((product) => product.priceAmount),
+        best: sameCurrency
+          ? ordered.flatMap((product, index) => (product.priceAmount === minPrice ? [index] : []))
+          : [],
+        direction: sameCurrency ? 'lower' : null,
+      },
+      {
+        key: 'ram_gb',
+        values: ordered.map((product) =>
+          typeof product.specs.ram_gb === 'number' ? product.specs.ram_gb : null,
+        ),
+        best: [],
+        direction: null,
+      },
+    ];
+    const compatibility = mockCompatibilityCheck(ids);
+    const first = ordered[0];
+    const second = ordered[1];
+    send(res, 200, {
+      products: ordered.map((product) => ({
+        productId: product.id,
+        name: product.name,
+        slug: product.slug,
+        priceAmount: product.priceAmount,
+        currency: product.currency,
+        specs: product.specs,
+      })),
+      table,
+      compatibility,
+      summary: `${first.name} costs less than ${second.name} [1].`,
+      citations: [
+        {
+          n: 1,
+          documentId: 'doc-mock-manual',
+          chunkId: 'chunk-mock-1',
+          title: `${first.name} manual`,
+          snippet: 'Mock evidence fragment for the comparison…',
+        },
+      ],
     });
     return;
   }
@@ -633,7 +899,7 @@ async function handler(req, res) {
     return;
   }
   if (method === 'POST' && path === '/advisor/product-qa') {
-    const product = PRODUCTS.find((candidate) => candidate.id === body.productId);
+    const product = ALL_PRODUCTS.find((candidate) => candidate.id === body.productId);
     if (!product) {
       const err = uniformError(404, 'NOT_FOUND', 'Product not found');
       send(res, err.status, err.body);
