@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
 import { Stack } from '@/components/ui/stack';
+import { Tabs } from '@/components/ui/tabs';
 import { Text } from '@/components/ui/text';
 import { SupportAssistant } from '@/features/support';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: SupportPageProps): Promise<Me
  * Post-sale support page. The `SupportAssistant` container answers warranty,
  * shipping, returns and payment questions with cited policy evidence (or an
  * owned order's SQL facts); below it, the full policy texts the assistant
- * uses as its source, each reachable through its anchor link.
+ * uses as its source, one per tab.
  */
 export default async function SupportPage({ params }: SupportPageProps) {
   const resolved = (await params) as { locale?: unknown };
@@ -65,24 +66,12 @@ export default async function SupportPage({ params }: SupportPageProps) {
             </Text>
           </Stack>
 
-          <nav aria-label={messages.support.policiesTitle}>
-            <ul className="flex flex-wrap gap-2">
-              {messages.support.policies.map((policy) => (
-                <li key={policy.id}>
-                  <a
-                    href={`#politica-${policy.id}`}
-                    className="text-link underline-offset-4 hover:underline"
-                  >
-                    {policy.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="flex flex-col gap-4">
-            {messages.support.policies.map((policy) => (
-              <div key={policy.id} id={`politica-${policy.id}`} className="scroll-mt-24">
+          <Tabs
+            label={messages.support.policiesTitle}
+            items={messages.support.policies.map((policy) => ({
+              id: policy.id,
+              label: policy.title,
+              content: (
                 <Card>
                   <Stack gap="sm">
                     <Heading level={3}>{policy.title}</Heading>
@@ -94,9 +83,9 @@ export default async function SupportPage({ params }: SupportPageProps) {
                     ))}
                   </Stack>
                 </Card>
-              </div>
-            ))}
-          </div>
+              ),
+            }))}
+          />
         </Stack>
       </section>
     </Container>
