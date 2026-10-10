@@ -9,6 +9,8 @@ export interface PaginationProps {
   previousLabel: string;
   nextLabel: string;
   statusLabel: (page: number, totalPages: number) => string;
+  /** Render with both buttons disabled on a single page (default: hidden). */
+  alwaysVisible?: boolean;
 }
 
 /** Presentational pager: previous/next with page status (ARIA-aware). */
@@ -19,8 +21,9 @@ export function Pagination({
   previousLabel,
   nextLabel,
   statusLabel,
+  alwaysVisible = false,
 }: PaginationProps) {
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1 && !alwaysVisible) return null;
   return (
     <nav aria-label="Pagination">
       <Stack direction="horizontal" gap="md" align="center" justify="center">

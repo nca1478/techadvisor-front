@@ -17,6 +17,23 @@ describe('Pagination', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it('renders disabled buttons on a single page when alwaysVisible', () => {
+    render(
+      <Pagination
+        page={1}
+        totalPages={1}
+        onPageChange={() => {}}
+        previousLabel="Previous"
+        nextLabel="Next"
+        statusLabel={(page, total) => `${String(page)} of ${String(total)}`}
+        alwaysVisible
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('1 of 1');
+  });
+
   it('navigates pages and announces the status', () => {
     const onPageChange = vi.fn();
     render(

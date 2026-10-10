@@ -183,6 +183,7 @@ export function AdminOrdersView({
             previousLabel={messages.admin.previous}
             nextLabel={messages.admin.next}
             statusLabel={(current, total) => formatPage(messages.admin.pageOf, current, total)}
+            alwaysVisible
           />
         </Stack>
       )}
