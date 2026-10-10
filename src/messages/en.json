@@ -175,6 +175,63 @@
       "suggested-default-manual": "What does the manual say?"
     }
   },
+  "support": {
+    "navLabel": "Support",
+    "title": "Post-sale support",
+    "subtitle": "Warranty, shipping, returns and payments, answered with the store policies as the source.",
+    "assistantTitle": "Ask the support assistant",
+    "assistantSubtitle": "It answers only with what the policies say, citing the source. If you ask for an exception, it will hand your case to a person.",
+    "questionLabel": "Your question",
+    "questionPlaceholder": "e.g. How long is the laptop warranty?",
+    "orderIdLabel": "Order number (optional)",
+    "orderIdPlaceholder": "Order UUID, e.g. 123e4567-e89b-12d3-a456-426614174000",
+    "orderIdHint": "Only for questions about your order. It must belong to your account.",
+    "ask": "Ask",
+    "loading": "Asking the assistant…",
+    "retry": "Try again",
+    "genericError": "The assistant could not answer right now. Please try again.",
+    "rateLimitError": "You are asking too fast. Wait a moment and try again.",
+    "providerError": "The assistant service is temporarily unavailable. Please try again later.",
+    "networkError": "Could not reach the assistant. Check your connection and try again.",
+    "orderNotFoundError": "We could not find that order in your account. Check the number and try again.",
+    "authRequiredError": "Sign in to ask about one of your orders.",
+    "abstentionBadge": "Handed to human support",
+    "sourceLabel": "Sources",
+    "showSnippet": "Show excerpt",
+    "hideSnippet": "Hide",
+    "disclaimer": "Guidance only: the assistant quotes the policies but never promises refunds, deadlines or exceptions. Only the human team can confirm those.",
+    "privacyNote": "Do not include personal details like your email or address. An order number is enough for order questions.",
+    "policiesTitle": "Full policies",
+    "policiesSubtitle": "The complete text the assistant uses as its source.",
+    "templateNotice": "Sample content: template to be reviewed by the business.",
+    "policies": [
+      {
+        "id": "warranty",
+        "title": "Warranty",
+        "body": "Laptops carry a 2-year warranty from delivery; components, 3 years; peripherals and accessories, 1 year.\n\nIt covers manufacturing defects and hardware failures under normal use, with repair or replacement. It does not cover misuse, drops, liquids, unauthorized modifications, consumables or third-party software.\n\nTo claim, contact the human support team with the order number and the fault: they confirm coverage before authorizing anything."
+      },
+      {
+        "id": "shipping",
+        "title": "Shipping",
+        "body": "Standard: 3 to 5 business days after payment confirmation. Express: 1 to 2 business days for selected destinations.\n\nStandard is free on orders over 50 USD; below that it costs 4.90 USD. Express costs 9.90 USD where available.\n\nEvery shipment includes tracking. If it does not arrive in time, contact the human support team with the order number."
+      },
+      {
+        "id": "returns",
+        "title": "Returns",
+        "body": "You have 30 calendar days from delivery to return without giving a reason, with the product unused, accessories and original packaging.\n\nThe refund reaches the original payment method within 5 to 10 business days after inspection. The assistant can never promise refunds.\n\nAny exception (extended windows, used products) needs human approval: the assistant hands those cases to a person."
+      },
+      {
+        "id": "payments",
+        "title": "Payment methods",
+        "body": "Credit and debit cards (Visa, Mastercard, Amex) via Stripe Checkout. The store never receives or stores card data.\n\nIf the payment fails or expires, the stock reservation is released and the order is cancelled; you may try again. For apparent duplicate charges, only the human team can verify the charge in Stripe."
+      },
+      {
+        "id": "privacy",
+        "title": "Privacy",
+        "body": "We process email, name, shipping address and order history for the purchase.\n\nThe assistant never receives your email, address, identity document or payment data: only your question, the catalog and the retrieved fragments.\n\nYou may request access, rectification or deletion of your data from the human support team."
+      }
+    ]
+  },
   "compare": {
     "title": "Compare",
     "toggle": {

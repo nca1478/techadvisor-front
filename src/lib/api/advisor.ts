@@ -22,6 +22,22 @@ export interface ProductQaResponse {
   abstained: boolean;
 }
 
+// mantener en sync con backend: POST /api/v1/advisor/support
+// (SupportResponseDto: `{ answer, citations[], abstained }`, con `orderId`
+// opcional para fundar la respuesta en un pedido propio).
+
+export interface SupportResponse {
+  answer: string;
+  citations: AdvisorCitation[];
+  abstained: boolean;
+}
+
+export interface SupportInput {
+  question: string;
+  orderId?: string;
+  locale?: string;
+}
+
 export type FeedbackValue = 'up' | 'down';
 
 /** Minimal chat session opened for the caller (user or guest). */
@@ -53,6 +69,20 @@ const productQaResponseSchema = z.object({
   citations: z.array(citationSchema),
   abstained: z.boolean(),
 });
+
+const supportResponseSchema = z.object({
+  answer: z.string(),
+  citations: z.array(citationSchema),
+  abstained: z.boolean(),
+});
+
+function parseSupportResponse(value: unknown): SupportResponse {
+  const parsed = supportResponseSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error('Invalid support response shape');
+  }
+  return parsed.data;
+}
 
 const feedbackBodySchema = z.object({
   productId: z.string().min(1),
@@ -485,6 +515,14 @@ export function createAdvisorApi(client: ApiClient = createApiClient()) {
     }): Promise<ProductQaResponse> => {
       const raw = await client.post<unknown>('/advisor/product-qa', input);
       return parseProductQaResponse(raw);
+    },
+    askSupport: async (input: SupportInput): Promise<SupportResponse> => {
+      const raw = await client.post<unknown>('/advisor/support', {
+        question: input.question,
+        ...(input.orderId ? { orderId: input.orderId } : {}),
+        ...(input.locale ? { locale: input.locale } : {}),
+      });
+      return parseSupportResponse(raw);
     },
     createSession: async (): Promise<ChatSession> => {
       const raw = await client.post<unknown>('/advisor/sessions', {});

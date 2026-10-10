@@ -74,7 +74,7 @@ export async function ProductDetailContainer({
             productId={product.id}
             categorySlug={product.category.slug}
             locale={locale}
-            supportHref={`/${locale}/cuenta`}
+            supportHref={`/${locale}/soporte`}
             messages={messages.advisor}
           />
         </Stack>

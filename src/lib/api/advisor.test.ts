@@ -130,6 +130,38 @@ describe('createAdvisorApi', () => {
     );
   });
 
+  it('asks support without an orderId for general policy questions', async () => {
+    const { fetchFn, calls } = okHandler({
+      answer: 'Los portátiles tienen 2 años de garantía [1].',
+      citations: [{ n: 1, documentId: 'd1', chunkId: 'c1', title: 'Garantía', snippet: '2 años' }],
+      abstained: false,
+    });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    const res = await api.askSupport({ question: '¿Garantía?', locale: 'es' });
+    expect(res.abstained).toBe(false);
+    expect(res.citations).toHaveLength(1);
+    expect(calls[0]?.url).toBe('http://test/advisor/support');
+    const rawBody = calls[0]?.init?.body;
+    expect(typeof rawBody === 'string' && rawBody.includes('¿Garantía?')).toBe(true);
+    expect(typeof rawBody === 'string' && rawBody.includes('orderId')).toBe(false);
+  });
+
+  it('forwards an orderId for order-scoped support questions', async () => {
+    const { fetchFn, calls } = okHandler({ answer: 'Ok [1].', citations: [], abstained: false });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    await api.askSupport({ question: '¿Mi pedido?', orderId: 'order-1', locale: 'es' });
+    const rawBody = calls[0]?.init?.body;
+    expect(typeof rawBody === 'string' && rawBody.includes('order-1')).toBe(true);
+  });
+
+  it('rejects malformed support payloads instead of rendering them', async () => {
+    const { fetchFn } = okHandler({ answer: 42 });
+    const api = createAdvisorApi(clientWithFetch(fetchFn));
+    await expect(api.askSupport({ question: 'hola' })).rejects.toThrow(
+      'Invalid support response shape',
+    );
+  });
+
   it('validates feedback bodies with zod before sending', () => {
     const { fetchFn, calls } = okHandler({ ok: true });
     const api = createAdvisorApi(clientWithFetch(fetchFn));

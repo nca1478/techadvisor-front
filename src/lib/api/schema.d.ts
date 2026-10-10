@@ -813,6 +813,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/advisor/support': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ask the post-sale support advisor (policies, cited) */
+    post: operations['AdvisorController_answerSupportQuestion'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/advisor/feedback': {
     parameters: {
       query?: never;
@@ -1944,6 +1961,36 @@ export interface components {
        */
       summary: string;
       citations: components['schemas']['ProductQaCitationDto'][];
+    };
+    SupportRequestDto: {
+      /**
+       * @description Question about warranty, shipping, returns, payments or privacy (1..1000 chars).
+       * @example ¿Cuánto dura la garantía de un portátil?
+       */
+      question: string;
+      /**
+       * @description Owned order to ground the answer in (status/total from SQL). Requires authentication; other users’ orders 404.
+       * @example order-id
+       */
+      orderId?: string;
+      /**
+       * @description BCP 47 answer locale; defaults server-side.
+       * @example es
+       */
+      locale?: string;
+    };
+    SupportResponseDto: {
+      /**
+       * @description Assistant answer in the request locale, with [n] citation markers.
+       * @example Los portátiles tienen 2 años de garantía [1].
+       */
+      answer: string;
+      citations: components['schemas']['ProductQaCitationDto'][];
+      /**
+       * @description True when no sufficient evidence existed: the LLM was not called and the query was recorded for review.
+       * @example false
+       */
+      abstained: boolean;
     };
     AdvisorFeedbackRequestDto: {
       /**
@@ -5039,6 +5086,65 @@ export interface operations {
         };
       };
       /** @description Product not found or not active. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdvisorController_answerSupportQuestion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SupportRequestDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SupportResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Order not found or not owned. */
       404: {
         headers: {
           [name: string]: unknown;

@@ -46,6 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/ingresar',
     '/registro',
     '/cuenta',
+    '/soporte',
   ];
   const entries: MetadataRoute.Sitemap = LOCALES.flatMap((locale) =>
     staticPaths.map((path) => ({

@@ -157,6 +157,9 @@ export default async function LocaleLayout({
                   <Link href={`/${locale}/asesor`} variant="header">
                     {messages.nav.asesor}
                   </Link>
+                  <Link href={`/${locale}/soporte`} variant="header">
+                    {messages.support.navLabel}
+                  </Link>
                   <Link href={`/${locale}/carrito`} variant="header">
                     {messages.nav.cart}
                   </Link>

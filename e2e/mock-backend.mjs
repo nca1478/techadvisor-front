@@ -945,6 +945,52 @@ async function handler(req, res) {
     return;
   }
 
+  // Post-sale support (fake adapters): cited policy answer, abstention and
+  // rate-limit probes; order lookups resolve against the mock orders above.
+  if (method === 'POST' && path === '/advisor/support') {
+    const question = typeof body.question === 'string' ? body.question : '';
+    if (question.length === 0 || question.length > 1000) {
+      const err = uniformError(400, 'BAD_REQUEST', 'Invalid question');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (question.includes('rate-limit-probe')) {
+      const err = uniformError(429, 'TOO_MANY_REQUESTS', 'Slow down');
+      send(res, err.status, err.body, { 'retry-after': '1' });
+      return;
+    }
+    if (question.includes('no-evidence-probe')) {
+      send(res, 200, {
+        answer: 'No tengo esa información en las políticas de la tienda.',
+        citations: [],
+        abstained: true,
+      });
+      return;
+    }
+    if (typeof body.orderId === 'string' && body.orderId.length > 0) {
+      const order = state.orders.find((candidate) => candidate.id === body.orderId);
+      if (!order) {
+        const err = uniformError(404, 'NOT_FOUND', 'Order not found');
+        send(res, err.status, err.body);
+        return;
+      }
+    }
+    send(res, 200, {
+      answer: 'Los portátiles tienen 2 años de garantía [1].',
+      citations: [
+        {
+          n: 1,
+          documentId: 'doc-mock-warranty',
+          chunkId: 'chunk-mock-warranty-1',
+          title: 'Política de garantía',
+          snippet: 'Los portátiles tienen 2 años de garantía desde la entrega…',
+        },
+      ],
+      abstained: false,
+    });
+    return;
+  }
+
   const err = uniformError(404, 'NOT_FOUND', `Mock has no handler for ${method} ${path}`);
   send(res, err.status, err.body);
 }

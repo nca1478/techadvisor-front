@@ -175,6 +175,63 @@
       "suggested-default-manual": "¿Qué dice el manual?"
     }
   },
+  "support": {
+    "navLabel": "Soporte",
+    "title": "Soporte posventa",
+    "subtitle": "Garantía, envíos, devoluciones y pagos, respondidos con las políticas de la tienda como fuente.",
+    "assistantTitle": "Pregunta al asistente de soporte",
+    "assistantSubtitle": "Responde solo con lo que dicen las políticas, citando la fuente. Si pides una excepción, derivará tu caso a una persona.",
+    "questionLabel": "Tu pregunta",
+    "questionPlaceholder": "p. ej. ¿Cuánto dura la garantía de un portátil?",
+    "orderIdLabel": "Número de pedido (opcional)",
+    "orderIdPlaceholder": "UUID del pedido, p. ej. 123e4567-e89b-12d3-a456-426614174000",
+    "orderIdHint": "Solo para preguntas sobre tu pedido. Debe pertenecer a tu cuenta.",
+    "ask": "Preguntar",
+    "loading": "Preguntando al asistente…",
+    "retry": "Reintentar",
+    "genericError": "El asistente no pudo responder ahora mismo. Inténtalo de nuevo.",
+    "rateLimitError": "Estás preguntando muy rápido. Espera un momento e inténtalo de nuevo.",
+    "providerError": "El servicio del asistente no está disponible. Inténtalo más tarde.",
+    "networkError": "No se pudo contactar al asistente. Revisa tu conexión e inténtalo de nuevo.",
+    "orderNotFoundError": "No encontramos ese pedido en tu cuenta. Revisa el número e inténtalo de nuevo.",
+    "authRequiredError": "Inicia sesión para preguntar sobre uno de tus pedidos.",
+    "abstentionBadge": "Derivado a soporte humano",
+    "sourceLabel": "Fuentes",
+    "showSnippet": "Ver fragmento",
+    "hideSnippet": "Ocultar",
+    "disclaimer": "Solo orientativo: el asistente cita las políticas, pero nunca promete reembolsos, plazos ni excepciones. Eso solo puede confirmarlo el equipo humano.",
+    "privacyNote": "No incluyas datos personales como tu correo o dirección. Para preguntas sobre un pedido basta su número.",
+    "policiesTitle": "Políticas completas",
+    "policiesSubtitle": "El texto íntegro que usa el asistente como fuente.",
+    "templateNotice": "Contenido de ejemplo: plantilla a revisar por el negocio.",
+    "policies": [
+      {
+        "id": "garantia",
+        "title": "Garantía",
+        "body": "Los portátiles tienen 2 años de garantía desde la entrega; los componentes, 3 años; los periféricos y accesorios, 1 año.\n\nCubre defectos de fabricación y fallos de hardware en uso normal, con reparación o sustitución. No cubre mal uso, caídas, líquidos, modificaciones no autorizadas, consumibles ni software de terceros.\n\nPara reclamar, contacta con el equipo humano de soporte indicando el número de pedido y el fallo: ellos confirman la cobertura antes de autorizar nada."
+      },
+      {
+        "id": "envios",
+        "title": "Envíos",
+        "body": "Estándar: 3 a 5 días laborables desde la confirmación del pago. Exprés: 1 a 2 días laborables en destinos seleccionados.\n\nEl estándar es gratuito en pedidos superiores a 50 USD; por debajo cuesta 4,90 USD. El exprés cuesta 9,90 USD donde esté disponible.\n\nTodos los envíos incluyen seguimiento. Si no llega en plazo, contacta con el equipo humano de soporte con el número de pedido."
+      },
+      {
+        "id": "devoluciones",
+        "title": "Devoluciones",
+        "body": "Tienes 30 días naturales desde la entrega para devolver sin justificar, con el producto sin usar, accesorios y embalaje original.\n\nEl reembolso llega al método de pago original en 5 a 10 días laborables tras la inspección. El asistente nunca puede prometer reembolsos.\n\nCualquier excepción (plazos ampliados, productos usados) requiere aprobación humana: el asistente deriva esos casos a una persona."
+      },
+      {
+        "id": "pagos",
+        "title": "Métodos de pago",
+        "body": "Tarjetas de crédito y débito (Visa, Mastercard, Amex) mediante Stripe Checkout. La tienda nunca recibe ni almacena datos de tarjeta.\n\nSi el pago falla o expira, la reserva de stock se libera y el pedido se cancela; puedes intentarlo de nuevo. Ante cargos duplicados aparentes, solo el equipo humano puede verificar el cobro en Stripe."
+      },
+      {
+        "id": "privacidad",
+        "title": "Privacidad",
+        "body": "Tratamos correo, nombre, dirección de envío e historial de pedidos para la compra.\n\nEl asistente nunca recibe tu correo, dirección, documento ni datos de pago: solo tu pregunta, el catálogo y los fragmentos recuperados.\n\nPuedes pedir acceso, rectificación o eliminación de tus datos al equipo humano de soporte."
+      }
+    ]
+  },
   "compare": {
     "title": "Comparar",
     "toggle": {
