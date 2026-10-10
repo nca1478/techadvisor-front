@@ -53,12 +53,16 @@ export function CompareView({
   productsHref,
   messages,
   specLabels,
+  // Temporalmente oculto (se usará más adelante): el fetch sigue trayendo
+  // `summary` + `citations` para no cambiar el contrato con el backend.
+  showAdvisorSummary = false,
 }: {
   idsParam: string;
   locale: string;
   productsHref: string;
   messages: CompareViewMessages;
   specLabels: Record<string, string>;
+  showAdvisorSummary?: boolean;
 }) {
   const ids = parseCompareIds(idsParam);
   const [useCase, setUseCase] = useState('');
@@ -215,11 +219,13 @@ export function CompareView({
                 warningBadge={messages.compatibilityWarningBadge}
                 viewProductLabel={messages.viewProduct}
               />
-              <CompareSummary
-                summary={data.summary}
-                citations={data.citations}
-                messages={messages.summary}
-              />
+              {showAdvisorSummary ? (
+                <CompareSummary
+                  summary={data.summary}
+                  citations={data.citations}
+                  messages={messages.summary}
+                />
+              ) : null}
             </Stack>
           ) : null}
         </Stack>

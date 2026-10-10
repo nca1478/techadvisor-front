@@ -61,7 +61,29 @@ describe('CompareView', () => {
     expect(screen.getByText(pageMessages.needTwo)).toBeVisible();
   });
 
-  it('renders the SQL table plus the cited advisor summary', async () => {
+  it('renders the SQL table plus the cited advisor summary when enabled', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(jsonResponse(200, comparePayload()))),
+    );
+    render(
+      <CompareView
+        idsParam="a-id,b-id"
+        locale="es"
+        productsHref="/es/productos"
+        messages={pageMessages}
+        specLabels={specLabels}
+        showAdvisorSummary
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText('B ofrece más RAM [1] por menos dinero.')).toBeVisible();
+    });
+    expect(screen.getByText('[1] Board B manual')).toBeVisible();
+    expect(screen.getByText(pageMessages.table.best)).toBeVisible();
+  });
+
+  it('hides the advisor summary by default without dropping the table', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.resolve(jsonResponse(200, comparePayload()))),
@@ -76,10 +98,10 @@ describe('CompareView', () => {
       />,
     );
     await waitFor(() => {
-      expect(screen.getByText('B ofrece más RAM [1] por menos dinero.')).toBeVisible();
+      expect(screen.getByText(pageMessages.table.best)).toBeVisible();
     });
-    expect(screen.getByText('[1] Board B manual')).toBeVisible();
-    expect(screen.getByText(pageMessages.table.best)).toBeVisible();
+    expect(screen.queryByText('B ofrece más RAM [1] por menos dinero.')).toBeNull();
+    expect(screen.queryByText(pageMessages.summary.title)).toBeNull();
   });
 
   it('shows the deterministic compatibility verdict from the same payload', async () => {
