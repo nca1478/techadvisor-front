@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
 import { Text } from '@/components/ui/text';
 import { useSession } from '@/features/auth/session-context';
@@ -14,6 +15,7 @@ export function NavSession({
   registerLabel,
   logoutLabel,
   accountLabel,
+  accountShortLabel,
   adminLabel,
 }: {
   locale: string;
@@ -21,6 +23,7 @@ export function NavSession({
   registerLabel: string;
   logoutLabel: string;
   accountLabel: string;
+  accountShortLabel: string;
   adminLabel: string;
 }) {
   const { status, user, logout } = useSession();
@@ -42,15 +45,11 @@ export function NavSession({
           </Link>
         ) : null}
         <Link href={`/${locale}/cuenta`} variant="header">
-          {accountLabel.replace('{email}', user.email)}
+          {user.role === 'ADMIN' ? accountShortLabel : accountLabel.replace('{email}', user.email)}
         </Link>
-        <button
-          type="button"
-          onClick={() => void logout()}
-          className="text-sm text-header-muted underline-offset-4 hover:underline"
-        >
+        <Button variant="danger" size="sm" onClick={() => void logout()}>
           {logoutLabel}
-        </button>
+        </Button>
       </span>
     );
   }

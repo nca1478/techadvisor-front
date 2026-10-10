@@ -191,7 +191,8 @@
     "loginLink": "Iniciar sesión",
     "registerLink": "Crear cuenta",
     "logout": "Cerrar sesión",
-    "account": "Cuenta ({email})"
+    "account": "Cuenta ({email})",
+    "accountShort": "Cuenta"
   },
   "chat": {
     "title": "Asesor de compras",

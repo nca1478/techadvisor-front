@@ -191,7 +191,8 @@
     "loginLink": "Sign in",
     "registerLink": "Create account",
     "logout": "Sign out",
-    "account": "Account ({email})"
+    "account": "Account ({email})",
+    "accountShort": "Account"
   },
   "chat": {
     "title": "Shopping advisor",
