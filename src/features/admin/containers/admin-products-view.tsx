@@ -114,84 +114,81 @@ export function AdminProductsView({
         <Text tone="muted">{products.empty}</Text>
       ) : (
         <Stack gap="md">
-          <Text variant="small" tone="muted" role="status">
-            {messages.admin.totalCount.replace('{count}', String(data.total))}
-          </Text>
           <Card padding="none">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {products.tableNumber}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {products.tableProduct}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {products.tableSku}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    {products.tableStatus}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {products.tablePrice}
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                  >
-                    {products.tableStock}
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                    <span className="sr-only">{products.tableActions}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map((product, index) => (
-                  <tr key={product.id} className="border-b border-border align-top last:border-0">
-                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                      {(data.page - 1) * data.limit + index + 1}
-                    </td>
-                    <th scope="row" className="px-4 py-3 font-normal">
-                      <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
-                        {product.name}
-                      </Link>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {products.tableNumber}
                     </th>
-                    <td className="px-4 py-3 font-mono text-xs">{product.sku}</td>
-                    <td className="px-4 py-3">
-                      <ProductStatusContainer
-                        productId={product.id}
-                        initialStatus={product.status}
-                        messages={messages}
-                        onChanged={() => {
-                          router.refresh();
-                        }}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums">
-                      {formatPrice(product.priceAmount, product.currency, locale)}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {products.outOfStock.replace('{count}', String(availableUnits(product)))}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
-                        {products.edit}
-                      </Link>
-                    </td>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {products.tableProduct}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {products.tableSku}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {products.tableStatus}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {products.tablePrice}
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {products.tableStock}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      <span className="sr-only">{products.tableActions}</span>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.data.map((product, index) => (
+                    <tr key={product.id} className="border-b border-border align-top last:border-0">
+                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        {(data.page - 1) * data.limit + index + 1}
+                      </td>
+                      <th scope="row" className="px-4 py-3 font-normal">
+                        <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
+                          {product.name}
+                        </Link>
+                      </th>
+                      <td className="px-4 py-3 font-mono text-xs">{product.sku}</td>
+                      <td className="px-4 py-3">
+                        <ProductStatusContainer
+                          productId={product.id}
+                          initialStatus={product.status}
+                          messages={messages}
+                          onChanged={() => {
+                            router.refresh();
+                          }}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium tabular-nums">
+                        {formatPrice(product.priceAmount, product.currency, locale)}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {products.outOfStock.replace('{count}', String(availableUnits(product)))}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
+                          {products.edit}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
           <Pagination
             page={data.page}
