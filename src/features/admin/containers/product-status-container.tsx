@@ -1,16 +1,51 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState, type ReactNode } from 'react';
+import { badgeDots, badgeTones, type BadgeTone } from '@/components/ui/badge';
+import { cn } from '@/components/ui/cn';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
-import { ProductStatusBadge } from '@/features/admin/components/product-status-badge';
+import {
+  PRODUCT_STATUS_TONES,
+  ProductStatusBadge,
+} from '@/features/admin/components/product-status-badge';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import type { AdminProduct, AdminProductStatus } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
 const STATUSES: AdminProductStatus[] = ['DRAFT', 'ACTIVE', 'ARCHIVED'];
+
+/**
+ * Badge-styled action button: the exact `Badge` pill (shape, tint, dot)
+ * with the tone of its target status — archivar in amber, pasar a borrador
+ * in neutral, activar in green — plus a focus ring and pointer affordance
+ * for interactivity.
+ */
+function StatusActionButton({
+  tone,
+  onClick,
+  children,
+}: {
+  tone: BadgeTone;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium leading-normal',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        badgeTones[tone],
+      )}
+    >
+      <span aria-hidden="true" className={cn('size-1.5 rounded-full', badgeDots[tone])} />
+      {children}
+    </button>
+  );
+}
 
 /**
  * Status changer: status moves through a dedicated endpoint
@@ -71,10 +106,9 @@ export function ProductStatusContainer({
       <Stack direction="horizontal" gap="md" align="center" wrap>
         <ProductStatusBadge status={status} messages={productsMessages} />
         {STATUSES.filter((candidate) => candidate !== status).map((candidate) => (
-          <Button
+          <StatusActionButton
             key={candidate}
-            variant="secondary"
-            size="sm"
+            tone={PRODUCT_STATUS_TONES[candidate]}
             onClick={() => {
               setTarget(candidate);
             }}
@@ -84,7 +118,7 @@ export function ProductStatusContainer({
               : candidate === 'ARCHIVED'
                 ? productsMessages.archive
                 : productsMessages.moveToDraft}
-          </Button>
+          </StatusActionButton>
         ))}
       </Stack>
       {feedback ? (

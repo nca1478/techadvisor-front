@@ -17,6 +17,16 @@ const DOTS = {
   destructive: 'bg-destructive',
 } as const;
 
+export type BadgeTone = keyof typeof TONES;
+
+/**
+ * Tone maps shared with badge-styled action buttons (same pills as `Badge`,
+ * but interactive — see `ProductStatusContainer`). Reuse these instead of
+ * copying the tint/dot classes.
+ */
+export const badgeTones: Record<BadgeTone, string> = { ...TONES };
+export const badgeDots: Record<BadgeTone, string> = { ...DOTS };
+
 export interface BadgeProps {
   tone?: keyof typeof TONES;
   className?: string;
