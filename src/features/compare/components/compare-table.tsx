@@ -52,8 +52,8 @@ export function CompareTable({
         <caption className="sr-only">{messages.feature}</caption>
         <thead>
           <tr>
-            <th scope="col" className="border-b border-border bg-surface p-3 text-left font-medium">
-              <Text variant="small" tone="muted" as="span">
+            <th scope="col" className="border-b border-border bg-surface p-3 text-left font-bold">
+              <Text variant="small" as="span">
                 {messages.feature}
               </Text>
             </th>
@@ -78,7 +78,7 @@ export function CompareTable({
               <tr key={row.key} data-row={row.key} data-highlighted={highlighted || undefined}>
                 <th
                   scope="row"
-                  className="border-b border-border bg-surface p-3 text-left font-medium"
+                  className="border-b border-border bg-surface p-3 text-left font-bold"
                 >
                   {rowLabel(row.key, specLabels, messages.priceRow)}
                 </th>
