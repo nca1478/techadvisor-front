@@ -125,7 +125,7 @@ export function ProductStatusContainer({
               ? productsMessages.activate
               : candidate === 'ARCHIVED'
                 ? productsMessages.archive
-                : productsMessages.moveToDraft}
+                : productsMessages.status_DRAFT}
           </StatusActionButton>
         ))}
       </Stack>
