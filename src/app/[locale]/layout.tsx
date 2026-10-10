@@ -7,6 +7,7 @@ import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { NavSession } from '@/features/auth/components/nav-session';
 import { SessionProvider } from '@/features/auth/session-context';
+import { AdvisorFab } from '@/features/advisor';
 import { CartProvider } from '@/features/cart/cart-context';
 import { CartNavLink } from '@/features/cart/components/cart-nav-link';
 import { CategoryNav } from '@/features/catalog/components/category-nav';
@@ -87,6 +88,9 @@ export default async function LocaleLayout({
                     <Link href={`/${locale}/productos`} variant="header">
                       {messages.nav.products}
                     </Link>
+                    <Link href={`/${locale}/asesor`} variant="header">
+                      {messages.nav.asesor}
+                    </Link>
                     <CartNavLink
                       locale={locale}
                       messages={{
@@ -134,6 +138,7 @@ export default async function LocaleLayout({
         <main id="main-content" className="flex flex-1 flex-col">
           {children}
         </main>
+        <AdvisorFab locale={locale} label={messages.nav.asesor} />
         <footer className="bg-header-sub">
           <Container>
             <Grid columns="three" gap="md" className="py-8">
@@ -154,6 +159,9 @@ export default async function LocaleLayout({
                 </Link>
                 <Link href={`/${locale}/buscar`} variant="header">
                   {messages.search.title}
+                </Link>
+                <Link href={`/${locale}/asesor`} variant="header">
+                  {messages.nav.asesor}
                 </Link>
                 <Link href={`/${locale}/carrito`} variant="header">
                   {messages.nav.cart}

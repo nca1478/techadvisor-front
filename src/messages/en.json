@@ -12,6 +12,7 @@
   "nav": {
     "home": "Home",
     "products": "Products",
+    "asesor": "Advisor",
     "featured": "Featured",
     "categories": "Categories",
     "viewAll": "View all products",
@@ -191,6 +192,39 @@
     "registerLink": "Create account",
     "logout": "Sign out",
     "account": "Account ({email})"
+  },
+  "chat": {
+    "title": "Shopping advisor",
+    "subtitle": "Tell me what you are looking for and what it is for. I recommend real catalog products, with sources.",
+    "inputLabel": "Type your message",
+    "inputPlaceholder": "e.g. Laptop for engineering studies, max 800 USD",
+    "send": "Send",
+    "typing": "The advisor is typing…",
+    "logLabel": "Conversation with the advisor",
+    "userLabel": "You",
+    "assistantLabel": "Advisor",
+    "startersLabel": "Start with an example",
+    "starters": [
+      "Laptop for engineering studies, max 800 USD",
+      "Comfortable headphones for long work days",
+      "What warranty do laptops include?"
+    ],
+    "quickRepliesLabel": "Quick replies",
+    "quickReplies": [
+      "My budget is 800 USD",
+      "I will use it for studying",
+      "I prefer 16 GB of memory"
+    ],
+    "clarificationBadge": "The advisor needs one more detail",
+    "newChat": "New conversation",
+    "addToCart": "Add to cart",
+    "addedToCart": "Added to cart",
+    "addToCartError": "Could not add this product to the cart.",
+    "viewProduct": "View product",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "sessionError": "The conversation could not be opened. Please try again.",
+    "historyError": "The previous conversation could not be recovered. Starting a new one."
   },
   "cart": {
     "title": "Cart",

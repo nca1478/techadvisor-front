@@ -195,6 +195,97 @@ export async function proxyToBackend(request: Request, backendPath: string): Pro
   return toProxiedResponse(result);
 }
 
+async function rotateRefreshToken(refreshToken: string): Promise<{
+  tokens: TokenPair;
+  setCookies: string[];
+} | null> {
+  const refreshRes = await fetch(`${backendBaseUrl()}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+    redirect: 'manual',
+  });
+  const refreshBody = await parseBody(refreshRes);
+  const rotated =
+    refreshRes.ok &&
+    refreshBody !== null &&
+    typeof refreshBody === 'object' &&
+    isTokenPair((refreshBody as Record<string, unknown>)['tokens']);
+  if (!rotated) return null;
+  return {
+    tokens: (refreshBody as { tokens: TokenPair }).tokens,
+    setCookies: [
+      ...collectSetCookies(refreshRes),
+      serializeAuthCookie(
+        ACCESS_COOKIE,
+        (refreshBody as { tokens: TokenPair }).tokens.accessToken,
+        ACCESS_MAX_AGE_SEC,
+      ),
+      serializeAuthCookie(
+        REFRESH_COOKIE,
+        (refreshBody as { tokens: TokenPair }).tokens.refreshToken,
+        REFRESH_MAX_AGE_SEC,
+      ),
+    ],
+  };
+}
+
+/**
+ * Streaming variant of `proxyToBackend` for SSE endpoints (e.g. the advisor
+ * recommendation stream). Forwards method + raw body + caller cookies + the
+ * caller's `Accept` header and pipes the upstream bytes through untouched —
+ * never buffered or JSON-parsed — while still forwarding `set-cookie`
+ * (guest `sid`, rotated auth) to the browser. Includes the same single
+ * refresh-and-retry as `backendFetch`.
+ */
+export async function proxyStreamToBackend(
+  request: Request,
+  backendPath: string,
+): Promise<Response> {
+  const cookieHeader = request.headers.get('cookie');
+  const tokens = readTokens(cookieHeader);
+  const sid = readSid(cookieHeader);
+  const rawBody =
+    request.method === 'GET' || request.method === 'HEAD' ? null : await request.text();
+  const accept = request.headers.get('accept') ?? 'application/json';
+
+  async function send(accessToken: string): Promise<Response> {
+    const headers = new Headers({ 'content-type': 'application/json', accept });
+    if (accessToken) {
+      headers.set('authorization', `Bearer ${accessToken}`);
+    }
+    if (sid) {
+      headers.set('cookie', `sid=${sid}`);
+    }
+    return fetch(`${backendBaseUrl()}${backendPath}`, {
+      method: request.method,
+      headers,
+      body: rawBody && rawBody.length > 0 ? rawBody : null,
+      redirect: 'manual',
+    });
+  }
+
+  let upstream = await send(tokens.accessToken);
+  let extraCookies: string[] = [];
+  if (upstream.status === 401 && tokens.refreshToken) {
+    const rotated = await rotateRefreshToken(tokens.refreshToken);
+    if (rotated) {
+      extraCookies = rotated.setCookies;
+      upstream = await send(rotated.tokens.accessToken);
+    }
+  }
+
+  const headers = new Headers();
+  const contentType = upstream.headers.get('content-type');
+  if (contentType) headers.set('content-type', contentType);
+  const cacheControl = upstream.headers.get('cache-control');
+  if (cacheControl) headers.set('cache-control', cacheControl);
+  for (const setCookie of [...collectSetCookies(upstream), ...extraCookies]) {
+    headers.append('set-cookie', setCookie);
+  }
+  return new Response(upstream.body, { status: upstream.status, headers });
+}
+
 /**
  * Binary-aware variant of `proxyToBackend` for multipart uploads
  * (e.g. `POST /admin/documents/upload`). Forwards the raw bytes with the

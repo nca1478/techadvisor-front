@@ -1,9 +1,26 @@
 export { createAdvisorApi, type AdvisorApi, type AdvisorCitation } from './advisor';
 export type {
+  AdvisorErrorKind,
   AdvisorFeedbackRequest,
+  AdvisorSseResult,
+  ChatHistory,
+  ChatHistoryMessage,
   ChatSession,
   FeedbackValue,
   ProductQaResponse,
+  RecommendInput,
+  RecommendProduct,
+  RecommendResponse,
+} from './advisor';
+export {
+  asAdvisorCitation,
+  asRecommendProduct,
+  chatSessionStorageKey,
+  classifyAdvisorError,
+  parseChatHistory,
+  parseRecommendResponse,
+  parseSseFrames,
+  streamRecommendation,
 } from './advisor';
 export { createAuthApi, type AuthApi, type AuthPayload, type AuthUser } from './auth';
 export {

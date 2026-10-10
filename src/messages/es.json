@@ -12,6 +12,7 @@
   "nav": {
     "home": "Inicio",
     "products": "Productos",
+    "asesor": "Asesor",
     "featured": "Destacados",
     "categories": "Categorías",
     "viewAll": "Ver todos los productos",
@@ -191,6 +192,39 @@
     "registerLink": "Crear cuenta",
     "logout": "Cerrar sesión",
     "account": "Cuenta ({email})"
+  },
+  "chat": {
+    "title": "Asesor de compras",
+    "subtitle": "Cuéntame qué buscas y para qué lo usarás. Recomiendo productos reales del catálogo, con fuentes.",
+    "inputLabel": "Escribe tu mensaje",
+    "inputPlaceholder": "p. ej. Portátil para estudiar ingeniería, máx. 800 USD",
+    "send": "Enviar",
+    "typing": "El asesor está escribiendo…",
+    "logLabel": "Conversación con el asesor",
+    "userLabel": "Tú",
+    "assistantLabel": "Asesor",
+    "startersLabel": "Empieza con un ejemplo",
+    "starters": [
+      "Portátil para estudiar ingeniería, máx. 800 USD",
+      "Auriculares cómodos para trabajar muchas horas",
+      "¿Qué garantía tienen los portátiles?"
+    ],
+    "quickRepliesLabel": "Respuestas rápidas",
+    "quickReplies": [
+      "Mi presupuesto es de 800 USD",
+      "Lo usaré para estudiar",
+      "Prefiero 16 GB de memoria"
+    ],
+    "clarificationBadge": "El asesor necesita un dato más",
+    "newChat": "Nueva conversación",
+    "addToCart": "Agregar al carrito",
+    "addedToCart": "Agregado al carrito",
+    "addToCartError": "No se pudo agregar este producto al carrito.",
+    "viewProduct": "Ver producto",
+    "inStock": "En stock",
+    "outOfStock": "Agotado",
+    "sessionError": "No se pudo abrir la conversación. Inténtalo de nuevo.",
+    "historyError": "No se pudo recuperar la conversación anterior. Empezamos una nueva."
   },
   "cart": {
     "title": "Carrito",

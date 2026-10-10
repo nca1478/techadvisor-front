@@ -422,9 +422,138 @@ async function handler(req, res) {
       messageCount: 0,
       createdAt: now(),
       updatedAt: now(),
+      messages: [],
     };
     state.sessions.push(session);
     send(res, 201, session);
+    return;
+  }
+
+  const sessionMatch = path.match(/^\/advisor\/sessions\/([^/]+)$/);
+  if (sessionMatch && method === 'GET') {
+    const session = state.sessions.find(
+      (candidate) => candidate.id === decodeURIComponent(sessionMatch[1]),
+    );
+    if (!session) {
+      const err = uniformError(404, 'NOT_FOUND', 'Unknown session');
+      send(res, err.status, err.body);
+      return;
+    }
+    send(res, 200, session);
+    return;
+  }
+
+  const recommendCitation = (product) => ({
+    n: 1,
+    documentId: 'doc-mock-manual',
+    chunkId: 'chunk-mock-1',
+    title: `${product.name} manual`,
+    snippet: 'La batería dura hasta 10 horas en uso mixto…',
+  });
+
+  const recommendCard = (product) => ({
+    productId: product.id,
+    name: product.name,
+    slug: product.slug,
+    priceAmount: product.priceAmount,
+    currency: 'USD',
+    inStock: product.inStock,
+    availableQuantity: product.availableQuantity,
+    imageUrl: null,
+    reason: `16 GB de RAM y SSD NVMe, ideal para estudiar [1].`,
+    citations: [recommendCitation(product)],
+  });
+
+  // Conversational advisor (fake adapters): content-only bodies run the
+  // buying flow (recommendation, clarification probe, rate-limit probe);
+  // role+content bodies keep the legacy raw-append behavior.
+  const messagesMatch = path.match(/^\/advisor\/sessions\/([^/]+)\/messages$/);
+  if (messagesMatch && method === 'POST') {
+    const session = state.sessions.find(
+      (candidate) => candidate.id === decodeURIComponent(messagesMatch[1]),
+    );
+    if (!session) {
+      const err = uniformError(404, 'NOT_FOUND', 'Unknown session');
+      send(res, err.status, err.body);
+      return;
+    }
+    const pushMessage = (role, content, citations, products) => {
+      const message = {
+        id: `msg-mock-${session.messages.length + 1}`,
+        role,
+        content,
+        citations: citations ?? [],
+        products: products ?? [],
+        createdAt: now(),
+      };
+      session.messages.push(message);
+      session.messageCount = session.messages.length;
+      session.updatedAt = now();
+      return message;
+    };
+    // Legacy shape: raw append, 201.
+    if (typeof body.role === 'string') {
+      const content = typeof body.content === 'string' ? body.content.trim() : '';
+      if (content.length === 0) {
+        const err = uniformError(400, 'BAD_REQUEST', 'Invalid message');
+        send(res, err.status, err.body);
+        return;
+      }
+      send(res, 201, pushMessage(body.role, content));
+      return;
+    }
+    const content = typeof body.content === 'string' ? body.content.trim() : '';
+    if (content.length === 0) {
+      const err = uniformError(400, 'BAD_REQUEST', 'Invalid message');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (content.includes('rate-limit-probe')) {
+      const err = uniformError(429, 'TOO_MANY_REQUESTS', 'Slow down');
+      send(res, err.status, err.body, { 'retry-after': '1' });
+      return;
+    }
+    pushMessage('USER', content);
+    let answer;
+    if (content.includes('clarify-probe')) {
+      answer = {
+        message: '¿Cuál es tu presupuesto máximo (y en qué moneda)?',
+        products: [],
+        clarifyingQuestion: '¿Cuál es tu presupuesto máximo (y en qué moneda)?',
+      };
+    } else {
+      answer = {
+        message: `Estas opciones encajan con tu presupuesto [1].`,
+        products: [recommendCard(PRODUCTS[0]), recommendCard(PRODUCTS[1])],
+      };
+    }
+    pushMessage(
+      'ASSISTANT',
+      answer.message,
+      answer.products.flatMap((card) => card.citations),
+      answer.products,
+    );
+    const accept = req.headers['accept'] ?? '';
+    if (accept.includes('text/event-stream')) {
+      res.writeHead(200, {
+        'content-type': 'text/event-stream',
+        'cache-control': 'no-cache',
+        connection: 'keep-alive',
+      });
+      for (const word of answer.message.split(/(\s+)/).filter((part) => part.length > 0)) {
+        res.write(`event: delta\ndata: ${JSON.stringify({ text: word })}\n\n`);
+      }
+      res.write(`event: products\ndata: ${JSON.stringify({ products: answer.products })}\n\n`);
+      if (answer.clarifyingQuestion) {
+        res.write(
+          `event: clarifyingQuestion\ndata: ${JSON.stringify({ clarifyingQuestion: answer.clarifyingQuestion })}\n\n`,
+        );
+      }
+      res.write('event: done\ndata: {}\n\n');
+      res.end();
+      return;
+    }
+    send(res, 200, answer);
     return;
   }
   if (method === 'POST' && path === '/advisor/product-qa') {
