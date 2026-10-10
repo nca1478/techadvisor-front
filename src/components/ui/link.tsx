@@ -6,6 +6,8 @@ const VARIANTS = {
   default: 'text-link underline-offset-4 hover:text-link-hover hover:underline',
   muted: 'text-muted-foreground underline-offset-4 hover:text-foreground hover:underline',
   header: 'text-header-foreground underline-offset-4 hover:underline',
+  /** Brand wordmark: header color, never underlined (not a text link). */
+  brand: 'text-header-foreground no-underline',
 } as const;
 
 export interface LinkProps {

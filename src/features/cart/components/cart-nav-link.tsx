@@ -1,7 +1,7 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Link } from '@/components/ui/link';
+import { CartIcon } from '@/components/ui/header-icons';
 import { useCart } from '@/features/cart/cart-context';
 
 export interface CartNavLinkMessages {
@@ -10,9 +10,10 @@ export interface CartNavLinkMessages {
 }
 
 /**
- * Header cart link with a live item count (ADR 0014). The count comes from
- * the existing `CartProvider` — no extra fetching. While loading or on
- * error it renders the plain link so the header never shifts or breaks.
+ * Header cart icon with a live item count badge (reference layout).
+ * The count comes from the existing `CartProvider` — no extra fetching.
+ * While loading or on error it renders the plain icon so the header never
+ * shifts or breaks. Accessible name keeps the full text label.
  */
 export function CartNavLink({
   locale,
@@ -27,17 +28,24 @@ export function CartNavLink({
   const showCount = count !== null && count > 0;
 
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <Link
-        href={`/${locale}/carrito`}
-        variant="header"
-        ariaLabel={
-          showCount ? messages.withCount.replace('{count}', String(count)) : messages.label
-        }
-      >
-        {messages.label}
-      </Link>
-      {showCount ? <Badge tone="primary">{String(count)}</Badge> : null}
-    </span>
+    <Link
+      href={`/${locale}/carrito`}
+      variant="header"
+      ariaLabel={showCount ? messages.withCount.replace('{count}', String(count)) : messages.label}
+      className="relative inline-flex items-center p-1"
+    >
+      <span title={messages.label}>
+        <CartIcon className="size-6" />
+      </span>
+      <span className="sr-only">{messages.label}</span>
+      {showCount ? (
+        <span
+          aria-hidden="true"
+          className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-bold leading-5 text-white"
+        >
+          {String(count)}
+        </span>
+      ) : null}
+    </Link>
   );
 }

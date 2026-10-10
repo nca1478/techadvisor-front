@@ -61,47 +61,29 @@ export default async function LocaleLayout({
         >
           {messages.nav.skipToContent}
         </a>
-        <header className="bg-header">
+        <header className="bg-header text-header-foreground">
           <Container>
-            <Stack
-              direction="horizontal"
-              gap="md"
-              align="center"
-              justify="between"
-              wrap
-              className="py-4"
-            >
-              <Stack direction="horizontal" gap="md" align="center" wrap>
-                <Link
-                  href={`/${locale}`}
-                  variant="header"
-                  className="text-lg leading-relaxed"
-                  ariaLabel={messages.nav.home}
-                >
-                  {messages.common.techAdvisor}
-                </Link>
-                <nav aria-label={messages.common.techAdvisor}>
-                  <Stack direction="horizontal" gap="md" align="center" wrap>
-                    <Link href={`/${locale}`} variant="header">
-                      {messages.nav.home}
-                    </Link>
-                    <Link href={`/${locale}/productos`} variant="header">
-                      {messages.nav.products}
-                    </Link>
-                    <Link href={`/${locale}/asesor`} variant="header">
-                      {messages.nav.asesor}
-                    </Link>
-                    <CartNavLink
-                      locale={locale}
-                      messages={{
-                        label: messages.nav.cart,
-                        withCount: messages.nav.cartWithCount,
-                      }}
-                    />
-                  </Stack>
-                </nav>
-              </Stack>
-              <Stack direction="horizontal" gap="md" align="center" wrap>
+            {/* Primera línea (referencia): marca, buscador, iconos. */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 py-3">
+              <Link
+                href={`/${locale}`}
+                variant="brand"
+                className="shrink-0 text-xl font-semibold leading-relaxed"
+                ariaLabel={messages.nav.home}
+              >
+                {messages.common.techAdvisor}
+              </Link>
+              <div className="order-last ml-auto min-w-0 w-full flex-1 basis-full sm:order-none sm:w-64 sm:flex-none lg:w-80">
+                <SearchBar locale={locale} messages={messages.search} />
+              </div>
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                <CartNavLink
+                  locale={locale}
+                  messages={{
+                    label: messages.nav.cart,
+                    withCount: messages.nav.cartWithCount,
+                  }}
+                />
                 <NavSession
                   locale={locale}
                   loginLabel={messages.auth.loginLink}
@@ -117,23 +99,25 @@ export default async function LocaleLayout({
                   languageLabel={messages.common.language}
                   currencyLabel={messages.common.currency}
                 />
-              </Stack>
-            </Stack>
-            <div className="pb-4">
-              <SearchBar locale={locale} messages={messages.search} />
-            </div>
-            {categories.length > 0 ? (
-              <div className="border-t border-header-sub py-2">
-                <CategoryNav
-                  categories={categories}
-                  allLabel={messages.nav.allProducts}
-                  navLabel={messages.nav.categories}
-                  listHref={`/${locale}/productos`}
-                  hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
-                />
               </div>
-            ) : null}
+            </div>
           </Container>
+          {/* Segunda línea: categorías, con divisora a todo el ancho. */}
+          {categories.length > 0 ? (
+            <div className="border-t border-header-sub">
+              <Container>
+                <div className="py-2">
+                  <CategoryNav
+                    categories={categories}
+                    allLabel={messages.nav.allProducts}
+                    navLabel={messages.nav.categories}
+                    listHref={`/${locale}/productos`}
+                    hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
+                  />
+                </div>
+              </Container>
+            </div>
+          ) : null}
         </header>
         <main id="main-content" className="flex flex-1 flex-col">
           {children}

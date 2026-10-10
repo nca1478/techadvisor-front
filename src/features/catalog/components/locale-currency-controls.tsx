@@ -1,7 +1,6 @@
 'use client';
 
 import { Select } from '@/components/ui/select';
-import { Stack } from '@/components/ui/stack';
 import { useCurrencySwitcher, useLocaleSwitcher } from '../hooks/use-locale-currency';
 import { LOCALES, type Locale } from '@/lib/i18n/config';
 
@@ -13,7 +12,7 @@ export interface SiteHeaderControlsProps {
   currencyLabel: string;
 }
 
-/** Compact header controls: locale + currency selectors (client). */
+/** Compact header controls: locale + currency selects (text codes, no icons). */
 export function LocaleCurrencyControls({
   locale,
   currencies,
@@ -25,8 +24,8 @@ export function LocaleCurrencyControls({
   const { current, switchCurrency } = useCurrencySwitcher(currencyFallback);
 
   return (
-    <Stack direction="horizontal" gap="sm" align="center">
-      <div className="w-20">
+    <span className="inline-flex items-center gap-1 text-header-foreground">
+      <div className="w-16">
         <Select
           label={languageLabel}
           labelHidden
@@ -39,7 +38,7 @@ export function LocaleCurrencyControls({
           }}
         />
       </div>
-      <div className="w-24">
+      <div className="w-20">
         <Select
           label={currencyLabel}
           labelHidden
@@ -52,6 +51,6 @@ export function LocaleCurrencyControls({
           }}
         />
       </div>
-    </Stack>
+    </span>
   );
 }

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { SearchIcon } from '@/components/ui/header-icons';
 import { Input } from '@/components/ui/input';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -101,7 +102,7 @@ export function SearchBar({
     <div ref={boxRef} className="relative w-full max-w-md">
       <form
         role="search"
-        className="flex items-start gap-2"
+        className="relative flex items-center"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -113,12 +114,14 @@ export function SearchBar({
           name="header-search"
           type="search"
           role="combobox"
+          size="sm"
           aria-expanded={open}
           aria-controls={listboxId}
           aria-autocomplete="list"
           placeholder={messages.placeholder}
           value={query}
           autoFocus={autoFocus}
+          className="pr-8"
           onChange={(event) => {
             const next = event.target.value;
             setQuery(next);
@@ -138,9 +141,15 @@ export function SearchBar({
             if (event.key === 'Escape') setDismissed(true);
           }}
         />
-        <Button type="submit" variant="primary" className="shrink-0">
-          {messages.submit}
-        </Button>
+        <button
+          type="submit"
+          aria-label={messages.submit}
+          title={messages.submit}
+          className="absolute right-1 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          <SearchIcon className="size-4" />
+          <span className="sr-only">{messages.submit}</span>
+        </button>
       </form>
       {open && (
         <div className="absolute inset-x-0 top-full z-40 mt-1 rounded-md border border-border bg-surface shadow-lg">
