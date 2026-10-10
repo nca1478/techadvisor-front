@@ -191,7 +191,6 @@
     "loginLink": "Sign in",
     "registerLink": "Create account",
     "logout": "Sign out",
-    "account": "Account ({email})",
     "accountShort": "Account"
   },
   "chat": {

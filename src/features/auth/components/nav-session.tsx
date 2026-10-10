@@ -14,7 +14,6 @@ export function NavSession({
   loginLabel,
   registerLabel,
   logoutLabel,
-  accountLabel,
   accountShortLabel,
   adminLabel,
 }: {
@@ -22,7 +21,6 @@ export function NavSession({
   loginLabel: string;
   registerLabel: string;
   logoutLabel: string;
-  accountLabel: string;
   accountShortLabel: string;
   adminLabel: string;
 }) {
@@ -45,7 +43,7 @@ export function NavSession({
           </Link>
         ) : null}
         <Link href={`/${locale}/cuenta`} variant="header">
-          {user.role === 'ADMIN' ? accountShortLabel : accountLabel.replace('{email}', user.email)}
+          {accountShortLabel}
         </Link>
         <Button variant="danger" size="sm" onClick={() => void logout()}>
           {logoutLabel}

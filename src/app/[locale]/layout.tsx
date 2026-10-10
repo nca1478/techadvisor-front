@@ -107,7 +107,6 @@ export default async function LocaleLayout({
                   loginLabel={messages.auth.loginLink}
                   registerLabel={messages.auth.registerLink}
                   logoutLabel={messages.auth.logout}
-                  accountLabel={messages.auth.account}
                   accountShortLabel={messages.auth.accountShort}
                   adminLabel={messages.nav.admin}
                 />
