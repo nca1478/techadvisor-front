@@ -157,7 +157,10 @@ export function AdminDocumentsView({
       ...(merged.type === '' ? {} : { type: merged.type }),
       page: merged.page,
     });
-    router.push(`/${locale}/admin/documentos${search}`);
+    // Sin scroll al principio: los filtros y la paginación viven junto a la
+    // tabla y la página remonta la vista en el mismo sitio (clave por
+    // filtro+página), así que conservar la posición evita perder la tabla.
+    router.push(`/${locale}/admin/documentos${search}`, { scroll: false });
   }
 
   function upsertRow(document: AdminDocument) {
