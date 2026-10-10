@@ -1,14 +1,17 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Link } from '@/components/ui/link';
+import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/stack';
-import { cn } from '@/components/ui/cn';
 import type { Dictionary } from '@/lib/i18n/index';
 
 export type AdminSection = 'dashboard' | 'products' | 'orders' | 'inventory' | 'documents';
 
-/** Presentational back-office section nav; active section follows the URL. */
+/**
+ * Presentational back-office section nav; active section follows the URL.
+ * Same pill design as the `Tabs` primitive (active = primary, rest =
+ * secondary, size sm), announced with `aria-current="page"`.
+ */
 export function AdminNav({ locale, messages }: { locale: string; messages: Dictionary['admin'] }) {
   const pathname = usePathname();
   const items: Array<{ section: AdminSection; href: string; label: string }> = [
@@ -20,19 +23,19 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
   ];
   return (
     <nav aria-label={messages.title}>
-      <Stack direction="horizontal" gap="md" wrap>
+      <Stack direction="horizontal" gap="sm" wrap>
         {items.map((item) => {
           const active =
             item.section === 'dashboard' ? pathname === item.href : pathname.startsWith(item.href);
           return (
-            <Link
+            <Button
               key={item.section}
               href={item.href}
-              variant="muted"
-              className={cn(active && 'font-semibold text-foreground underline')}
+              variant={active ? 'primary' : 'secondary'}
+              size="sm"
             >
               {item.label}
-            </Link>
+            </Button>
           );
         })}
       </Stack>
