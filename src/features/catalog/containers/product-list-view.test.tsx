@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import en from '@/messages/en.json';
 import { CartProvider } from '@/features/cart/cart-context';
@@ -89,5 +89,50 @@ describe('ProductListView', () => {
     // The dimming wrapper only carries aria-busy while a filter navigation
     // is in flight; idle renders must not announce busyness.
     expect(name.closest('div[aria-busy]')).toBeNull();
+  });
+
+  it('clears the compare selection when the page changes', () => {
+    window.localStorage.setItem('techadvisor:compare-selection', JSON.stringify(['id-1', 'id-2']));
+    try {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((): Promise<Response> =>
+          Promise.resolve(new Response(JSON.stringify(emptyCart), { status: 200 })),
+        ),
+      );
+      render(
+        <CartProvider>
+          <CompareSelectionProvider>
+            <ProductListView
+              initialData={{
+                data: [product(), product()],
+                meta: {
+                  page: 1,
+                  limit: 12,
+                  total: 24,
+                  totalPages: 2,
+                  hasNext: true,
+                  hasPrev: false,
+                },
+              }}
+              loadError={false}
+              categories={[]}
+              brands={[]}
+              locale="en"
+              currency="USD"
+              messages={en}
+              inStockOnly={false}
+            />
+          </CompareSelectionProvider>
+        </CartProvider>,
+      );
+      // The persisted selection shows in the compare bar…
+      expect(screen.getByText('2/3 to compare')).toBeVisible();
+      // …but paging to another grid resets it (the bar unmounts at 0).
+      fireEvent.click(screen.getByRole('button', { name: '›' }));
+      expect(screen.queryByText('2/3 to compare')).toBeNull();
+    } finally {
+      window.localStorage.removeItem('techadvisor:compare-selection');
+    }
   });
 });

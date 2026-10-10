@@ -54,6 +54,19 @@ test('comparar page shows the SQL table with best highlight and cited summary', 
   await expect(page.getByText('Sources', { exact: true })).toBeVisible();
 });
 
+test('compare selection resets when navigating away and back', async ({ page }) => {
+  await page.goto('/en/productos');
+  await page.getByRole('checkbox', { name: 'Compare: Mock Laptop 13' }).check();
+  await page.getByRole('checkbox', { name: 'Compare: Mock Mouse Pro' }).check();
+  await expect(page.getByText('2/3 to compare')).toBeVisible();
+
+  await page.goto('/en');
+  await page.goto('/en/productos');
+  await expect(page.getByText('2/3 to compare')).toHaveCount(0);
+  // Los productos también quedan desmarcados, no solo la barra.
+  await expect(page.getByRole('checkbox', { name: 'Compare: Mock Laptop 13' })).not.toBeChecked();
+});
+
 test('cart with incompatible CPU and board shows the warning', async ({ page }) => {
   await addFromDetail(page, 'mock-cpu-am4', 'Mock CPU AM4');
   await addFromDetail(page, 'mock-board-lga1700', 'Mock Board LGA1700');

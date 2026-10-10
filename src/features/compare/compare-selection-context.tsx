@@ -99,6 +99,15 @@ function clearSelection(): void {
   }
 }
 
+/**
+ * Limpia la selección fuera de React (para el reseteo por navegación).
+ * La barra y los checkboxes se derivan de la selección, así que ambos se
+ * desmarcan juntos al vaciarla.
+ */
+export function clearCompareSelection(): void {
+  clearSelection();
+}
+
 export interface CompareSelection {
   ids: string[];
   count: number;

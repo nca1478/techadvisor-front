@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 import { Container } from '@/components/ui/container';
 import { Grid } from '@/components/ui/grid';
 import { Link } from '@/components/ui/link';
@@ -10,6 +11,7 @@ import { SessionProvider } from '@/features/auth/session-context';
 import { AdvisorFab } from '@/features/advisor';
 import { CartProvider } from '@/features/cart/cart-context';
 import { CompareSelectionProvider } from '@/features/compare/compare-selection-context';
+import { ResetCompareOnNavigation } from '@/features/compare/reset-on-navigation';
 import { CartNavLink } from '@/features/cart/components/cart-nav-link';
 import { CategoryNav } from '@/features/catalog/components/category-nav';
 import { LocaleCurrencyControls } from '@/features/catalog/components/locale-currency-controls';
@@ -57,6 +59,10 @@ export default async function LocaleLayout({
     <SessionProvider>
       <CartProvider>
         <CompareSelectionProvider>
+          {/* useSearchParams exige Suspense en prerender; este subárbol no pinta nada. */}
+          <Suspense fallback={null}>
+            <ResetCompareOnNavigation />
+          </Suspense>
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-background focus:p-4 focus:text-foreground"

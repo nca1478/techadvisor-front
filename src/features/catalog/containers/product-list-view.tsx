@@ -51,6 +51,13 @@ export function ProductListView({
   const { values, update, isPending } = useListingQuery();
   const compare = useCompareSelection();
 
+  // La selección vive en el layout (sobrevive a la navegación), pero
+  // pertenece al conjunto visible: cualquier cambio de página o filtro la
+  // invalida y se limpia aquí, en el manejador del cambio.
+  const resetCompareSelection = () => {
+    if (compare.count > 0) compare.clear();
+  };
+
   if (loadError || initialData === null) {
     return (
       <Container>
@@ -83,6 +90,7 @@ export function ProductListView({
               brands={brands}
               messages={messages.catalog}
               onChange={(next) => {
+                resetCompareSelection();
                 update({
                   q: next.q,
                   category: next.category,
@@ -92,6 +100,7 @@ export function ProductListView({
                 });
               }}
               onClear={() => {
+                resetCompareSelection();
                 update({ q: '', category: '', brand: '', sort: '', inStockOnly: false, page: 1 });
               }}
             />
@@ -136,6 +145,7 @@ export function ProductListView({
             page={meta.page}
             totalPages={meta.totalPages}
             onPageChange={(page) => {
+              resetCompareSelection();
               update({ page });
             }}
             previousLabel="‹"
