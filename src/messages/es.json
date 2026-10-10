@@ -633,6 +633,8 @@
     "documents": {
       "title": "Documentos",
       "subtitle": "Corpus del asesor: sube archivos o registra URL y sigue su ingesta.",
+      "ingestTabsLabel": "Subir o registrar documento",
+      "listTitle": "Lista de documentos",
       "uploadTitle": "Subir archivo",
       "fileLabel": "Archivo (PDF, HTML, Markdown o texto)",
       "fileHint": "Máximo 10 MB. El tipo real se verifica, no solo la extensión.",

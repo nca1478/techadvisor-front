@@ -633,6 +633,8 @@
     "documents": {
       "title": "Documents",
       "subtitle": "Advisor corpus: upload files or register URLs and track ingestion.",
+      "ingestTabsLabel": "Upload or register document",
+      "listTitle": "Document list",
       "uploadTitle": "Upload file",
       "fileLabel": "File (PDF, HTML, Markdown or text)",
       "fileHint": "Max 10 MB. The real type is verified, not just the extension.",

@@ -8,6 +8,7 @@ import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
+import { Tabs } from '@/components/ui/tabs';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
@@ -304,189 +305,197 @@ export function AdminDocumentsView({
     <Stack gap="md">
       <AdminHeaderCard title={docs.title} subtitle={docs.subtitle} />
 
-      <Card>
-        <Stack gap="md">
-          <Heading level={2}>{docs.uploadTitle}</Heading>
-          <Input
-            key={fileResetKey}
-            label={docs.fileLabel}
-            name="file"
-            type="file"
-            accept=".pdf,.html,.htm,.md,.markdown,.txt"
-            hint={docs.fileHint}
-            disabled={uploading}
-            onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
-            }}
-          />
-          <Input
-            label={docs.titleLabel}
-            name="uploadTitle"
-            value={uploadTitle}
-            disabled={uploading}
-            onChange={(event) => {
-              setUploadTitle(event.target.value);
-            }}
-          />
-          <Stack direction="horizontal" gap="md" wrap>
-            <div className="min-w-44 flex-1">
-              <Select
-                label={docs.typeLabel}
-                name="uploadType"
-                value={uploadType}
-                options={typeOptions}
-                disabled={uploading}
-                onChange={(event) => {
-                  setUploadType(event.target.value as AdminDocumentType);
-                }}
-              />
-            </div>
-            <div className="min-w-44 flex-1">
-              <Select
-                label={docs.localeLabel}
-                name="uploadLocale"
-                value={uploadLocale}
-                options={[
-                  { value: 'en', label: 'en' },
-                  { value: 'es', label: 'es' },
-                ]}
-                disabled={uploading}
-                onChange={(event) => {
-                  setUploadLocale(event.target.value);
-                }}
-              />
-            </div>
-          </Stack>
-          <Stack direction="horizontal" gap="md" wrap>
-            <div className="min-w-44 flex-1">
-              <Input
-                label={docs.productLabel}
-                name="uploadProductId"
-                value={uploadProductId}
-                disabled={uploading}
-                onChange={(event) => {
-                  setUploadProductId(event.target.value);
-                }}
-              />
-            </div>
-            <div className="min-w-44 flex-1">
-              <Input
-                label={docs.categoryLabel}
-                name="uploadCategoryId"
-                value={uploadCategoryId}
-                disabled={uploading}
-                onChange={(event) => {
-                  setUploadCategoryId(event.target.value);
-                }}
-              />
-            </div>
-          </Stack>
-          <div>
-            <Button
-              variant="primary"
-              disabled={uploading}
-              onClick={() => {
-                void handleUpload();
-              }}
-            >
-              {uploading ? docs.uploading : docs.uploadSubmit}
-            </Button>
-          </div>
-          {uploadFeedback ? (
-            <Text
-              role={uploadFeedback.ok ? 'status' : 'alert'}
-              className={uploadFeedback.ok ? undefined : 'text-destructive'}
-            >
-              {uploadFeedback.text}
-            </Text>
-          ) : null}
-        </Stack>
-      </Card>
-
-      <Card>
-        <Stack gap="md">
-          <Heading level={2}>{docs.urlTitle}</Heading>
-          <Input
-            label={docs.titleLabel}
-            name="urlTitle"
-            value={urlTitle}
-            disabled={registering}
-            onChange={(event) => {
-              setUrlTitle(event.target.value);
-            }}
-          />
-          <Input
-            label={docs.urlLabel}
-            name="sourceUrl"
-            value={sourceUrl}
-            placeholder="https://…"
-            disabled={registering}
-            onChange={(event) => {
-              setSourceUrl(event.target.value);
-            }}
-          />
-          <Stack direction="horizontal" gap="md" wrap>
-            <div className="min-w-44 flex-1">
-              <Select
-                label={docs.typeLabel}
-                name="urlType"
-                value={urlType}
-                options={typeOptions}
-                disabled={registering}
-                onChange={(event) => {
-                  setUrlType(event.target.value as AdminDocumentType);
-                }}
-              />
-            </div>
-            <div className="min-w-44 flex-1">
-              <Select
-                label={docs.localeLabel}
-                name="urlLocale"
-                value={urlLocale}
-                options={[
-                  { value: 'en', label: 'en' },
-                  { value: 'es', label: 'es' },
-                ]}
-                disabled={registering}
-                onChange={(event) => {
-                  setUrlLocale(event.target.value);
-                }}
-              />
-            </div>
-          </Stack>
-          <div>
-            <Button
-              variant="secondary"
-              disabled={registering}
-              onClick={() => {
-                void handleRegisterUrl();
-              }}
-            >
-              {registering ? docs.registering : docs.urlSubmit}
-            </Button>
-          </div>
-          {urlFeedback ? (
-            <Text
-              role={urlFeedback.ok ? 'status' : 'alert'}
-              className={urlFeedback.ok ? undefined : 'text-destructive'}
-            >
-              {urlFeedback.text}
-            </Text>
-          ) : null}
-        </Stack>
-      </Card>
+      <Tabs
+        label={docs.ingestTabsLabel}
+        items={[
+          {
+            id: 'upload',
+            label: docs.uploadTitle,
+            content: (
+              <Card>
+                <Stack gap="md">
+                  <Heading level={2}>{docs.uploadTitle}</Heading>
+                  <Input
+                    key={fileResetKey}
+                    label={docs.fileLabel}
+                    name="file"
+                    type="file"
+                    accept=".pdf,.html,.htm,.md,.markdown,.txt"
+                    hint={docs.fileHint}
+                    disabled={uploading}
+                    onChange={(event) => {
+                      setFile(event.target.files?.[0] ?? null);
+                    }}
+                  />
+                  <Input
+                    label={docs.titleLabel}
+                    name="uploadTitle"
+                    value={uploadTitle}
+                    disabled={uploading}
+                    onChange={(event) => {
+                      setUploadTitle(event.target.value);
+                    }}
+                  />
+                  <Stack direction="horizontal" gap="md" wrap>
+                    <div className="min-w-44 flex-1">
+                      <Select
+                        label={docs.typeLabel}
+                        name="uploadType"
+                        value={uploadType}
+                        options={typeOptions}
+                        disabled={uploading}
+                        onChange={(event) => {
+                          setUploadType(event.target.value as AdminDocumentType);
+                        }}
+                      />
+                    </div>
+                    <div className="min-w-44 flex-1">
+                      <Select
+                        label={docs.localeLabel}
+                        name="uploadLocale"
+                        value={uploadLocale}
+                        options={[
+                          { value: 'en', label: 'en' },
+                          { value: 'es', label: 'es' },
+                        ]}
+                        disabled={uploading}
+                        onChange={(event) => {
+                          setUploadLocale(event.target.value);
+                        }}
+                      />
+                    </div>
+                  </Stack>
+                  <Stack direction="horizontal" gap="md" wrap>
+                    <div className="min-w-44 flex-1">
+                      <Input
+                        label={docs.productLabel}
+                        name="uploadProductId"
+                        value={uploadProductId}
+                        disabled={uploading}
+                        onChange={(event) => {
+                          setUploadProductId(event.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="min-w-44 flex-1">
+                      <Input
+                        label={docs.categoryLabel}
+                        name="uploadCategoryId"
+                        value={uploadCategoryId}
+                        disabled={uploading}
+                        onChange={(event) => {
+                          setUploadCategoryId(event.target.value);
+                        }}
+                      />
+                    </div>
+                  </Stack>
+                  <div>
+                    <Button
+                      variant="primary"
+                      disabled={uploading}
+                      onClick={() => {
+                        void handleUpload();
+                      }}
+                    >
+                      {uploading ? docs.uploading : docs.uploadSubmit}
+                    </Button>
+                  </div>
+                  {uploadFeedback ? (
+                    <Text
+                      role={uploadFeedback.ok ? 'status' : 'alert'}
+                      className={uploadFeedback.ok ? undefined : 'text-destructive'}
+                    >
+                      {uploadFeedback.text}
+                    </Text>
+                  ) : null}
+                </Stack>
+              </Card>
+            ),
+          },
+          {
+            id: 'register-url',
+            label: docs.urlTitle,
+            content: (
+              <Card>
+                <Stack gap="md">
+                  <Heading level={2}>{docs.urlTitle}</Heading>
+                  <Input
+                    label={docs.titleLabel}
+                    name="urlTitle"
+                    value={urlTitle}
+                    disabled={registering}
+                    onChange={(event) => {
+                      setUrlTitle(event.target.value);
+                    }}
+                  />
+                  <Input
+                    label={docs.urlLabel}
+                    name="sourceUrl"
+                    value={sourceUrl}
+                    placeholder="https://…"
+                    disabled={registering}
+                    onChange={(event) => {
+                      setSourceUrl(event.target.value);
+                    }}
+                  />
+                  <Stack direction="horizontal" gap="md" wrap>
+                    <div className="min-w-44 flex-1">
+                      <Select
+                        label={docs.typeLabel}
+                        name="urlType"
+                        value={urlType}
+                        options={typeOptions}
+                        disabled={registering}
+                        onChange={(event) => {
+                          setUrlType(event.target.value as AdminDocumentType);
+                        }}
+                      />
+                    </div>
+                    <div className="min-w-44 flex-1">
+                      <Select
+                        label={docs.localeLabel}
+                        name="urlLocale"
+                        value={urlLocale}
+                        options={[
+                          { value: 'en', label: 'en' },
+                          { value: 'es', label: 'es' },
+                        ]}
+                        disabled={registering}
+                        onChange={(event) => {
+                          setUrlLocale(event.target.value);
+                        }}
+                      />
+                    </div>
+                  </Stack>
+                  <div>
+                    <Button
+                      variant="secondary"
+                      disabled={registering}
+                      onClick={() => {
+                        void handleRegisterUrl();
+                      }}
+                    >
+                      {registering ? docs.registering : docs.urlSubmit}
+                    </Button>
+                  </div>
+                  {urlFeedback ? (
+                    <Text
+                      role={urlFeedback.ok ? 'status' : 'alert'}
+                      className={urlFeedback.ok ? undefined : 'text-destructive'}
+                    >
+                      {urlFeedback.text}
+                    </Text>
+                  ) : null}
+                </Stack>
+              </Card>
+            ),
+          },
+        ]}
+      />
 
       <AdminFiltersCard>
-        <div className="min-w-44">
-          <Select
-            label={docs.statusFilter}
-            name="status"
-            value={query.status}
-            options={statusOptions}
-            onChange={(event) => {
-              navigate({ status: event.target.value as AdminDocumentsQuery['status'], page: 1 });
-            }}
-          />
+        <div className="w-full">
+          <Heading level={2}>{docs.listTitle}</Heading>
         </div>
         <div className="min-w-44">
           <Select
@@ -496,6 +505,17 @@ export function AdminDocumentsView({
             options={documentTypeOptions}
             onChange={(event) => {
               navigate({ type: event.target.value as AdminDocumentsQuery['type'], page: 1 });
+            }}
+          />
+        </div>
+        <div className="min-w-44">
+          <Select
+            label={docs.statusFilter}
+            name="status"
+            value={query.status}
+            options={statusOptions}
+            onChange={(event) => {
+              navigate({ status: event.target.value as AdminDocumentsQuery['status'], page: 1 });
             }}
           />
         </div>
