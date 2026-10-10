@@ -9,7 +9,7 @@ describe('getDictionarySync', () => {
     expect(getDictionarySync('en')).toEqual(en);
   });
 
-  it('falls back to the default locale for unknown values', () => {
+  it('falls back to the default locale for unknown values.', () => {
     expect(getDictionarySync('fr')).toEqual(en);
     expect(getDictionarySync('')).toEqual(en);
   });
