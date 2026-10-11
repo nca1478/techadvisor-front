@@ -45,6 +45,28 @@ export type AdminAdvisorFeedbackDetail = components['schemas']['AdminAdvisorFeed
 export type AdminAdvisorSession = components['schemas']['AdminAdvisorSessionDto'];
 export type AdminAdvisorMetrics = components['schemas']['AdminAdvisorMetricsDto'];
 
+/**
+ * Review moderation (backend `GET /admin/reviews`, `PATCH
+ * /admin/reviews/:id/status`). Response shapes come from the generated
+ * OpenAPI contract. Allowed transitions: PENDING → PUBLISHED|REJECTED,
+ * PUBLISHED → REJECTED, REJECTED → PUBLISHED.
+ */
+export type AdminReview = components['schemas']['AdminReviewDto'];
+export type AdminReviewList = components['schemas']['AdminReviewListDto'];
+export type AdminReviewStatus = AdminReview['status'];
+
+export const ADMIN_REVIEW_STATUSES: readonly AdminReviewStatus[] = [
+  'PENDING',
+  'PUBLISHED',
+  'REJECTED',
+] as const;
+
+export interface AdminReviewListQuery {
+  status?: AdminReviewStatus;
+  productId?: string;
+  page?: number;
+  limit?: number;
+}
 export type AdminUnansweredStatus = 'NEW' | 'IN_REVIEW' | 'RESOLVED';
 export type AdminFeedbackValue = 'up' | 'down';
 

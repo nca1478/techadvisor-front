@@ -487,6 +487,7 @@
     "navInventory": "Inventory",
     "navDocuments": "Documents",
     "navAsesor": "Advisor",
+    "navReviews": "Reviews",
     "viewStore": "View store",
     "previous": "Previous",
     "next": "Next",
@@ -767,6 +768,29 @@
       "statusConfirm": "Move this order from {from} to {to}? This cannot be undone.",
       "noTransitions": "This order is in a final state; no further changes are allowed.",
       "paidNote": "Orders become paid only through the Stripe webhook, never from this panel."
+    },
+    "reviews": {
+      "title": "Reviews",
+      "subtitle": "Moderate customer reviews. Only published reviews appear in the store.",
+      "statusFilter": "Status",
+      "allStatuses": "All statuses",
+      "status_PENDING": "Pending",
+      "status_PUBLISHED": "Published",
+      "status_REJECTED": "Rejected",
+      "tableDate": "Date",
+      "tableProduct": "Product",
+      "tableRating": "Rating",
+      "tableReview": "Review",
+      "tableStatus": "Status",
+      "tableActions": "Actions",
+      "publish": "Publish",
+      "reject": "Reject",
+      "moderating": "Updating…",
+      "moderated": "Review updated.",
+      "moderateError": "The review could not be updated.",
+      "publishConfirm": "Publish this review? It will appear in the store immediately.",
+      "rejectConfirm": "Reject this review? It will stay hidden from the store.",
+      "empty": "No reviews match these filters."
     }
   },
   "reviews": {

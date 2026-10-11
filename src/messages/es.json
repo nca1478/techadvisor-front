@@ -487,6 +487,7 @@
     "navInventory": "Inventario",
     "navDocuments": "Documentos",
     "navAsesor": "Asesor",
+    "navReviews": "Reseñas",
     "viewStore": "Ver tienda",
     "previous": "Anterior",
     "next": "Siguiente",
@@ -767,6 +768,29 @@
       "statusConfirm": "¿Pasar este pedido de {from} a {to}? No se puede deshacer.",
       "noTransitions": "Este pedido está en estado final; no admite más cambios.",
       "paidNote": "Los pedidos solo se marcan como pagados desde el webhook de Stripe, nunca desde este panel."
+    },
+    "reviews": {
+      "title": "Reseñas",
+      "subtitle": "Modera las reseñas de clientes. Solo las publicadas aparecen en la tienda.",
+      "statusFilter": "Estado",
+      "allStatuses": "Todos los estados",
+      "status_PENDING": "Pendiente",
+      "status_PUBLISHED": "Publicada",
+      "status_REJECTED": "Rechazada",
+      "tableDate": "Fecha",
+      "tableProduct": "Producto",
+      "tableRating": "Valoración",
+      "tableReview": "Reseña",
+      "tableStatus": "Estado",
+      "tableActions": "Acciones",
+      "publish": "Publicar",
+      "reject": "Rechazar",
+      "moderating": "Actualizando…",
+      "moderated": "Reseña actualizada.",
+      "moderateError": "No se pudo actualizar la reseña.",
+      "publishConfirm": "¿Publicar esta reseña? Aparecerá en la tienda de inmediato.",
+      "rejectConfirm": "¿Rechazar esta reseña? Quedará oculta en la tienda.",
+      "empty": "Ninguna reseña coincide con estos filtros."
     }
   },
   "reviews": {
