@@ -29,7 +29,7 @@ export interface ProductReviewsProps {
   loginLabel: string;
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 2;
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 
@@ -139,15 +139,18 @@ export function ProductReviewsList({
     }
   }
 
-  async function handleLoadMore() {
-    if (loadingMore) return;
+  async function handlePageChange(nextPage: number) {
+    if (loadingMore || nextPage === page) return;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (nextPage < 1 || nextPage > totalPages) return;
     setLoadingMore(true);
     try {
       const api = createReviewsApi(createApiClient({ baseUrl: '/api' }));
-      const list = await api.listPublished(productId, { page: page + 1, limit: PAGE_SIZE });
-      setReviews((previous) => [...previous, ...list.data]);
+      const list = await api.listPublished(productId, { page: nextPage, limit: PAGE_SIZE });
+      setReviews(list.data);
       setTotal(list.total);
-      setPage((previous) => previous + 1);
+      setAverageRating(list.averageRating);
+      setPage(nextPage);
     } catch {
       setLoadingMore(false);
       await handleRetry();
@@ -186,6 +189,8 @@ export function ProductReviewsList({
   }
 
   const average = formatAverageRating(averageRating);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
   return (
     <Card>
       <Stack gap="md">
@@ -199,23 +204,48 @@ export function ProductReviewsList({
         </Stack>
         {summary !== null ? <ReviewSummaryView summary={summary} messages={messages} bare /> : null}
         <ReviewListView reviews={reviews} total={total} locale={locale} messages={messages} />
-        {total > reviews.length ? (
-          <Stack gap="sm">
-            <Text variant="small" tone="muted" role="status">
-              {messages.showingOf
-                .replace('{shown}', String(reviews.length))
-                .replace('{total}', String(total))}
-            </Text>
-            <div>
-              <Button
-                variant="secondary"
-                loading={loadingMore}
-                onClick={() => void handleLoadMore()}
-              >
-                {messages.loadMore}
-              </Button>
-            </div>
-          </Stack>
+        {total > 0 ? (
+          <nav aria-label={messages.title}>
+            <Stack gap="sm">
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={page <= 1 || loadingMore}
+                  onClick={() => void handlePageChange(page - 1)}
+                  aria-label={messages.previous}
+                >
+                  {messages.previous}
+                </Button>
+                {pageNumbers.map((pageNumber) => (
+                  <Button
+                    key={pageNumber}
+                    variant={pageNumber === page ? 'primary' : 'secondary'}
+                    size="sm"
+                    disabled={loadingMore}
+                    aria-current={pageNumber === page ? 'page' : undefined}
+                    onClick={() => void handlePageChange(pageNumber)}
+                  >
+                    {String(pageNumber)}
+                  </Button>
+                ))}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={page >= totalPages || loadingMore}
+                  onClick={() => void handlePageChange(page + 1)}
+                  aria-label={messages.next}
+                >
+                  {messages.next}
+                </Button>
+              </div>
+              <Text variant="small" tone="muted" role="status" className="text-center">
+                {messages.pageOf
+                  .replace('{page}', String(page))
+                  .replace('{totalPages}', String(totalPages))}
+              </Text>
+            </Stack>
+          </nav>
         ) : null}
       </Stack>
     </Card>

@@ -28,7 +28,7 @@ const LIST_PAGE_1 = {
   ],
   total: 2,
   page: 1,
-  limit: 10,
+  limit: 2,
   averageRating: 4.5,
 };
 
@@ -119,7 +119,7 @@ describe('ProductReviews', () => {
     expect(screen.queryByText(messages.loginRequired)).not.toBeInTheDocument();
   });
 
-  it('loads the next page on demand', async () => {
+  it('paginates two reviews per page with centered controls at the bottom', async () => {
     const page2 = {
       data: [
         {
@@ -132,21 +132,27 @@ describe('ProductReviews', () => {
           createdAt: '2026-02-02T10:00:00.000Z',
         },
       ],
-      total: 2,
+      total: 3,
       page: 2,
-      limit: 10,
+      limit: 2,
       averageRating: 4.5,
     };
+    const firstPage = { ...LIST_PAGE_1, total: 3, limit: 2 };
     mockFetch((url) => {
       if (url.includes('/summary')) return SUMMARY;
       if (url.includes('page=2')) return page2;
-      return LIST_PAGE_1;
+      return firstPage;
     });
 
     renderReviews();
     await screen.findByText('Gran portátil');
 
-    fireEvent.click(screen.getByRole('button', { name: messages.loadMore }));
+    // Pagination controls render at the bottom: previous/next plus page numbers.
+    expect(screen.getByRole('button', { name: messages.previous })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: messages.next })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: messages.next }));
 
     await waitFor(() => {
       expect(screen.getByText('Bueno')).toBeInTheDocument();
