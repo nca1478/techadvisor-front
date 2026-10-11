@@ -28,6 +28,53 @@ export type AdminDocumentList = components['schemas']['AdminDocumentListDto'];
 export type AdminDocumentStatus = AdminDocument['status'];
 export type AdminDocumentType = AdminDocument['type'];
 
+/**
+ * Advisor improvement loop (backend `GET /admin/advisor/*`, see backend ADR
+ * 0040). Response shapes come from the generated OpenAPI contract; nullable
+ * id columns render as `Record<string, never> | null` in the generator
+ * (same precedent as `AdminProductImage['alt']`), so readers normalize with
+ * `asOptionalId` below instead of trusting the field type.
+ */
+export type AdminUnansweredQuery = components['schemas']['AdminUnansweredQueryDto'];
+export type AdminUnansweredQueryList = components['schemas']['AdminUnansweredQueryListDto'];
+export type AdminUnansweredGroup = components['schemas']['AdminUnansweredGroupDto'];
+export type AdminUnansweredGroupList = components['schemas']['AdminUnansweredGroupListDto'];
+export type AdminAdvisorFeedback = components['schemas']['AdminAdvisorFeedbackDto'];
+export type AdminAdvisorFeedbackList = components['schemas']['AdminAdvisorFeedbackListDto'];
+export type AdminAdvisorFeedbackDetail = components['schemas']['AdminAdvisorFeedbackDetailDto'];
+export type AdminAdvisorSession = components['schemas']['AdminAdvisorSessionDto'];
+export type AdminAdvisorMetrics = components['schemas']['AdminAdvisorMetricsDto'];
+
+export type AdminUnansweredStatus = 'NEW' | 'IN_REVIEW' | 'RESOLVED';
+export type AdminFeedbackValue = 'up' | 'down';
+
+/** Normalizes a generated nullable-id field to `string | null`. */
+export function asOptionalId(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
+}
+
+export interface AdminUnansweredGroupsQuery {
+  status?: AdminUnansweredStatus;
+  reason?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface AdminAdvisorFeedbackQuery {
+  value?: AdminFeedbackValue;
+  abstained?: boolean;
+  productId?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const ADMIN_UNANSWERED_STATUSES: readonly AdminUnansweredStatus[] = [
+  'NEW',
+  'IN_REVIEW',
+  'RESOLVED',
+] as const;
+
+export const ADMIN_FEEDBACK_VALUES: readonly AdminFeedbackValue[] = ['up', 'down'] as const;
 export type AdminOrderStatus = AdminOrder['status'];
 
 export interface AdminProductImageInput {

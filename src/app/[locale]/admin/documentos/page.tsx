@@ -82,6 +82,7 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
       query={{ status, type, page }}
       locale={locale}
       messages={messages}
+      initialTitle={firstParam(queryParams, 'title').slice(0, 200)}
     />
   );
 }

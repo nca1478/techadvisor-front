@@ -10,7 +10,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** API liveness and database reachability */
+    /** API liveness plus db/redis/queue/AI availability (no live AI probe) */
     get: operations['HealthController_check'];
     put?: never;
     post?: never;
@@ -431,6 +431,125 @@ export interface paths {
     put?: never;
     /** Re-run ingestion from the stored source bytes */
     post: operations['AdminDocumentsController_reingest'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/unanswered': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List abstentions under triage (NEW/IN_REVIEW/RESOLVED), newest first */
+    get: operations['AdminAdvisorController_listUnanswered'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/unanswered/groups': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Abstentions grouped by normalized question text, most frequent first */
+    get: operations['AdminAdvisorController_unansweredGroups'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/unanswered/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Move an abstention forward in triage (NEW → IN_REVIEW → RESOLVED) */
+    patch: operations['AdminAdvisorController_updateUnansweredStatus'];
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/feedback': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List thumbs up/down votes (minimized excerpts), newest first */
+    get: operations['AdminAdvisorController_listFeedback'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/feedback/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Full feedback vote (admin-only, e.g. to draft a corpus document) */
+    get: operations['AdminAdvisorController_getFeedback'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/sessions/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Minimized conversation view (excerpts only; purged sessions 404) */
+    get: operations['AdminAdvisorController_getSession'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/advisor/metrics': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Improvement-loop summary: open abstentions, satisfaction, frequent gaps */
+    get: operations['AdminAdvisorController_getMetrics'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1019,6 +1138,40 @@ export interface paths {
     patch: operations['AdminReviewsController_moderateReview'];
     trace?: never;
   };
+  '/api/v1/metrics': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Prometheus metrics: AI latency/errors per provider+model, abstentions, queues, documents */
+    get: operations['ObservabilityController_metrics'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/metrics/cleanup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Purge ai_call_logs rows past AI_CALL_LOG_RETENTION_DAYS (admin job trigger) */
+    post: operations['ObservabilityController_cleanupLogs'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1057,6 +1210,27 @@ export interface components {
        */
       details?: Record<string, never>;
     };
+    HealthIngestionCountsDto: {
+      /** @example 3 */
+      waiting: number;
+      /** @example 1 */
+      active: number;
+      /** @example 0 */
+      delayed: number;
+      /** @example 0 */
+      failed: number;
+    };
+    HealthAiStateDto: {
+      /** @example openai-compatible */
+      provider: string;
+      /** @example text-embedding-3-small */
+      model: string;
+      /**
+       * @example OK
+       * @enum {string}
+       */
+      status: 'OK' | 'ERROR';
+    };
     HealthResponseDto: {
       /**
        * @description Overall API status.
@@ -1069,6 +1243,28 @@ export interface components {
        * @enum {string}
        */
       db: 'up' | 'down';
+      /**
+       * @description Redis reachability probed with PING (short timeout).
+       * @example up
+       * @enum {string}
+       */
+      redis: 'up' | 'down';
+      /**
+       * @description Ingestion queue readability (down when Redis is unreachable).
+       * @example up
+       * @enum {string}
+       */
+      ingestion: 'up' | 'down' | 'unknown';
+      /** @description BullMQ ingestion queue depths; absent when the queue is unreadable. */
+      ingestionCounts?: components['schemas']['HealthIngestionCountsDto'];
+      /**
+       * @description AI availability from the last known instrumented call outcome (never a live provider probe).
+       * @example up
+       * @enum {string}
+       */
+      ai: 'up' | 'degraded' | 'unknown';
+      /** @description Last known outcome per provider/model (metadata only, no content). */
+      aiStates?: components['schemas']['HealthAiStateDto'][];
     };
     PublicConfigResponseDto: {
       /**
@@ -1406,6 +1602,258 @@ export interface components {
       total: number;
       /** @example 1 */
       totalPages: number;
+    };
+    AdminUnansweredQueryDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      id: string;
+      /**
+       * @description Raw user question.
+       * @example ¿Cuánto dura la batería?
+       */
+      query: string;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      productId?: Record<string, never> | null;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      sessionId?: Record<string, never> | null;
+      /** @example no_evidence */
+      reason: string;
+      /**
+       * @example NEW
+       * @enum {string}
+       */
+      status: 'NEW' | 'IN_REVIEW' | 'RESOLVED';
+      /**
+       * Format: date-time
+       * @example 2026-10-10T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    AdminUnansweredQueryListDto: {
+      data: components['schemas']['AdminUnansweredQueryDto'][];
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      /** @example 42 */
+      total: number;
+      /** @example 3 */
+      totalPages: number;
+    };
+    AdminUnansweredGroupDto: {
+      /**
+       * @description Normalized bucket key (lowercase, no diacritics/punctuation).
+       * @example cuanto dura la bateria
+       */
+      key: string;
+      /**
+       * @description First-seen raw question, as the human-readable sample.
+       * @example ¿Cuánto dura la batería?
+       */
+      sample: string;
+      /**
+       * @description Rows in this bucket within the scan window.
+       * @example 7
+       */
+      count: number;
+      /** @example 2026-10-10T12:00:00.000Z */
+      latestAt: string;
+      /**
+       * @description Row ids in this bucket (newest first), for drill-down.
+       * @example [
+       *       "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+       *     ]
+       */
+      ids: string[];
+    };
+    AdminUnansweredGroupListDto: {
+      data: components['schemas']['AdminUnansweredGroupDto'][];
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      /** @example 5 */
+      total: number;
+      /** @example 1 */
+      totalPages: number;
+    };
+    AdminAdvisorFeedbackDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      id: string;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      productId?: Record<string, never> | null;
+      /**
+       * @description Chat session of the voted answer; backs the minimized conversation link.
+       * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
+       */
+      sessionId?: Record<string, never> | null;
+      /**
+       * @example up
+       * @enum {string}
+       */
+      value: 'up' | 'down';
+      /** @example false */
+      abstained: boolean;
+      /**
+       * @description First 200 chars of the question.
+       * @example ¿Cuánto dura la batería?
+       */
+      queryExcerpt: string;
+      /**
+       * @description First 300 chars of the voted answer.
+       * @example La batería dura hasta 10 horas [1].
+       */
+      answerExcerpt: string;
+      /**
+       * @description Full question length (the excerpt may be cut).
+       * @example 24
+       */
+      queryLength: number;
+      /**
+       * @description Full answer length (the excerpt may be cut).
+       * @example 38
+       */
+      answerLength: number;
+      /**
+       * Format: date-time
+       * @example 2026-10-10T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    AdminAdvisorFeedbackListDto: {
+      data: components['schemas']['AdminAdvisorFeedbackDto'][];
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      /** @example 42 */
+      total: number;
+      /** @example 3 */
+      totalPages: number;
+    };
+    AdminAdvisorFeedbackDetailDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      id: string;
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      productId?: Record<string, never> | null;
+      /**
+       * @description Chat session of the voted answer; backs the minimized conversation link.
+       * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
+       */
+      sessionId?: Record<string, never> | null;
+      /**
+       * @example up
+       * @enum {string}
+       */
+      value: 'up' | 'down';
+      /** @example false */
+      abstained: boolean;
+      /**
+       * @description First 200 chars of the question.
+       * @example ¿Cuánto dura la batería?
+       */
+      queryExcerpt: string;
+      /**
+       * @description First 300 chars of the voted answer.
+       * @example La batería dura hasta 10 horas [1].
+       */
+      answerExcerpt: string;
+      /**
+       * @description Full question length (the excerpt may be cut).
+       * @example 24
+       */
+      queryLength: number;
+      /**
+       * @description Full answer length (the excerpt may be cut).
+       * @example 38
+       */
+      answerLength: number;
+      /**
+       * Format: date-time
+       * @example 2026-10-10T12:00:00.000Z
+       */
+      createdAt: string;
+      /** @example ¿Cuánto dura la batería? */
+      query: string;
+      /** @example La batería dura hasta 10 horas [1]. */
+      answer: string;
+    };
+    AdminAdvisorSessionMessageDto: {
+      /**
+       * @example USER
+       * @enum {string}
+       */
+      role: 'USER' | 'ASSISTANT';
+      /**
+       * @description First 200 chars of the message.
+       * @example Portátil para…
+       */
+      excerpt: string;
+      /**
+       * @description Full message length (the excerpt may be cut).
+       * @example 42
+       */
+      length: number;
+      /**
+       * Format: date-time
+       * @example 2026-10-10T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    AdminAdvisorSessionDto: {
+      /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
+      sessionId: string;
+      /**
+       * @description Messages kept in this session.
+       * @example 4
+       */
+      messageCount: number;
+      messages: components['schemas']['AdminAdvisorSessionMessageDto'][];
+      /**
+       * Format: date-time
+       * @example 2026-10-10T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    AdminAdvisorCountDto: {
+      /** @example NEW */
+      key: string;
+      /** @example 12 */
+      count: number;
+    };
+    AdminAdvisorTopQueryDto: {
+      /** @example cuanto dura la bateria */
+      key: string;
+      /** @example ¿Cuánto dura la batería? */
+      sample: string;
+      /** @example 7 */
+      count: number;
+    };
+    AdminAdvisorMetricsDto: {
+      /**
+       * @description Open (NEW + IN_REVIEW) abstentions.
+       * @example 25
+       */
+      openUnanswered: number;
+      /** @description Abstentions by triage status. */
+      unansweredByStatus: components['schemas']['AdminAdvisorCountDto'][];
+      /** @description Abstentions by advisor reason. */
+      unansweredByReason: components['schemas']['AdminAdvisorCountDto'][];
+      /**
+       * @description Feedback votes recorded.
+       * @example 40
+       */
+      feedbackTotal: number;
+      /** @example 30 */
+      feedbackUp: number;
+      /** @example 10 */
+      feedbackDown: number;
+      /**
+       * @description up / total, null while no votes exist.
+       * @example 0.75
+       */
+      satisfactionRate: number | null;
+      /** @description Top normalized open questions (max 10) by frequency. */
+      topQueries: components['schemas']['AdminAdvisorTopQueryDto'][];
     };
     ShippingAddressDto: {
       /** @example Ada Lovelace */
@@ -2104,6 +2552,11 @@ export interface components {
        * @enum {string}
        */
       value: 'up' | 'down';
+      /**
+       * @description Chat session the voted answer belongs to, when the voting surface is sessioned.
+       * @example session-id
+       */
+      sessionId?: string;
     };
     AdvisorFeedbackResponseDto: {
       /**
@@ -2308,6 +2761,18 @@ export interface components {
       total: number;
       page: number;
       limit: number;
+    };
+    AiCallLogCleanupResponseDto: {
+      /**
+       * @description Rows deleted by this run.
+       * @example 12
+       */
+      deleted: number;
+      /**
+       * @description Configured retention window in days.
+       * @example 90
+       */
+      retentionDays: number;
     };
   };
   responses: never;
@@ -3936,6 +4401,328 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminDocumentDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_listUnanswered: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUnansweredQueryListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_unansweredGroups: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUnansweredGroupListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_updateUnansweredStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUnansweredQueryDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_listFeedback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAdvisorFeedbackListDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_getFeedback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAdvisorFeedbackDetailDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_getSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAdvisorSessionDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminAdvisorController_getMetrics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAdvisorMetricsDto'];
         };
       };
       /** @description Bad request. */
@@ -5990,6 +6777,115 @@ export interface operations {
         };
       };
       /** @description Review not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ObservabilityController_metrics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Prometheus text exposition format. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Authentication required. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  ObservabilityController_cleanupLogs: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AiCallLogCleanupResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Authentication required. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
       404: {
         headers: {
           [name: string]: unknown;

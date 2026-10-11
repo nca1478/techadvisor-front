@@ -96,6 +96,7 @@ export function ProductAdvisor({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackValue | null>(null);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [answeredSessionId, setAnsweredSessionId] = useState<string | null>(null);
   const answerRef = useRef(0);
   const sessionPromiseRef = useRef<Promise<string | null> | null>(null);
   const suggestedKeys = suggestedQuestionKeys(categorySlug);
@@ -134,6 +135,7 @@ export function ProductAdvisor({
         const sessionId = await ensureSession();
         if (stale()) return;
         let reply = await postProductQa({ productId, question: trimmed, locale, sessionId });
+        let effectiveSession = sessionId;
         if (stale()) return;
         if (reply.status === 404 && sessionId !== null) {
           // The session may be gone (retention purge): open a fresh one and
@@ -143,6 +145,7 @@ export function ProductAdvisor({
           if (stale()) return;
           if (fresh !== null && fresh !== sessionId) {
             reply = await postProductQa({ productId, question: trimmed, locale, sessionId: fresh });
+            effectiveSession = fresh;
             if (stale()) return;
           }
         }
@@ -164,6 +167,7 @@ export function ProductAdvisor({
           return;
         }
         setResult(parsed);
+        setAnsweredSessionId(effectiveSession);
         setStatus(parsed.abstained ? 'abstained' : 'answered');
       } catch {
         if (stale()) return;
@@ -194,6 +198,9 @@ export function ProductAdvisor({
           answer: result.answer,
           abstained: result.abstained,
           value,
+          // Links the vote to its minimized conversation in the admin panel;
+          // undefined fields are dropped by JSON.stringify when stateless.
+          sessionId: answeredSessionId ?? undefined,
         }),
       })
         .catch(() => null)
@@ -201,7 +208,7 @@ export function ProductAdvisor({
           setFeedbackSent(true);
         });
     },
-    [feedbackSent, productId, question, result],
+    [feedbackSent, productId, question, result, answeredSessionId],
   );
 
   return (

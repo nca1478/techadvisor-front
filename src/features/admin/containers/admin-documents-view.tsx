@@ -62,18 +62,21 @@ export function AdminDocumentsView({
   query,
   locale,
   messages,
+  initialTitle = '',
 }: {
   data: AdminDocumentList | null;
   loadError: boolean;
   query: AdminDocumentsQuery;
   locale: string;
   messages: Dictionary;
+  /** Prefills the upload title (e.g. from the advisor panel "create document" shortcut). */
+  initialTitle?: string;
 }) {
   const router = useRouter();
   const docs = messages.admin.documents;
   const [rows, setRows] = useState<AdminDocument[]>(data?.data ?? []);
   const [file, setFile] = useState<File | null>(null);
-  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadTitle, setUploadTitle] = useState(initialTitle);
   const [uploadType, setUploadType] = useState<AdminDocumentType>('MANUAL');
   const [uploadLocale, setUploadLocale] = useState('en');
   const [uploadProductId, setUploadProductId] = useState('');
