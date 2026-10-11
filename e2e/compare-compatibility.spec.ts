@@ -34,6 +34,11 @@ async function addFromDetail(page: Page, slug: string, name: string) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/en');
+  // Hermetic compare selection: client-side navigation (below) does not
+  // clear full page loads, so drop any ids left by a previous test.
+  await page.evaluate(() => {
+    window.localStorage.removeItem('techadvisor:compare-selection');
+  });
   await emptyCart(page);
 });
 
@@ -60,8 +65,16 @@ test('compare selection resets when navigating away and back', async ({ page }) 
   await page.getByRole('checkbox', { name: 'Compare: Mock Mouse Pro' }).check();
   await expect(page.getByText('2/3 to compare')).toBeVisible();
 
-  await page.goto('/en');
-  await page.goto('/en/productos');
+  // Client-side navigation (Next Link), which is what the reset-on-navigation
+  // store listens to: full page loads remount the app and keep the persisted
+  // selection by design.
+  await page.getByRole('banner').getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page.getByText('2/3 to compare')).toHaveCount(0);
+
+  await page
+    .getByRole('navigation', { name: 'Categories' })
+    .getByRole('link', { name: 'All', exact: true })
+    .click();
   await expect(page.getByText('2/3 to compare')).toHaveCount(0);
   // Los productos también quedan desmarcados, no solo la barra.
   await expect(page.getByRole('checkbox', { name: 'Compare: Mock Laptop 13' })).not.toBeChecked();

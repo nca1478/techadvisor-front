@@ -63,7 +63,7 @@ test('starting a new chat preserves the previous conversation in the history', a
   await expect(log.getByText(question)).toBeVisible();
   await expect(log.getByText(/encajan con tu presupuesto/).first()).toBeVisible({ timeout: 15000 });
 
-  await page.getByRole('button', { name: 'Nueva conversación' }).click();
+  await page.getByRole('button', { name: 'Nueva', exact: true }).click();
   const history = page.getByRole('combobox', { name: 'Conversaciones guardadas' });
   const savedOption = history.locator('option', { hasText: question });
   await expect(savedOption).toBeAttached();
@@ -84,17 +84,17 @@ test('deleting a conversation removes it permanently with confirmation', async (
   await expect(log.getByText(question)).toBeVisible();
   await expect(log.getByText(/encajan con tu presupuesto/).first()).toBeVisible({ timeout: 15000 });
 
-  await page.getByRole('button', { name: 'Nueva conversación' }).click();
+  await page.getByRole('button', { name: 'Nueva', exact: true }).click();
   const history = page.getByRole('combobox', { name: 'Conversaciones guardadas' });
   await expect(history.locator('option', { hasText: question })).toBeAttached();
   await expect(log.getByText(question)).toBeHidden();
 
   // Two-step delete of the new blank conversation; falls back to the previous one.
-  await page.getByRole('button', { name: 'Eliminar conversación' }).click();
-  await expect(page.getByText(/definitivamente/)).toBeVisible();
+  await page.getByRole('button', { name: 'Eliminar', exact: true }).click();
+  await expect(page.getByText('¿Eliminar esta conversación?')).toBeVisible();
   await page.getByRole('button', { name: 'Sí, eliminar' }).click();
   await expect(log.getByText(question)).toBeVisible();
-  await expect(page.getByText(/definitivamente/)).toBeHidden();
+  await expect(page.getByText('¿Eliminar esta conversación?')).toBeHidden();
 });
 
 test('clarification shows quick replies that fill the composer', async ({ page }) => {

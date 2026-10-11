@@ -42,6 +42,7 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
       productsHref={`/${locale}/productos`}
       messages={messages.compare.page}
       specLabels={messages.catalog.specLabels}
+      showAdvisorSummary
     />
   );
 }

@@ -6,6 +6,8 @@ import { expect, test } from '@playwright/test';
  */
 test('advisor answers with citations and accepts feedback', async ({ page }) => {
   await page.goto('/es/productos/mock-laptop-13');
+  // The advisor mounts lazily behind its detail tab (reviews first).
+  await page.getByRole('tab', { name: 'Pregúntale al asesor' }).click();
   const widget = page.locator('section[aria-labelledby="advisor-heading"]');
   await expect(widget.getByRole('heading', { name: 'Pregúntale al asesor' })).toBeVisible();
 
@@ -32,6 +34,7 @@ test('advisor answers with citations and accepts feedback', async ({ page }) => 
 
 test('advisor abstention looks different from an answer and links support', async ({ page }) => {
   await page.goto('/es/productos/mock-laptop-13');
+  await page.getByRole('tab', { name: 'Pregúntale al asesor' }).click();
   const widget = page.locator('section[aria-labelledby="advisor-heading"]');
   await expect(widget.getByRole('heading', { name: 'Pregúntale al asesor' })).toBeVisible();
 
@@ -44,6 +47,7 @@ test('advisor abstention looks different from an answer and links support', asyn
 
 test('advisor rate limit shows a friendly message with retry', async ({ page }) => {
   await page.goto('/es/productos/mock-laptop-13');
+  await page.getByRole('tab', { name: 'Pregúntale al asesor' }).click();
   const widget = page.locator('section[aria-labelledby="advisor-heading"]');
   await expect(widget.getByRole('heading', { name: 'Pregúntale al asesor' })).toBeVisible();
 
