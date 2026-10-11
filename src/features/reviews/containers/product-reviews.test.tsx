@@ -1,10 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Dictionary } from '@/lib/i18n/index';
 import { getDictionarySync } from '@/lib/i18n/index';
 import { ProductReviews } from './product-reviews';
 
-const messages: Dictionary['reviews'] = getDictionarySync('es').reviews;
+const dictionary = getDictionarySync('es');
+const messages: Dictionary['reviews'] = dictionary.reviews;
+const loginLabel = dictionary.auth.loginLink;
+
+let sessionStatus: 'loading' | 'authenticated' | 'anonymous' = 'authenticated';
+
+vi.mock('@/features/auth/session-context', () => ({
+  useSession: () => ({ status: sessionStatus, user: null }),
+}));
 
 const LIST_PAGE_1 = {
   data: [
@@ -49,17 +57,60 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+beforeEach(() => {
+  sessionStatus = 'authenticated';
+});
+
+function renderReviews() {
+  return render(
+    <ProductReviews
+      productId="p1"
+      locale="es"
+      messages={messages}
+      loginHref="/es/ingresar?next=%2Fes%2Fproductos%2Fdemo"
+      loginLabel={loginLabel}
+    />,
+  );
+}
+
 describe('ProductReviews', () => {
   it('renders the summary notice with the count plus the review list and form', async () => {
     mockFetch((url) => (url.includes('/summary') ? SUMMARY : LIST_PAGE_1));
 
-    render(<ProductReviews productId="p1" locale="es" messages={messages} />);
+    renderReviews();
 
     // Summary with the required automatic-origin notice.
     expect(await screen.findByText(messages.summaryTitle)).toBeInTheDocument();
     expect(screen.getByText(messages.summaryNotice.replace('{count}', '2'))).toBeInTheDocument();
     expect(screen.getByText('Gran portátil')).toBeInTheDocument();
     expect(screen.getByText(messages.formTitle)).toBeInTheDocument();
+  });
+
+  it('shows the published list to anonymous visitors with a login call-to-action', async () => {
+    sessionStatus = 'anonymous';
+    mockFetch((url) => (url.includes('/summary') ? SUMMARY : LIST_PAGE_1));
+
+    renderReviews();
+
+    // Reads are public: the list renders without a session.
+    expect(await screen.findByText('Gran portátil')).toBeInTheDocument();
+    // The write form is gated behind login.
+    expect(screen.queryByLabelText(messages.ratingLabel)).not.toBeInTheDocument();
+    expect(screen.getByText(messages.loginRequired)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: loginLabel })).toHaveAttribute(
+      'href',
+      '/es/ingresar?next=%2Fes%2Fproductos%2Fdemo',
+    );
+  });
+
+  it('shows the write form to authenticated users', async () => {
+    mockFetch((url) => (url.includes('/summary') ? SUMMARY : LIST_PAGE_1));
+
+    renderReviews();
+
+    expect(await screen.findByText('Gran portátil')).toBeInTheDocument();
+    expect(screen.getByLabelText(messages.ratingLabel)).toBeInTheDocument();
+    expect(screen.queryByText(messages.loginRequired)).not.toBeInTheDocument();
   });
 
   it('loads the next page on demand', async () => {
@@ -86,7 +137,7 @@ describe('ProductReviews', () => {
       return LIST_PAGE_1;
     });
 
-    render(<ProductReviews productId="p1" locale="es" messages={messages} />);
+    renderReviews();
     await screen.findByText('Gran portátil');
 
     fireEvent.click(screen.getByRole('button', { name: messages.loadMore }));
@@ -101,7 +152,7 @@ describe('ProductReviews', () => {
       throw new Error('down');
     });
 
-    render(<ProductReviews productId="p1" locale="es" messages={messages} />);
+    renderReviews();
     expect(await screen.findByRole('alert')).toHaveTextContent(messages.loadError);
 
     fetchMock.mockImplementation((url: string) =>

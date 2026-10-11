@@ -78,7 +78,13 @@ export async function ProductDetailContainer({
             supportHref={`/${locale}/soporte`}
             messages={messages.advisor}
           />
-          <ProductReviews productId={product.id} locale={locale} messages={messages.reviews} />
+          <ProductReviews
+            productId={product.id}
+            locale={locale}
+            messages={messages.reviews}
+            loginHref={`/${locale}/ingresar?next=${encodeURIComponent(`/${locale}/productos/${slug}`)}`}
+            loginLabel={messages.auth.loginLink}
+          />
         </Stack>
       </Section>
       {/* schema.org Product: name/image/price+currency/availability from the API. */}

@@ -72,4 +72,16 @@ describe('ReviewForm', () => {
 
     expect(await within(scope).findByRole('alert')).toHaveTextContent(messages.conflictError);
   });
+
+  it('skips its own title and hint in bare mode (the embedding card provides them)', () => {
+    const onSubmit = vi.fn().mockResolvedValue({ ok: true });
+    render(<ReviewForm productId="p1" messages={messages} onSubmit={onSubmit} bare />);
+
+    expect(screen.queryByText(messages.formTitle)).not.toBeInTheDocument();
+    expect(screen.queryByText(messages.formHint)).not.toBeInTheDocument();
+    // The fields still render.
+    expect(screen.getByLabelText(messages.ratingLabel)).toBeInTheDocument();
+    expect(screen.getByLabelText(messages.titleLabel)).toBeInTheDocument();
+    expect(screen.getByLabelText(messages.bodyLabel)).toBeInTheDocument();
+  });
 });

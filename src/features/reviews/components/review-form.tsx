@@ -27,6 +27,11 @@ export interface ReviewFormProps {
     title: string;
     body: string;
   }) => Promise<ReviewSubmitResult>;
+  /**
+   * Skips the internal title/hint (the embedding Card provides them, like
+   * the advisor widget card). Defaults to false (standalone section).
+   */
+  bare?: boolean;
 }
 
 const TITLE_MAX = 120;
@@ -82,7 +87,7 @@ function errorFor(code: string | undefined, messages: Dictionary['reviews']): st
  * success only announces the moderation notice — the public list is
  * untouched until an admin publishes.
  */
-export function ReviewForm({ productId, messages, onSubmit }: ReviewFormProps) {
+export function ReviewForm({ productId, messages, onSubmit, bare = false }: ReviewFormProps) {
   const submit = onSubmit ?? postToBff;
   const [rating, setRating] = useState('');
   const [title, setTitle] = useState('');
@@ -133,10 +138,14 @@ export function ReviewForm({ productId, messages, onSubmit }: ReviewFormProps) {
 
   return (
     <Stack gap="md">
-      <Heading level={3}>{messages.formTitle}</Heading>
-      <Text variant="small" tone="muted">
-        {messages.formHint}
-      </Text>
+      {bare ? null : (
+        <>
+          <Heading level={3}>{messages.formTitle}</Heading>
+          <Text variant="small" tone="muted">
+            {messages.formHint}
+          </Text>
+        </>
+      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
