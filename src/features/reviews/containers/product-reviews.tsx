@@ -7,7 +7,12 @@ import { Heading } from '@/components/ui/heading';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { useSession } from '@/features/auth/session-context';
-import { createReviewsApi, type ProductReview, type ReviewSummary } from '@/lib/api/reviews';
+import {
+  createReviewsApi,
+  formatAverageRating,
+  type ProductReview,
+  type ReviewSummary,
+} from '@/lib/api/reviews';
 import { createApiClient } from '@/lib/api/client';
 import type { Dictionary } from '@/lib/i18n/index';
 import { ReviewForm } from '../components/review-form';
@@ -56,7 +61,34 @@ export function ProductReviews({
   loginHref,
   loginLabel,
 }: ProductReviewsProps) {
-  const { status: sessionStatus } = useSession();
+  return (
+    <Stack gap="lg">
+      <ProductReviewsList productId={productId} locale={locale} messages={messages} />
+      <ReviewFormCard
+        productId={productId}
+        messages={messages}
+        loginHref={loginHref}
+        loginLabel={loginLabel}
+      />
+    </Stack>
+  );
+}
+
+/**
+ * Public reviews list section (summary + published reviews + pager).
+ * Renders for everyone, authenticated or not. Same card chrome as the
+ * advisor and write-review panels (`Card` + level-2 title) in every state
+ * so the three tab pages look consistent.
+ */
+export function ProductReviewsList({
+  productId,
+  locale,
+  messages,
+}: {
+  productId: string;
+  locale: string;
+  messages: Dictionary['reviews'];
+}) {
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [total, setTotal] = useState(0);
@@ -125,54 +157,68 @@ export function ProductReviews({
   }
 
   if (status === 'loading') {
-    return <Text role="status">{messages.loadingMore}</Text>;
+    return (
+      <Card>
+        <Stack gap="md">
+          <Heading level={2}>{messages.title}</Heading>
+          <Text role="status">{messages.loadingMore}</Text>
+        </Stack>
+      </Card>
+    );
   }
 
   if (status === 'error') {
     return (
-      <Stack gap="sm">
-        <Text role="alert">{messages.loadError}</Text>
-        <div>
-          <Button variant="secondary" onClick={() => void handleRetry()}>
-            {messages.retry}
-          </Button>
-        </div>
-      </Stack>
+      <Card>
+        <Stack gap="md">
+          <Heading level={2}>{messages.title}</Heading>
+          <Stack gap="sm">
+            <Text role="alert">{messages.loadError}</Text>
+            <div>
+              <Button variant="secondary" onClick={() => void handleRetry()}>
+                {messages.retry}
+              </Button>
+            </div>
+          </Stack>
+        </Stack>
+      </Card>
     );
   }
 
+  const average = formatAverageRating(averageRating);
   return (
-    <Stack gap="lg">
-      {summary !== null ? <ReviewSummaryView summary={summary} messages={messages} /> : null}
-      <ReviewListView
-        reviews={reviews}
-        total={total}
-        averageRating={averageRating}
-        locale={locale}
-        messages={messages}
-      />
-      {total > reviews.length ? (
-        <Stack gap="sm">
-          <Text variant="small" tone="muted" role="status">
-            {messages.showingOf
-              .replace('{shown}', String(reviews.length))
-              .replace('{total}', String(total))}
-          </Text>
-          <div>
-            <Button variant="secondary" loading={loadingMore} onClick={() => void handleLoadMore()}>
-              {messages.loadMore}
-            </Button>
-          </div>
+    <Card>
+      <Stack gap="md">
+        <Stack direction="horizontal" gap="sm" align="center" justify="between" wrap>
+          <Heading level={2}>{messages.title}</Heading>
+          {average !== null ? (
+            <Text variant="small" tone="muted" role="status">
+              {messages.averageLabel.replace('{avg}', average).replace('{count}', String(total))}
+            </Text>
+          ) : null}
         </Stack>
-      ) : null}
-      <ReviewFormCard
-        sessionStatus={sessionStatus}
-        productId={productId}
-        messages={messages}
-        loginHref={loginHref}
-        loginLabel={loginLabel}
-      />
-    </Stack>
+        {summary !== null ? <ReviewSummaryView summary={summary} messages={messages} bare /> : null}
+        <ReviewListView reviews={reviews} total={total} locale={locale} messages={messages} />
+        {total > reviews.length ? (
+          <Stack gap="sm">
+            <Text variant="small" tone="muted" role="status">
+              {messages.showingOf
+                .replace('{shown}', String(reviews.length))
+                .replace('{total}', String(total))}
+            </Text>
+            <div>
+              <Button
+                variant="secondary"
+                loading={loadingMore}
+                onClick={() => void handleLoadMore()}
+              >
+                {messages.loadMore}
+              </Button>
+            </div>
+          </Stack>
+        ) : null}
+      </Stack>
+    </Card>
   );
 }
 
@@ -181,19 +227,18 @@ export function ProductReviews({
  * (`AdvisorView`): `Card` + level-2 title + muted hint, then the form for
  * authenticated users or a login call-to-action for anonymous visitors.
  */
-function ReviewFormCard({
-  sessionStatus,
+export function ReviewFormCard({
   productId,
   messages,
   loginHref,
   loginLabel,
 }: {
-  sessionStatus: 'loading' | 'authenticated' | 'anonymous';
   productId: string;
   messages: Dictionary['reviews'];
   loginHref: string;
   loginLabel: string;
 }) {
+  const { status: sessionStatus } = useSession();
   return (
     <Card>
       <Stack gap="md">

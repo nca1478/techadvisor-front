@@ -55,6 +55,7 @@
     "specsTitle": "Specifications",
     "descriptionTitle": "Description",
     "backToList": "Back to products",
+    "detailTabsLabel": "Reviews and advisor",
     "homeFeaturedTitle": "Featured products",
     "homeFeaturedSubtitle": "A selection of in-stock picks to start exploring.",
     "homeHeroSubtitle": "Tech store with a shopping advisor that answers with real sources.",
@@ -790,7 +791,8 @@
       "moderateError": "The review could not be updated.",
       "publishConfirm": "Publish this review? It will appear in the store immediately.",
       "rejectConfirm": "Reject this review? It will stay hidden from the store.",
-      "empty": "No reviews match these filters."
+      "empty": "There are no reviews yet.",
+      "emptyFiltered": "No reviews match these filters."
     }
   },
   "reviews": {

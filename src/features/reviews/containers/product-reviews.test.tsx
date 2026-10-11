@@ -79,11 +79,17 @@ describe('ProductReviews', () => {
 
     renderReviews();
 
-    // Summary with the required automatic-origin notice.
-    expect(await screen.findByText(messages.summaryTitle)).toBeInTheDocument();
-    expect(screen.getByText(messages.summaryNotice.replace('{count}', '2'))).toBeInTheDocument();
+    // Summary with the required automatic-origin notice (the panel card
+    // carries the section title; the summary renders bare inside it).
+    expect(
+      await screen.findByText(messages.summaryNotice.replace('{count}', '2')),
+    ).toBeInTheDocument();
     expect(screen.getByText('Gran portátil')).toBeInTheDocument();
     expect(screen.getByText(messages.formTitle)).toBeInTheDocument();
+    // Average headline sits in the card header, next to the title.
+    expect(
+      screen.getByText(messages.averageLabel.replace('{avg}', '4.5').replace('{count}', '2')),
+    ).toBeInTheDocument();
   });
 
   it('shows the published list to anonymous visitors with a login call-to-action', async () => {

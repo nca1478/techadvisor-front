@@ -1,11 +1,8 @@
 import { notFound } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 import { Grid } from '@/components/ui/grid';
-import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
-import { ProductAdvisor } from '@/features/advisor';
-import { ProductReviews } from '@/features/reviews';
 import { ApiError } from '@/lib/api/errors';
 import { createApiClient } from '@/lib/api/client';
 import { createCatalogApi } from '@/lib/api/catalog';
@@ -15,6 +12,7 @@ import { productJsonLd } from '@/lib/seo/site';
 import { CatalogError } from '../components/catalog-states';
 import { ProductGallery } from '../components/product-gallery';
 import { ProductInfo } from '../components/product-info';
+import { ProductDetailTabs } from './product-detail-tabs';
 
 export interface ProductDetailContainerProps {
   slug: string;
@@ -58,9 +56,6 @@ export async function ProductDetailContainer({
     <Container>
       <Section spacing="tight">
         <Stack gap="md">
-          <Link href={`/${locale}/productos`} variant="muted">
-            {messages.catalog.backToList}
-          </Link>
           <Grid columns="two" gap="lg">
             <ProductGallery images={product.images} productName={product.name} />
             <ProductInfo
@@ -70,20 +65,15 @@ export async function ProductDetailContainer({
               messages={messages.catalog}
             />
           </Grid>
-          <ProductAdvisor
-            key={product.id}
+          <hr className="border-border" />
+          <ProductDetailTabs
             productId={product.id}
             categorySlug={product.category.slug}
             locale={locale}
             supportHref={`/${locale}/soporte`}
-            messages={messages.advisor}
-          />
-          <ProductReviews
-            productId={product.id}
-            locale={locale}
-            messages={messages.reviews}
             loginHref={`/${locale}/ingresar?next=${encodeURIComponent(`/${locale}/productos/${slug}`)}`}
             loginLabel={messages.auth.loginLink}
+            messages={messages}
           />
         </Stack>
       </Section>

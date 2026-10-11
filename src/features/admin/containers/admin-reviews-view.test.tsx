@@ -123,11 +123,26 @@ describe('AdminReviewsView', () => {
       <AdminReviewsView
         data={{ data: [], total: 0, page: 1, limit: 10 }}
         loadError={false}
-        query={{ status: 'PENDING', page: 1 }}
+        query={{ status: '', page: 1 }}
         locale="es"
         messages={messages}
       />,
     );
     expect(screen.getByText(messages.admin.reviews.empty)).toBeInTheDocument();
+  });
+
+  it('renders the filtered empty state with a clear-filters action', () => {
+    render(
+      <AdminReviewsView
+        data={{ data: [], total: 0, page: 1, limit: 10 }}
+        loadError={false}
+        query={{ status: 'PENDING', page: 1 }}
+        locale="es"
+        messages={messages}
+      />,
+    );
+    expect(screen.getByText(messages.admin.reviews.emptyFiltered)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: messages.catalog.clearFilters }));
+    expect(pushMock).toHaveBeenCalledWith('/es/admin/resenas');
   });
 });

@@ -55,6 +55,7 @@
     "specsTitle": "Especificaciones",
     "descriptionTitle": "Descripción",
     "backToList": "Volver a productos",
+    "detailTabsLabel": "Reseñas y asesor",
     "homeFeaturedTitle": "Productos destacados",
     "homeFeaturedSubtitle": "Una selección en stock para empezar a explorar.",
     "homeHeroSubtitle": "Tienda de tecnología con un asesor que responde con fuentes reales.",
@@ -790,7 +791,8 @@
       "moderateError": "No se pudo actualizar la reseña.",
       "publishConfirm": "¿Publicar esta reseña? Aparecerá en la tienda de inmediato.",
       "rejectConfirm": "¿Rechazar esta reseña? Quedará oculta en la tienda.",
-      "empty": "Ninguna reseña coincide con estos filtros."
+      "empty": "Aún no hay reseñas.",
+      "emptyFiltered": "Ninguna reseña coincide con estos filtros."
     }
   },
   "reviews": {

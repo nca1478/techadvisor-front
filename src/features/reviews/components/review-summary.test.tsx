@@ -39,6 +39,16 @@ describe('ReviewSummaryView', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it('skips its own card and title in bare mode (the embedding card provides them)', () => {
+    render(<ReviewSummaryView summary={summary()} messages={messages} bare />);
+
+    expect(screen.queryByText(messages.summaryTitle)).not.toBeInTheDocument();
+    expect(screen.getByText('Batería duradera')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      messages.summaryNotice.replace('{count}', '3'),
+    );
+  });
+
   it('never renders author data (paraphrases only)', () => {
     render(
       <ReviewSummaryView

@@ -130,7 +130,24 @@ export function AdminReviewsView({
           {messages.admin.loadError}
         </Text>
       ) : data.data.length === 0 ? (
-        <Text tone="muted">{moderation.empty}</Text>
+        <Card>
+          <Stack gap="sm" align="center" className="px-4 py-8 text-center">
+            <Text className="font-medium">
+              {query.status === '' ? moderation.empty : moderation.emptyFiltered}
+            </Text>
+            {query.status === '' ? null : (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  navigate({ status: '', page: 1 });
+                }}
+              >
+                {messages.catalog.clearFilters}
+              </Button>
+            )}
+          </Stack>
+        </Card>
       ) : (
         <Stack gap="md">
           <Card padding="none">

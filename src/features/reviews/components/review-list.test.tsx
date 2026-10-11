@@ -21,20 +21,16 @@ function review(overrides: Partial<ProductReview> = {}): ProductReview {
 }
 
 describe('ReviewListView', () => {
-  it('renders the average headline and one card per review', () => {
+  it('renders one card per review (title and average live in the card header)', () => {
     render(
       <ReviewListView
         reviews={[review(), review({ id: 'r2', rating: 4, title: 'Bueno', body: 'Cumple.' })]}
         total={2}
-        averageRating={4.5}
         locale="es"
         messages={messages}
       />,
     );
 
-    expect(screen.getByRole('status')).toHaveTextContent(
-      messages.averageLabel.replace('{avg}', '4.5').replace('{count}', '2'),
-    );
     expect(screen.getByText('Gran portátil')).toBeInTheDocument();
     expect(screen.getByText('Bueno')).toBeInTheDocument();
     expect(screen.getAllByText(messages.verifiedBadge)).toHaveLength(2);
@@ -45,7 +41,6 @@ describe('ReviewListView', () => {
       <ReviewListView
         reviews={[review({ rating: 4 })]}
         total={1}
-        averageRating={4}
         locale="es"
         messages={messages}
       />,
@@ -56,16 +51,8 @@ describe('ReviewListView', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the empty state without an average', () => {
-    render(
-      <ReviewListView
-        reviews={[]}
-        total={0}
-        averageRating={null}
-        locale="es"
-        messages={messages}
-      />,
-    );
+  it('renders the empty state', () => {
+    render(<ReviewListView reviews={[]} total={0} locale="es" messages={messages} />);
 
     expect(screen.getByText(messages.empty)).toBeInTheDocument();
   });

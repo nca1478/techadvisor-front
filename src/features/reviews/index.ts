@@ -1,4 +1,4 @@
-export { ProductReviews } from './containers/product-reviews';
+export { ProductReviews, ProductReviewsList, ReviewFormCard } from './containers/product-reviews';
 export { ReviewForm } from './components/review-form';
 export { ReviewListView } from './components/review-list';
 export { ReviewStars } from './components/review-stars';
