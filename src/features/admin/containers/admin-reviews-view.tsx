@@ -35,11 +35,6 @@ function formatPage(template: string, page: number, totalPages: number): string 
   return template.replace('{page}', String(page)).replace('{totalPages}', String(totalPages));
 }
 
-/** Short product reference (full UUID stays behind the detail lookup). */
-function shortId(id: string): string {
-  return id.length <= 8 ? id : `${id.slice(0, 8)}…`;
-}
-
 /**
  * Reviews moderation container: URL-driven status filter + pagination
  * (server re-fetches on navigation). Publish/reject go through the admin
@@ -156,6 +151,9 @@ export function AdminReviewsView({
                 <thead>
                   <tr className="border-b border-border">
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {moderation.tableNumber}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {moderation.tableDate}
                     </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
@@ -176,11 +174,18 @@ export function AdminReviewsView({
                   </tr>
                 </thead>
                 <tbody>
-                  {data.data.map((review) => (
+                  {data.data.map((review, index) => (
                     <tr key={review.id} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3">
+                        <Text variant="small">{(data.page - 1) * data.limit + index + 1}</Text>
+                      </td>
                       <td className="px-4 py-3">{formatReviewDate(review.createdAt, locale)}</td>
                       <td className="px-4 py-3">
-                        <Text variant="small">{shortId(review.productId)}</Text>
+                        <span title={review.productName} className="block max-w-56">
+                          <Text variant="small" className="truncate">
+                            {review.productName}
+                          </Text>
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <ReviewStars
@@ -249,6 +254,7 @@ export function AdminReviewsView({
             previousLabel={messages.admin.previous}
             nextLabel={messages.admin.next}
             statusLabel={(page, total) => formatPage(messages.admin.pageOf, page, total)}
+            alwaysVisible
           />
         </Stack>
       )}

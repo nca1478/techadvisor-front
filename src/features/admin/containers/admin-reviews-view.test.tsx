@@ -18,6 +18,7 @@ const data = {
     {
       id: 'rev-pending',
       productId: 'prod-1',
+      productName: 'Asus ROG Maximus Z890 Hero WiFi7',
       rating: 5,
       title: 'Excelente',
       body: 'Funciona muy bien.',
@@ -29,6 +30,7 @@ const data = {
     {
       id: 'rev-published',
       productId: 'prod-2',
+      productName: 'Corsair RM750e 750W 80+ Gold',
       rating: 2,
       title: 'Regular',
       body: 'Esperaba más.',
@@ -108,6 +110,17 @@ describe('AdminReviewsView', () => {
     expect(calls[0]?.body).toEqual({ status: 'PUBLISHED' });
     await screen.findByText(messages.admin.reviews.moderated);
     expect(refreshMock).toHaveBeenCalled();
+  });
+
+  it('renders row numbers and product names instead of product UUIDs', () => {
+    renderView();
+    expect(screen.getByText(messages.admin.reviews.tableNumber)).toBeInTheDocument();
+    expect(screen.getByText('Asus ROG Maximus Z890 Hero WiFi7')).toBeInTheDocument();
+    expect(screen.getByText('Corsair RM750e 750W 80+ Gold')).toBeInTheDocument();
+    expect(screen.queryByText(/prod-1/)).not.toBeInTheDocument();
+    // Row numbers for page 1 (limit 10): 1 and 2.
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
   });
 
   it('navigates on status filter change', () => {

@@ -2755,6 +2755,8 @@ export interface components {
       status: 'PENDING' | 'PUBLISHED' | 'REJECTED';
       /** @description Author user id (admin only, never public). */
       userId: string;
+      /** @description Reviewed product name (default locale, for moderation display). */
+      productName: string;
     };
     AdminReviewListDto: {
       data: components['schemas']['AdminReviewDto'][];

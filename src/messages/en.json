@@ -778,6 +778,7 @@
       "status_PENDING": "Pending",
       "status_PUBLISHED": "Published",
       "status_REJECTED": "Rejected",
+      "tableNumber": "No",
       "tableDate": "Date",
       "tableProduct": "Product",
       "tableRating": "Rating",

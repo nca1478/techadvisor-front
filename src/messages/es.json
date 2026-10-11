@@ -778,6 +778,7 @@
       "status_PENDING": "Pendiente",
       "status_PUBLISHED": "Publicada",
       "status_REJECTED": "Rechazada",
+      "tableNumber": "No",
       "tableDate": "Fecha",
       "tableProduct": "Producto",
       "tableRating": "Valoración",
