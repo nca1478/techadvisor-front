@@ -7,7 +7,8 @@ import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 import { OrderStatusBadge } from './order-status-badge';
 
-function formatDate(iso: string, locale: string): string {
+/** Shared order-date formatting (list uses relative context; detail reuses it in the header). */
+export function formatOrderDate(iso: string, locale: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return new Intl.DateTimeFormat(locale, {
@@ -66,7 +67,7 @@ export function OrdersTable({
                 {order.id.slice(0, 8)}…
               </th>
               <td className="px-4 py-3 text-muted-foreground">
-                {formatDate(order.createdAt, locale)}
+                {formatOrderDate(order.createdAt, locale)}
               </td>
               <td className="px-4 py-3">
                 <OrderStatusBadge status={order.status} messages={messages} />
@@ -102,12 +103,6 @@ export function OrderDetail({
     .join(' · ');
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" gap="md" align="center">
-        <OrderStatusBadge status={order.status} messages={messages} />
-        <Text variant="small" tone="muted">
-          {formatDate(order.createdAt, locale)}
-        </Text>
-      </Stack>
       <Text variant="lead" as="div">
         {messages.itemsTitle}
       </Text>

@@ -7,7 +7,8 @@ import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
-import { OrderDetail } from '@/features/account/components/orders-table';
+import { OrderDetail, formatOrderDate } from '@/features/account/components/orders-table';
+import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import { backendFetch } from '@/lib/api/backend';
 import type { Order } from '@/lib/api/orders';
 import { getSessionUser } from '@/lib/auth/session';
@@ -79,9 +80,17 @@ export default async function AccountOrderDetailPage({ params }: OrderDetailPage
             </Stack>
           ) : (
             <Stack gap="md">
-              <Heading level={1}>
-                {messages.account.detailTitle.replace('{id}', order.id.slice(0, 8))}
-              </Heading>
+              <Stack direction="horizontal" gap="md" align="center" justify="between" wrap>
+                <Heading level={1}>
+                  {messages.account.detailTitle.replace('{id}', order.id.slice(0, 8))}
+                </Heading>
+                <Stack direction="horizontal" gap="md" align="center">
+                  <OrderStatusBadge status={order.status} messages={messages.account} />
+                  <Text variant="small" tone="muted">
+                    {formatOrderDate(order.createdAt, locale)}
+                  </Text>
+                </Stack>
+              </Stack>
               <OrderDetail order={order} locale={locale} messages={messages.account} />
             </Stack>
           )}
