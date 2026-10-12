@@ -6,6 +6,8 @@ import { Text } from '@/components/ui/text';
 export interface ProfileFormMessages {
   emailLabel: string;
   emailHint: string;
+  roleLabel: string;
+  roleHint: string;
   nameLabel: string;
   newPasswordLabel: string;
   newPasswordHint: string;
@@ -25,9 +27,10 @@ export interface ProfileFieldErrors {
   form?: string;
 }
 
-/** Presentational profile form: email is shown but never editable. */
+/** Presentational profile form: email and role are shown but never editable. */
 export function ProfileForm({
   email,
+  role,
   values,
   errors,
   pending,
@@ -37,6 +40,7 @@ export function ProfileForm({
   onSubmit,
 }: {
   email: string;
+  role: string;
   values: { name: string; password: string; confirmPassword: string };
   errors: ProfileFieldErrors;
   pending: boolean;
@@ -60,6 +64,16 @@ export function ProfileForm({
           autoComplete="email"
           value={email}
           hint={messages.emailHint}
+          disabled
+          readOnly
+        />
+        <Input
+          label={messages.roleLabel}
+          name="role"
+          type="text"
+          autoComplete="off"
+          value={role}
+          hint={messages.roleHint}
           disabled
           readOnly
         />

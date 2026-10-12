@@ -1,13 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Container } from '@/components/ui/container';
-import { Heading } from '@/components/ui/heading';
-import { Link } from '@/components/ui/link';
-import { Section } from '@/components/ui/section';
-import { Stack } from '@/components/ui/stack';
-import { Text } from '@/components/ui/text';
 import type { UpdateProfileRequest } from '@/lib/api/account';
 import { useSession } from '@/features/auth/session-context';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -18,17 +11,18 @@ import { profileUpdateSchema } from '../schemas';
  * Profile edit container: validates locally with Zod (including the
  * UI-only password confirmation), PATCHes the BFF
  * (`/api/account/profile` → backend `PATCH /users/me`), then refreshes the
- * session so the new name is visible everywhere. The email is display-only
- * and never leaves the browser.
+ * session so the new name is visible everywhere. Email and role are
+ * display-only and never leave the browser. Layout-free (no
+ * Container/Section/Heading) so it embeds in the account tab panel.
  */
 export function ProfileEditContainer({
-  locale,
   email,
+  role,
   initialName,
   messages,
 }: {
-  locale: string;
   email: string;
+  role: string;
   initialName: string;
   messages: Dictionary['account'];
 }) {
@@ -89,42 +83,32 @@ export function ProfileEditContainer({
   }
 
   return (
-    <Container>
-      <Section>
-        <Stack gap="md" className="mx-auto w-full max-w-md">
-          <Stack gap="sm">
-            <Heading level={1}>{messages.editTitle}</Heading>
-            <Text tone="muted">{messages.editSubtitle}</Text>
-          </Stack>
-          <Card>
-            <ProfileForm
-              email={email}
-              values={values}
-              errors={errors}
-              pending={pending}
-              success={success}
-              messages={{
-                emailLabel: messages.emailLabel,
-                emailHint: messages.emailHint,
-                nameLabel: messages.nameLabel,
-                newPasswordLabel: messages.newPasswordLabel,
-                newPasswordHint: messages.newPasswordHint,
-                confirmPasswordLabel: messages.confirmPasswordLabel,
-                submit: messages.saveAction,
-                required: messages.required,
-                passwordMin: messages.passwordMin,
-                passwordMismatch: messages.passwordMismatch,
-                genericError: messages.updateError,
-              }}
-              onChange={(field, value) => {
-                setValues((prev) => ({ ...prev, [field]: value }));
-              }}
-              onSubmit={() => void handleSubmit()}
-            />
-          </Card>
-          <Link href={`/${locale}/cuenta`}>{messages.backToAccount}</Link>
-        </Stack>
-      </Section>
-    </Container>
+    <ProfileForm
+      email={email}
+      role={role}
+      values={values}
+      errors={errors}
+      pending={pending}
+      success={success}
+      messages={{
+        emailLabel: messages.emailLabel,
+        emailHint: messages.emailHint,
+        roleLabel: messages.roleLabel,
+        roleHint: messages.roleHint,
+        nameLabel: messages.nameLabel,
+        newPasswordLabel: messages.newPasswordLabel,
+        newPasswordHint: messages.newPasswordHint,
+        confirmPasswordLabel: messages.confirmPasswordLabel,
+        submit: messages.saveAction,
+        required: messages.required,
+        passwordMin: messages.passwordMin,
+        passwordMismatch: messages.passwordMismatch,
+        genericError: messages.updateError,
+      }}
+      onChange={(field, value) => {
+        setValues((prev) => ({ ...prev, [field]: value }));
+      }}
+      onSubmit={() => void handleSubmit()}
+    />
   );
 }

@@ -1,10 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Container } from '@/components/ui/container';
-import { Heading } from '@/components/ui/heading';
 import { Link } from '@/components/ui/link';
-import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { Pagination } from '@/features/catalog/components/pagination';
@@ -19,9 +16,10 @@ function formatPage(template: string, page: number, totalPages: number): string 
 }
 
 /**
- * Orders container: client-side pagination over the server-fetched order
+ * Orders content: client-side pagination over the server-fetched order
  * list (the customer endpoint returns the whole array, newest first).
- * Error/empty states render from props; no client fetching here.
+ * Layout-free (no Container/Section/Heading) so it embeds in the account
+ * tab panel; error/empty states render from props, no client fetching here.
  */
 export function AccountOrdersView({
   orders,
@@ -32,10 +30,9 @@ export function AccountOrdersView({
   orders: Order[] | null;
   loadError: boolean;
   locale: string;
-  messages: Dictionary;
+  messages: Dictionary['account'];
 }) {
   const [page, setPage] = useState(1);
-  const account = messages.account;
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil((orders?.length ?? 0) / PAGE_SIZE)),
@@ -47,43 +44,39 @@ export function AccountOrdersView({
     [orders, safePage],
   );
 
+  if (loadError || orders === null) {
+    return (
+      <Text role="alert" className="text-destructive">
+        {messages.loadError}
+      </Text>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <Stack gap="md">
+        <Text tone="muted">{messages.empty}</Text>
+        <Link href={`/${locale}/productos`}>{messages.browseProducts}</Link>
+      </Stack>
+    );
+  }
+
   return (
-    <Container>
-      <Section>
-        <Stack gap="md">
-          <Stack gap="sm">
-            <Heading level={1}>{account.ordersTitle}</Heading>
-            <Text tone="muted">{account.ordersSubtitle}</Text>
-          </Stack>
-          {loadError || orders === null ? (
-            <Text role="alert" className="text-destructive">
-              {account.loadError}
-            </Text>
-          ) : orders.length === 0 ? (
-            <Stack gap="md">
-              <Text tone="muted">{account.empty}</Text>
-              <Link href={`/${locale}/productos`}>{account.browseProducts}</Link>
-            </Stack>
-          ) : (
-            <Stack gap="md">
-              <OrdersTable
-                orders={visible}
-                locale={locale}
-                messages={account}
-                detailHrefFor={(id) => `/${locale}/cuenta/ordenes/${encodeURIComponent(id)}`}
-              />
-              <Pagination
-                page={safePage}
-                totalPages={totalPages}
-                onPageChange={setPage}
-                previousLabel={account.previous}
-                nextLabel={account.next}
-                statusLabel={(current, total) => formatPage(account.pageOf, current, total)}
-              />
-            </Stack>
-          )}
-        </Stack>
-      </Section>
-    </Container>
+    <Stack gap="md">
+      <OrdersTable
+        orders={visible}
+        locale={locale}
+        messages={messages}
+        detailHrefFor={(id) => `/${locale}/cuenta/ordenes/${encodeURIComponent(id)}`}
+      />
+      <Pagination
+        page={safePage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        previousLabel={messages.previous}
+        nextLabel={messages.next}
+        statusLabel={(current, total) => formatPage(messages.pageOf, current, total)}
+      />
+    </Stack>
   );
 }

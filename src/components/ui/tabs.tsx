@@ -2,6 +2,7 @@
 
 import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Button } from './button';
+import { cn } from './cn';
 
 export interface TabItem {
   id: string;
@@ -16,6 +17,8 @@ export interface TabsProps {
   /** Initially selected tab id; defaults to the first item. */
   defaultId?: string;
   className?: string;
+  /** Extra classes for the tab-button row (the panel always stays full width). */
+  tablistClassName?: string;
 }
 
 /**
@@ -25,7 +28,7 @@ export interface TabsProps {
  * Arrow keys move and select, Home/End jump to the ends (automatic
  * activation, roving tabindex).
  */
-export function Tabs({ items, label, defaultId, className }: TabsProps) {
+export function Tabs({ items, label, defaultId, className, tablistClassName }: TabsProps) {
   const baseId = useId();
   const [selectedId, setSelectedId] = useState(defaultId ?? items.at(0)?.id ?? '');
   const selected = items.find((item) => item.id === selectedId) ?? items.at(0);
@@ -65,7 +68,11 @@ export function Tabs({ items, label, defaultId, className }: TabsProps) {
 
   return (
     <div className={className}>
-      <div role="tablist" aria-label={label} className="flex flex-wrap gap-2">
+      <div
+        role="tablist"
+        aria-label={label}
+        className={cn('flex flex-wrap gap-2', tablistClassName)}
+      >
         {items.map((item, index) => {
           const active = item.id === selected?.id;
           return (

@@ -37,4 +37,11 @@ describe('Tabs', () => {
     expect(screen.getByText('Contenido B')).toBeVisible();
     expect(screen.getByRole('tab', { name: 'Segunda' })).toHaveFocus();
   });
+
+  it('applies an optional tablistClassName to the tab-button row only', () => {
+    render(<Tabs items={ITEMS} label="Secciones" tablistClassName="max-w-md" />);
+    const tablist = screen.getByRole('tablist');
+    expect(tablist).toHaveClass('flex', 'flex-wrap', 'gap-2', 'max-w-md');
+    expect(screen.getByRole('tabpanel')).not.toHaveClass('max-w-md');
+  });
 });
