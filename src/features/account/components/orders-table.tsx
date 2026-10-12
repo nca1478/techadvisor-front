@@ -35,22 +35,22 @@ export function OrdersTable({
       <table className="w-full min-w-[42rem] border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border">
-            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
               {messages.tableOrder}
             </th>
-            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
               {messages.tableDate}
             </th>
-            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
               {messages.tableStatus}
             </th>
-            <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
               {messages.tableItems}
             </th>
-            <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
               {messages.tableTotal}
             </th>
-            <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+            <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
               <span className="sr-only">{messages.tableActions}</span>
             </th>
           </tr>
@@ -110,16 +110,16 @@ export function OrderDetail({
         <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
           <thead>
             <tr className="border-b border-border">
-              <th scope="col" className="px-4 py-3 text-xs font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
                 {messages.itemsTitle}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.quantityHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.unitPriceHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.lineTotalHeader}
               </th>
             </tr>
