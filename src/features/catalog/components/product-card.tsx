@@ -31,6 +31,9 @@ export interface ProductCardProps {
 /**
  * Presentational product tile: image > name > price > action. No fetching,
  * no formatting outside `formatPrice`, no hardcoded copy (all via messages).
+ * The name reserves two `text-sm` lines (`min-h-10`, a spacing token) and
+ * the card fills the grid track (`h-full`), so price and action stay aligned
+ * across cards no matter how long each name is.
  */
 export function ProductCard({
   product,
@@ -44,7 +47,7 @@ export function ProductCard({
   const price = formatPrice(product.priceAmount, currency, locale);
 
   return (
-    <Card padding="none">
+    <Card padding="none" className="h-full">
       <a href={detailHref} aria-label={product.name} className="block rounded-t-lg">
         <MediaFrame src={image.src} alt={image.alt} rounded="sm" />
       </a>
@@ -52,7 +55,7 @@ export function ProductCard({
         <Link
           href={detailHref}
           ariaLabel={product.name}
-          className="line-clamp-2 text-sm font-medium"
+          className="line-clamp-2 min-h-10 text-sm font-medium"
         >
           {product.name}
         </Link>

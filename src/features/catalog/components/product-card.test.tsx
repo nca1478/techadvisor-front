@@ -84,6 +84,14 @@ describe('ProductCard', () => {
     expect(screen.getByRole('button', { name: messages.addToCart })).toBeDisabled();
   });
 
+  it('reserves two name lines so price and action align across cards', () => {
+    renderCard({ name: 'Short' });
+    // The image anchor has no text; only the name link renders it.
+    const name = screen.getByText('Short');
+    expect(name.className).toContain('min-h-10');
+    expect(name.className).toContain('line-clamp-2');
+  });
+
   it('falls back to the product name when alt is missing and to the placeholder without images', () => {
     renderCard({ imageUrl: null, imageAlt: null });
     const image = screen.getByAltText('Test Laptop 15');
