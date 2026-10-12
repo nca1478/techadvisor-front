@@ -174,7 +174,6 @@ export function SearchView({
                   locale={locale}
                   currency={initialData.currency}
                   catalogMessages={messages.catalog}
-                  searchMessages={messages.search}
                   detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
                 />
               )}

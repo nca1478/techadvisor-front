@@ -110,11 +110,11 @@ function renderView(props: {
 }
 
 describe('SearchView', () => {
-  it('renders results with evidence and no degraded notice by default', () => {
+  it('renders results without evidence snippets and no degraded notice by default', () => {
     renderView({});
 
     expect(screen.getByText('Light Headphones')).toBeVisible();
-    expect(screen.getByText('lightweight evidence')).toBeVisible();
+    expect(screen.queryByText('lightweight evidence')).not.toBeInTheDocument();
     expect(screen.queryByText(en.search.degradedNotice)).not.toBeInTheDocument();
   });
 

@@ -64,7 +64,6 @@ function renderResults(results: SearchResult[]) {
         locale="en"
         currency="USD"
         catalogMessages={en.catalog}
-        searchMessages={en.search}
         detailHrefFor={(slug) => `/en/productos/${slug}`}
       />
     </CartProvider>,
@@ -72,13 +71,14 @@ function renderResults(results: SearchResult[]) {
 }
 
 describe('SearchResults', () => {
-  it('renders the product card with its evidence snippet', () => {
+  it('renders product cards without evidence snippets', () => {
     renderResults([result()]);
 
     expect(screen.getByText('Light Headphones')).toBeVisible();
     expect(screen.getByText('$100.00')).toBeVisible();
-    expect(screen.getByText('lightweight and comfortable for long hours')).toBeVisible();
-    expect(screen.getByText(en.search.evidenceLabel, { exact: false })).toBeVisible();
+    expect(
+      screen.queryByText('lightweight and comfortable for long hours'),
+    ).not.toBeInTheDocument();
     const links = screen.getAllByRole('link', { name: 'Light Headphones' });
     expect(links).toHaveLength(2);
     for (const link of links) {
