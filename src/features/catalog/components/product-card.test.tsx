@@ -92,6 +92,13 @@ describe('ProductCard', () => {
     expect(name.className).toContain('line-clamp-2');
   });
 
+  it('pins the price/action footer to the card bottom', () => {
+    renderCard({ name: 'Short' });
+    const footer = screen.getByText('$1,299.00').closest('.mt-auto');
+    expect(footer).not.toBeNull();
+    expect(footer?.textContent).toContain(messages.addToCart);
+  });
+
   it('falls back to the product name when alt is missing and to the placeholder without images', () => {
     renderCard({ imageUrl: null, imageAlt: null });
     const image = screen.getByAltText('Test Laptop 15');

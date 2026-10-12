@@ -28,13 +28,6 @@ export interface ProductCardProps {
   };
 }
 
-/**
- * Presentational product tile: image > name > price > action. No fetching,
- * no formatting outside `formatPrice`, no hardcoded copy (all via messages).
- * The name reserves two `text-sm` lines (`min-h-10`, a spacing token) and
- * the card fills the grid track (`h-full`), so price and action stay aligned
- * across cards no matter how long each name is.
- */
 export function ProductCard({
   product,
   locale,
@@ -47,11 +40,11 @@ export function ProductCard({
   const price = formatPrice(product.priceAmount, currency, locale);
 
   return (
-    <Card padding="none" className="h-full">
+    <Card padding="none" className="flex h-full flex-col">
       <a href={detailHref} aria-label={product.name} className="block rounded-t-lg">
         <MediaFrame src={image.src} alt={image.alt} rounded="sm" />
       </a>
-      <Stack gap="sm" className="p-4">
+      <Stack gap="sm" className="flex flex-1 flex-col p-4">
         <Link
           href={detailHref}
           ariaLabel={product.name}
@@ -59,34 +52,36 @@ export function ProductCard({
         >
           {product.name}
         </Link>
-        <Stack direction="horizontal" gap="sm" align="center">
-          <Text variant="lead" as="span" className="font-bold">
-            {price}
-          </Text>
-          {product.inStock ? (
-            <Badge tone="success">{messages.inStock}</Badge>
-          ) : (
-            <Badge tone="destructive">{messages.outOfStock}</Badge>
-          )}
-        </Stack>
-        <AddToCartButton
-          size="sm"
-          productId={product.id}
-          disabled={!product.inStock}
-          label={messages.addToCart}
-          addedLabel={messages.addToCartAdded}
-          errorLabel={messages.addToCartError}
-        />
-        {compare ? (
-          <CompareToggle
+        <Stack gap="sm" className="mt-auto">
+          <Stack direction="horizontal" gap="sm" align="center">
+            <Text variant="lead" as="span" className="font-bold">
+              {price}
+            </Text>
+            {product.inStock ? (
+              <Badge tone="success">{messages.inStock}</Badge>
+            ) : (
+              <Badge tone="destructive">{messages.outOfStock}</Badge>
+            )}
+          </Stack>
+          <AddToCartButton
+            size="sm"
             productId={product.id}
-            productName={product.name}
-            checked={compare.checked}
-            disabled={compare.disabled}
-            messages={compare.messages}
-            onToggle={compare.onToggle}
+            disabled={!product.inStock}
+            label={messages.addToCart}
+            addedLabel={messages.addToCartAdded}
+            errorLabel={messages.addToCartError}
           />
-        ) : null}
+          {compare ? (
+            <CompareToggle
+              productId={product.id}
+              productName={product.name}
+              checked={compare.checked}
+              disabled={compare.disabled}
+              messages={compare.messages}
+              onToggle={compare.onToggle}
+            />
+          ) : null}
+        </Stack>
       </Stack>
     </Card>
   );
