@@ -177,3 +177,22 @@ export function buildSpecsRecord(
   }
   return { record, errors };
 }
+
+/**
+ * Category form validation. Mirrors the backend `createCategorySchema` /
+ * `updateCategorySchema` field-by-field: base columns hold the default
+ * locale, the single optional translation holds one non-default locale,
+ * and `parentId` is either empty (root) or a UUID (cycle/self-parent
+ * checks stay server-side).
+ */
+export const categoryFormSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  slug: slugField,
+  /** Empty string = root level; otherwise a UUID. */
+  parentId: z.string().trim(),
+  /** Empty = no translation; otherwise a BCP 47 locale. */
+  translationLocale: z.string().trim(),
+  translationName: z.string().trim().max(200),
+});
+
+export type CategoryFormValues = z.output<typeof categoryFormSchema>;

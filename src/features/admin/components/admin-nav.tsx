@@ -6,7 +6,14 @@ import { Stack } from '@/components/ui/stack';
 import type { Dictionary } from '@/lib/i18n/index';
 
 export type AdminSection =
-  'dashboard' | 'products' | 'orders' | 'inventory' | 'documents' | 'asesor' | 'reviews';
+  | 'dashboard'
+  | 'products'
+  | 'categories'
+  | 'orders'
+  | 'inventory'
+  | 'documents'
+  | 'asesor'
+  | 'reviews';
 
 /**
  * Presentational back-office section nav; active section follows the URL.
@@ -18,6 +25,7 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
   const items: Array<{ section: AdminSection; href: string; label: string }> = [
     { section: 'dashboard', href: `/${locale}/admin`, label: messages.navDashboard },
     { section: 'products', href: `/${locale}/admin/productos`, label: messages.navProducts },
+    { section: 'categories', href: `/${locale}/admin/categorias`, label: messages.navCategories },
     { section: 'orders', href: `/${locale}/admin/ordenes`, label: messages.navOrders },
     { section: 'inventory', href: `/${locale}/admin/inventario`, label: messages.navInventory },
     { section: 'documents', href: `/${locale}/admin/documentos`, label: messages.navDocuments },

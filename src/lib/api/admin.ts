@@ -151,6 +151,25 @@ export interface AdjustInventoryRequest {
   reason: string;
 }
 
+/**
+ * Category writes mirror the backend Zod contract (`admin.schemas.ts`):
+ * base columns hold the `DEFAULT_LOCALE` content, `translations` holds
+ * non-default locales only (single optional translation in this UI).
+ */
+export interface CreateCategoryRequest {
+  name: string;
+  slug: string;
+  parentId?: string;
+  translations?: Array<{ locale: string; name: string }>;
+}
+
+export type UpdateCategoryRequest = Partial<
+  Pick<CreateCategoryRequest, 'name' | 'slug' | 'translations'> & {
+    /** Nullable: `null` detaches the category back to root level. */
+    parentId?: string | null;
+  }
+>;
+
 export interface AdminProductListQuery {
   status?: AdminProductStatus;
   category?: string;
