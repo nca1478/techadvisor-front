@@ -43,6 +43,7 @@ export function ProfileCard({
             </Stack>
           ))}
         </Stack>
+        <Link href={`/${locale}/cuenta/perfil`}>{messages.editProfileLink}</Link>
         <Link href={`/${locale}/cuenta/ordenes`}>{messages.viewAllOrders}</Link>
       </Stack>
     </Card>

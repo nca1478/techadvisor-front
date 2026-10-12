@@ -119,7 +119,8 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /** Update the authenticated user profile (name and password only) */
+    patch: operations['UsersController_updateMe'];
     trace?: never;
   };
   '/api/v1/admin/ping': {
@@ -1344,6 +1345,15 @@ export interface components {
        * @example 2026-10-06T12:00:00.000Z
        */
       updatedAt: string;
+    };
+    UpdateProfileRequestDto: {
+      /** @example Ada Lovelace */
+      name?: string;
+      /**
+       * @description New password (min 10 chars). Never logged, never returned.
+       * @example correct-horse-battery-staple-42
+       */
+      password?: string;
     };
     AdminPriceDto: {
       /** @example EUR */
@@ -3142,6 +3152,56 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserResponseDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  UsersController_updateMe: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateProfileRequestDto'];
+      };
+    };
     responses: {
       200: {
         headers: {
