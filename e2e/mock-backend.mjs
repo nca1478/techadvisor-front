@@ -9,13 +9,19 @@
  *
  * Shapes mirror `src/lib/api/schema.d.ts` (generated OpenAPI contract).
  * Stateful in memory: owner-scoped carts (guest `sid`, minted here when
- * absent, or Bearer token), one user, N orders. Owner scoping keeps
+ * absent, or Bearer token), token-scoped users (every login mints a unique
+ * pair, so parallel workers never share a role), N orders. Owner scoping keeps
  * parallel Playwright workers (`fullyParallel`) from seeing each other's
  * lines (each worker has its own browser context and cookies). Payment
  * confirmation is
  * simulated: `POST /payments/checkout` flips the order to `PAID`, standing
  * in for the Stripe webhook + `stripe listen` flow used against the real
  * backend (see README "E2E against the real backend").
+ *
+ * Back-office categories (`/admin/categories*`, ADMIN role only): emails
+ * starting with `e2e-admin-` register as ADMIN, everything else as
+ * CUSTOMER. Stateful list/create/detail/update/delete with the real
+ * guards (unique slug, no self-parent, 409 while subcategories exist).
  *
  * Usage: `MOCK_PORT=3002 E2E_WEB_URL=http://localhost:3000 node e2e/mock-backend.mjs`
  */
@@ -155,6 +161,10 @@ const ALL_PRODUCTS = [...PRODUCTS, ...COMPAT_FIXTURES];
 
 const state = {
   user: null,
+  usersByEmail: {},
+  accessTokens: {},
+  refreshTokens: {},
+  tokenSeq: 0,
   carts: {},
   cartSeq: 0,
   orders: [],
@@ -162,6 +172,16 @@ const state = {
   sessions: [],
   sessionSeq: 0,
   sidSeq: 0,
+  adminCategories: [
+    {
+      id: '11111111-1111-4111-8111-111111111111',
+      name: 'Mock Root',
+      slug: 'mock-root',
+      parentId: null,
+      translations: [],
+    },
+  ],
+  categorySeq: 0,
 };
 
 // Advisor session ownership (mirrors the real backend, ADR 0029): a session
@@ -279,22 +299,40 @@ function cartHeaders(slot) {
 
 function mockUser(email, name) {
   return {
-    id: 'user-mock-1',
+    id: `user-mock-${email}`,
     email,
     name: name ?? null,
-    role: 'CUSTOMER',
+    // Back-office specs register `e2e-admin-*@example.com` to get an ADMIN
+    // session (the admin layout redirects CUSTOMER to the store home).
+    role: email.startsWith('e2e-admin-') ? 'ADMIN' : 'CUSTOMER',
     createdAt: '2026-10-06T00:00:00.000Z',
     updatedAt: now(),
   };
 }
 
-function tokenPair() {
-  return {
-    accessToken: 'mock-access-token',
+/**
+ * Unique token pair per login/registration, mapped back to the user email.
+ * Parallel workers share this process but register different emails, so a
+ * global `state.user` would let them clobber each other's role — the map
+ * keeps every context's session (CUSTOMER vs ADMIN) isolated.
+ */
+function tokenPair(email) {
+  state.tokenSeq += 1;
+  const pair = {
+    accessToken: `mock-access-token-${state.tokenSeq}`,
     tokenType: 'Bearer',
     expiresIn: 3600,
-    refreshToken: 'mock-refresh-token',
+    refreshToken: `mock-refresh-token-${state.tokenSeq}`,
   };
+  state.accessTokens[pair.accessToken] = email;
+  state.refreshTokens[pair.refreshToken] = email;
+  return pair;
+}
+
+function userForAccessToken(req) {
+  const email = state.accessTokens[bearerToken(req)];
+  if (!email) return null;
+  return state.usersByEmail[email] ?? null;
 }
 
 function readJsonBody(req) {
@@ -411,21 +449,25 @@ async function handler(req, res) {
     return;
   }
 
-  // Auth
+  // Auth (token-scoped users: parallel workers never share a role)
   if (method === 'POST' && (path === '/auth/register' || path === '/auth/login')) {
     const email = typeof body.email === 'string' ? body.email : 'e2e@example.com';
-    state.user = mockUser(email, typeof body.name === 'string' ? body.name : undefined);
-    send(res, path === '/auth/register' ? 201 : 200, { user: state.user, tokens: tokenPair() });
+    const user = mockUser(email, typeof body.name === 'string' ? body.name : undefined);
+    state.usersByEmail[email] = user;
+    state.user = user;
+    send(res, path === '/auth/register' ? 201 : 200, { user, tokens: tokenPair(email) });
     return;
   }
 
   if (method === 'POST' && path === '/auth/refresh') {
-    if (!state.user) {
+    const email =
+      typeof body.refreshToken === 'string' ? state.refreshTokens[body.refreshToken] : undefined;
+    if (!email || !state.usersByEmail[email]) {
       const err = uniformError(401, 'UNAUTHORIZED', 'Invalid refresh token');
       send(res, err.status, err.body);
       return;
     }
-    send(res, 200, { tokens: tokenPair() });
+    send(res, 200, { tokens: tokenPair(email) });
     return;
   }
 
@@ -435,13 +477,140 @@ async function handler(req, res) {
   }
 
   if (method === 'GET' && path === '/users/me') {
-    const authorization = req.headers['authorization'] ?? '';
-    if (!authorization.startsWith('Bearer ') || !state.user) {
+    const user = userForAccessToken(req);
+    if (!user) {
       const err = uniformError(401, 'UNAUTHORIZED', 'Missing authentication');
       send(res, err.status, err.body);
       return;
     }
-    send(res, 200, state.user);
+    send(res, 200, user);
+    return;
+  }
+
+  // Back-office categories (stateful, mirrors `AdminCategoryDto` + the
+  // real guards: ADMIN role, unique slug, no self-parent, no delete while
+  // subcategories exist). Used by `e2e/admin-categories.spec.ts`.
+  function adminCaller() {
+    const user = userForAccessToken(req);
+    if (!user) return uniformError(401, 'UNAUTHORIZED', 'Missing authentication');
+    if (user.role !== 'ADMIN') return uniformError(403, 'FORBIDDEN', 'Admin role required');
+    return null;
+  }
+
+  if (path === '/admin/categories' && (method === 'GET' || method === 'POST')) {
+    const denied = adminCaller();
+    if (denied) {
+      send(res, denied.status, denied.body);
+      return;
+    }
+    if (method === 'GET') {
+      send(res, 200, state.adminCategories);
+      return;
+    }
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
+    if (!name || !slug) {
+      const err = uniformError(400, 'BAD_REQUEST', 'name and slug are required');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (state.adminCategories.some((category) => category.slug === slug)) {
+      const err = uniformError(409, 'CONFLICT', 'A record with the same slug already exists');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (typeof body.parentId === 'string' && body.parentId) {
+      const parent = state.adminCategories.find((category) => category.id === body.parentId);
+      if (!parent) {
+        const err = uniformError(404, 'NOT_FOUND', 'Category not found');
+        send(res, err.status, err.body);
+        return;
+      }
+    }
+    state.categorySeq += 1;
+    // UUID-shaped ids: the frontend pre-validates `parentId` as a UUID,
+    // mirroring the real backend contract.
+    const created = {
+      id: `22222222-2222-4222-8222-${String(state.categorySeq).padStart(12, '0')}`,
+      name,
+      slug,
+      parentId: typeof body.parentId === 'string' && body.parentId ? body.parentId : null,
+      translations: Array.isArray(body.translations) ? body.translations : [],
+    };
+    state.adminCategories.push(created);
+    send(res, 201, created);
+    return;
+  }
+
+  const adminCategoryMatch = path.match(/^\/admin\/categories\/([^/]+)$/);
+  if (adminCategoryMatch && (method === 'GET' || method === 'PATCH' || method === 'DELETE')) {
+    const denied = adminCaller();
+    if (denied) {
+      send(res, denied.status, denied.body);
+      return;
+    }
+    const id = decodeURIComponent(adminCategoryMatch[1]);
+    const category = state.adminCategories.find((candidate) => candidate.id === id);
+    if (!category) {
+      const err = uniformError(404, 'NOT_FOUND', 'Category not found');
+      send(res, err.status, err.body);
+      return;
+    }
+    if (method === 'GET') {
+      send(res, 200, category);
+      return;
+    }
+    if (method === 'DELETE') {
+      const children = state.adminCategories.filter(
+        (candidate) => candidate.parentId === id,
+      ).length;
+      if (children > 0) {
+        const err = uniformError(
+          409,
+          'CONFLICT',
+          'Category cannot be deleted while it has subcategories or products',
+        );
+        send(res, err.status, err.body);
+        return;
+      }
+      state.adminCategories.splice(state.adminCategories.indexOf(category), 1);
+      send(res, 204, null);
+      return;
+    }
+    if (typeof body.slug === 'string' && body.slug.trim()) {
+      const taken = state.adminCategories.some(
+        (candidate) => candidate.id !== id && candidate.slug === body.slug.trim(),
+      );
+      if (taken) {
+        const err = uniformError(409, 'CONFLICT', 'A record with the same slug already exists');
+        send(res, err.status, err.body);
+        return;
+      }
+      category.slug = body.slug.trim();
+    }
+    if (typeof body.name === 'string' && body.name.trim()) {
+      category.name = body.name.trim();
+    }
+    if (body.parentId !== undefined) {
+      if (body.parentId === id) {
+        const err = uniformError(400, 'BAD_REQUEST', 'A category cannot be its own parent');
+        send(res, err.status, err.body);
+        return;
+      }
+      if (body.parentId !== null) {
+        const parent = state.adminCategories.find((candidate) => candidate.id === body.parentId);
+        if (!parent) {
+          const err = uniformError(404, 'NOT_FOUND', 'Category not found');
+          send(res, err.status, err.body);
+          return;
+        }
+      }
+      category.parentId = body.parentId;
+    }
+    if (body.translations !== undefined) {
+      category.translations = Array.isArray(body.translations) ? body.translations : [];
+    }
+    send(res, 200, category);
     return;
   }
 

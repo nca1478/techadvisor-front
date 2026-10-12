@@ -18,6 +18,11 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
+  // Dev-mode SSR under parallel workers is slow on loaded boxes (the dev
+  // server compiles routes on demand while browsers, the mock and unrelated
+  // local processes share the CPUs): 60s per test so a slow page load fails
+  // the suite instead of timing the test out mid-flow.
+  timeout: 60 * 1000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
