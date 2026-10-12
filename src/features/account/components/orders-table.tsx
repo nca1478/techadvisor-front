@@ -1,3 +1,4 @@
+import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -95,6 +96,10 @@ export function OrderDetail({
   locale: string;
   messages: Dictionary['account'];
 }) {
+  const shipping = order.shipping;
+  const locality = [shipping.city, shipping.region, shipping.postalCode, shipping.country]
+    .filter((part) => part !== undefined && part.length > 0)
+    .join(' · ');
   return (
     <Stack gap="md">
       <Stack direction="horizontal" gap="md" align="center">
@@ -140,15 +145,44 @@ export function OrderDetail({
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-border">
+              <th
+                scope="row"
+                colSpan={3}
+                className="px-4 py-3 text-right text-xs font-bold text-foreground"
+              >
+                {messages.tableTotal}
+              </th>
+              <td className="px-4 py-3 text-right font-bold tabular-nums">
+                {formatPrice(order.totalAmount, order.currency, locale)}
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
       <Text variant="lead" as="div">
         {messages.shippingTitle}
       </Text>
-      <Text variant="small" tone="muted">
-        {order.shipping.fullName} · {order.shipping.line1} · {order.shipping.city} ·{' '}
-        {order.shipping.country}
-      </Text>
+      <Card>
+        <Stack gap="sm">
+          <Text variant="small" as="p" className="font-medium">
+            {shipping.fullName}
+          </Text>
+          <Text variant="small" tone="muted">
+            {shipping.line1}
+            {shipping.line2 !== undefined && shipping.line2.length > 0 ? `, ${shipping.line2}` : ''}
+          </Text>
+          <Text variant="small" tone="muted">
+            {locality}
+          </Text>
+          {shipping.phone !== undefined && shipping.phone.length > 0 ? (
+            <Text variant="small" tone="muted">
+              {shipping.phone}
+            </Text>
+          ) : null}
+        </Stack>
+      </Card>
     </Stack>
   );
 }
