@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { Heading } from '@/components/ui/heading';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { AdminOrderDetailContainer } from '@/features/admin/containers/admin-order-detail-container';
@@ -57,9 +56,6 @@ export default async function AdminOrderPage({ params }: OrderPageProps) {
   return (
     <Stack gap="md">
       <Link href={`/${locale}/admin/ordenes`}>{messages.admin.orders.backToOrders}</Link>
-      <Heading level={2}>
-        {messages.admin.orders.detailTitle.replace('{id}', order.id.slice(0, 8))}
-      </Heading>
       <AdminOrderDetailContainer initialOrder={order} locale={locale} messages={messages} />
     </Stack>
   );

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Heading } from '@/components/ui/heading';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -43,6 +45,49 @@ export function AdminOrderDetailContainer({
   const allowed = adminNextStatuses(order.status);
   const statusLabel = (status: string) =>
     (messages.account as Record<string, string>)[`status_${status}`] ?? status;
+  // The admin order embeds the buyer's name/email (backend `AdminOrderDto`).
+  // Narrow with typeof so a stale API response without these fields still
+  // renders the userId instead of crashing or printing "undefined".
+  const customerName =
+    typeof order.userName === 'string' && order.userName.length > 0 ? order.userName : null;
+  const customerEmail =
+    typeof order.userEmail === 'string' && order.userEmail.length > 0 ? order.userEmail : null;
+  // The admin order embeds the shipping snapshot (backend `AdminOrderDto`).
+  // Read through `unknown` so a stale API response without `shipping` hides
+  // the section instead of crashing or printing "undefined".
+  function addressText(value: unknown): string | null {
+    return typeof value === 'string' && value.length > 0 ? value : null;
+  }
+  const rawShipping: unknown = (order as { shipping?: unknown }).shipping;
+  const shipping =
+    typeof rawShipping === 'object' && rawShipping !== null
+      ? (rawShipping as AdminOrder['shipping'])
+      : null;
+  const shippingFullName = shipping === null ? null : addressText(shipping.fullName);
+  const shippingStreet =
+    shipping === null
+      ? null
+      : [addressText(shipping.line1), addressText(shipping.line2)]
+          .filter((part) => part !== null)
+          .join(', ');
+  const localityParts: string[] = [];
+  if (shipping !== null) {
+    for (const part of [
+      addressText(shipping.city),
+      addressText(shipping.region),
+      addressText(shipping.postalCode),
+      addressText(shipping.country),
+    ]) {
+      if (part !== null) localityParts.push(part);
+    }
+  }
+  const locality = localityParts.length > 0 ? localityParts.join(' · ') : null;
+  const shippingPhone = shipping === null ? null : addressText(shipping.phone);
+  const hasShipping =
+    shippingFullName !== null ||
+    (shippingStreet !== null && shippingStreet.length > 0) ||
+    locality !== null ||
+    shippingPhone !== null;
 
   async function handleConfirm() {
     if (target === '') return;
@@ -67,32 +112,67 @@ export function AdminOrderDetailContainer({
 
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" gap="md" align="center" wrap>
-        <OrderStatusBadge status={order.status} messages={messages.account} />
-        <Text variant="small" tone="muted">
-          {formatDate(order.createdAt, locale)}
-        </Text>
-        <Text variant="small" tone="muted">
-          {orders.tableCustomer}: {order.userId.slice(0, 8)}…
-        </Text>
-        <Text variant="small" tone="muted">
-          {orders.tableTotal}: {formatPrice(order.totalAmount, order.currency, locale)}
-        </Text>
+      <Stack direction="horizontal" gap="md" align="center" justify="between" wrap>
+        <Heading level={2}>{orders.detailTitle.replace('{id}', order.id.slice(0, 8))}</Heading>
+        <Stack direction="horizontal" gap="md" align="center">
+          <OrderStatusBadge status={order.status} messages={messages.account} />
+          <Text variant="small" tone="muted">
+            {formatDate(order.createdAt, locale)}
+          </Text>
+        </Stack>
       </Stack>
+      <Text variant="lead" as="div">
+        {orders.tableCustomer}
+      </Text>
+      <Card>
+        <Stack gap="sm">
+          {customerName !== null || customerEmail !== null ? (
+            <>
+              {customerName !== null ? (
+                <div>
+                  <Text variant="caption" tone="muted">
+                    {orders.customerName}
+                  </Text>
+                  <Text variant="small" as="p" className="font-medium">
+                    {customerName}
+                  </Text>
+                </div>
+              ) : null}
+              {customerEmail !== null ? (
+                <div>
+                  <Text variant="caption" tone="muted">
+                    {orders.customerEmail}
+                  </Text>
+                  <Text variant="small" as="p">
+                    {customerEmail}
+                  </Text>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <Text variant="small" as="p" className="font-mono">
+              {order.userId}
+            </Text>
+          )}
+        </Stack>
+      </Card>
+      <Text variant="lead" as="div">
+        {messages.account.itemsTitle}
+      </Text>
       <div className="overflow-x-auto rounded-md border border-border">
-        <table className="w-full min-w-[40rem] border-collapse bg-surface text-left text-sm">
+        <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
           <thead>
             <tr className="border-b border-border">
-              <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
                 {messages.account.itemsTitle}
               </th>
-              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.account.quantityHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.account.unitPriceHeader}
               </th>
-              <th scope="col" className="px-4 py-3 text-right text-sm font-bold text-muted-foreground">
+              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
                 {messages.account.lineTotalHeader}
               </th>
             </tr>
@@ -113,8 +193,71 @@ export function AdminOrderDetailContainer({
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-border">
+              <th
+                scope="row"
+                colSpan={3}
+                className="px-4 py-3 text-right text-xs font-bold text-foreground"
+              >
+                {orders.tableTotal}
+              </th>
+              <td className="px-4 py-3 text-right font-bold tabular-nums">
+                {formatPrice(order.totalAmount, order.currency, locale)}
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
+      {hasShipping ? (
+        <>
+          <Text variant="lead" as="div">
+            {orders.shippingTitle}
+          </Text>
+          <Card>
+            <div className="grid grid-cols-[max-content_1fr] items-baseline gap-x-4 gap-y-3">
+              {shippingFullName !== null ? (
+                <>
+                  <Text variant="small" tone="muted" className="font-bold">
+                    {orders.shippingFullName}:
+                  </Text>
+                  <Text variant="small" as="p" className="font-medium">
+                    {shippingFullName}
+                  </Text>
+                </>
+              ) : null}
+              {shippingStreet !== null && shippingStreet.length > 0 ? (
+                <>
+                  <Text variant="small" tone="muted" className="font-bold">
+                    {orders.shippingAddress}:
+                  </Text>
+                  <Text variant="small" tone="muted" as="p">
+                    {shippingStreet}
+                  </Text>
+                </>
+              ) : null}
+              {locality !== null ? (
+                <>
+                  <span aria-hidden="true" />
+                  <Text variant="small" tone="muted" as="p">
+                    {locality}
+                  </Text>
+                </>
+              ) : null}
+              {shippingPhone !== null ? (
+                <>
+                  <Text variant="small" tone="muted" className="font-bold">
+                    {orders.shippingPhone}:
+                  </Text>
+                  <Text variant="small" tone="muted" as="p">
+                    {shippingPhone}
+                  </Text>
+                </>
+              ) : null}
+            </div>
+          </Card>
+        </>
+      ) : null}
       <Stack gap="sm">
         <Text variant="lead" as="div">
           {orders.changeStatus}

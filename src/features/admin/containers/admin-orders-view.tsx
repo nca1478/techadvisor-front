@@ -150,12 +150,18 @@ export function AdminOrdersView({
                         scope="row"
                         className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
                       >
-                        {order.id.slice(0, 8)}…
+                        <Link href={`/${locale}/admin/ordenes/${encodeURIComponent(order.id)}`}>
+                          {order.id.slice(0, 8)}…
+                        </Link>
                       </th>
                       <td className="px-4 py-3 text-muted-foreground">
                         {formatDate(order.createdAt, locale)}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs">{order.userId.slice(0, 8)}…</td>
+                      {typeof order.userName === 'string' && order.userName.length > 0 ? (
+                        <td className="px-4 py-3 text-sm">{order.userName}</td>
+                      ) : (
+                        <td className="px-4 py-3 font-mono text-xs">{order.userId.slice(0, 8)}…</td>
+                      )}
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
