@@ -72,17 +72,6 @@ async function openChatSession(): Promise<string | null> {
   }
 }
 
-/**
- * Container (Client Component): owns question state, chat-session lifecycle,
- * BFF fetching, error mapping and feedback. Renders `AdvisorView` with props
- * only.
- *
- * A chat session opens when the widget mounts (remounted per product via
- * `key={product.id}`) and its id travels with every question so the backend
- * records the turn. Session failures degrade to stateless Q&A; a 404 on a
- * sessioned call rotates the session once (it may have been purged by
- * retention) and retries before showing an error.
- */
 export function ProductAdvisor({
   productId,
   categorySlug,

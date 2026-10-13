@@ -39,11 +39,6 @@ export interface AdvisorViewProps {
   messages: Dictionary['advisor'];
 }
 
-/**
- * Presentational advisor widget: question box, loading state, cited answer
- * or distinct abstention, friendly errors, feedback buttons, disclaimer.
- * No fetching here — the container owns data and state.
- */
 export function AdvisorView({
   title,
   question,
