@@ -162,6 +162,56 @@ describe('AdvisorChat', () => {
     expect(calls).not.toContain('POST /api/advisor/sessions');
   });
 
+  it('shows server previews for every session without fetching each history', async () => {
+    const calls: string[] = [];
+    stubFetch((url, init) => {
+      calls.push(`${init?.method ?? 'GET'} ${url}`);
+      if (url === '/api/advisor/sessions') {
+        return jsonResponse(200, [
+          {
+            ...sessionPayload('s1'),
+            messageCount: 4,
+            preview: 'modelos de placa base para intel i9',
+          },
+          {
+            ...sessionPayload('s2'),
+            messageCount: 4,
+            preview: 'modelos de portatiles para trabajo de oficina',
+          },
+        ]);
+      }
+      if (url === '/api/advisor/sessions/s1') {
+        return jsonResponse(200, {
+          ...sessionPayload('s1'),
+          messageCount: 4,
+          messages: [
+            {
+              id: 'm1',
+              role: 'USER',
+              content: 'modelos de placa base para intel i9',
+              citations: [],
+              products: [],
+              createdAt: '2026-10-09T12:00:00.000Z',
+            },
+          ],
+        });
+      }
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    await screen.findByText('modelos de placa base para intel i9');
+
+    const history = screen.getByRole('combobox', { name: messages.chat.historyLabel });
+    const labels = [...history.querySelectorAll('option')].map((option) => option.textContent);
+    expect(labels).toContain('modelos de placa base para intel i9 (4)');
+    expect(labels).toContain('modelos de portatiles para trabajo de oficina (4)');
+    // The second session label comes from the list payload: no history fetch.
+    expect(calls).toContain('GET /api/advisor/sessions/s1');
+    expect(calls).not.toContain('GET /api/advisor/sessions/s2');
+    expect(calls).not.toContain('POST /api/advisor/sessions');
+  });
+
   it('keeps the previous conversation selectable after starting a new chat', async () => {
     let seq = 1;
     stubFetch((url, init) => {

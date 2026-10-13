@@ -379,12 +379,22 @@ describe('createAdvisorApi', () => {
         messageCount: 2,
         createdAt: '2026-10-09T12:00:00.000Z',
         updatedAt: '2026-10-09T12:01:00.000Z',
+        preview: 'Portátil para estudiar',
+      },
+      {
+        id: 's2',
+        messageCount: 0,
+        createdAt: '2026-10-09T12:00:00.000Z',
+        updatedAt: '2026-10-09T12:00:00.000Z',
       },
     ]);
     const api = createAdvisorApi(clientWithFetch(fetchFn));
     const list = await api.listSessions();
-    expect(list).toHaveLength(1);
+    expect(list).toHaveLength(2);
     expect(list[0]?.id).toBe('s1');
+    expect(list[0]?.preview).toBe('Portátil para estudiar');
+    // `preview` stays optional for sessions without a user message yet.
+    expect(list[1]?.preview).toBeUndefined();
     expect(calls[0]?.url).toBe('http://test/advisor/sessions');
     expect(() => parseChatSessionList([{ id: 42 }])).toThrow('Invalid chat session list shape');
   });

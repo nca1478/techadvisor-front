@@ -46,6 +46,12 @@ export interface ChatSession {
   messageCount: number;
   createdAt: string;
   updatedAt: string;
+  /**
+   * First user message truncated for list labels (server-computed, same
+   * truncation as `truncateSessionPreview`); absent when the session has no
+   * user message yet or the backend predates the field.
+   */
+  preview?: string;
 }
 
 export interface AdvisorFeedbackRequest {
@@ -97,6 +103,7 @@ const chatSessionSchema = z.object({
   messageCount: z.number().int().min(0),
   createdAt: z.string(),
   updatedAt: z.string(),
+  preview: z.string().max(120).optional(),
 });
 
 // mantener en sync con backend: POST /api/v1/advisor/sessions/:id/messages
@@ -383,7 +390,12 @@ export function migrateLegacyChatSession(locale: string): string | null {
   return legacy;
 }
 
-/** Shortens the first user message for the history selector. Pure. */
+/**
+ * Shortens the first user message for the history selector. Pure.
+ * mantener en sync con backend: `toSessionPreview` en
+ * `src/modules/advisor/chat-sessions.service.ts` (same collapse, length,
+ * ellipsis) — the server precomputes this as `preview` in the session list.
+ */
 export function truncateSessionPreview(text: string, maxLength = 60): string {
   const singleLine = text.replace(/\s+/g, ' ').trim();
   if (singleLine.length <= maxLength) return singleLine;

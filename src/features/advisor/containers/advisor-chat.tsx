@@ -111,7 +111,9 @@ function mergeHistory(
   const merged: HistoryItem[] = [];
   if (remote) {
     for (const session of remote) {
-      merged.push({ ...session, preview: previews.get(session.id) });
+      // Local preview first (freshest: updated on every send); server preview
+      // second (covers other devices and wiped browser storage).
+      merged.push({ ...session, preview: previews.get(session.id) ?? session.preview });
     }
   }
   const known = new Set(merged.map((item) => item.id));
