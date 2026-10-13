@@ -212,6 +212,80 @@ describe('AdvisorChat', () => {
     expect(calls).not.toContain('POST /api/advisor/sessions');
   });
 
+  it('keeps the selector order stable when switching sessions and sending', async () => {
+    function historyFor(id: string, question: string, answer: string) {
+      return jsonResponse(200, {
+        ...sessionPayload(id),
+        messageCount: 1,
+        messages: [
+          {
+            id: `m-${id}-1`,
+            role: 'USER',
+            content: question,
+            citations: [],
+            products: [],
+            createdAt: '2026-10-09T12:00:00.000Z',
+          },
+          {
+            id: `m-${id}-2`,
+            role: 'ASSISTANT',
+            content: answer,
+            citations: [],
+            products: [],
+            createdAt: '2026-10-09T12:01:00.000Z',
+          },
+        ],
+      });
+    }
+    const calls: string[] = [];
+    stubFetch((url, init) => {
+      const method = init?.method ?? 'GET';
+      calls.push(`${method} ${url}`);
+      if (url === '/api/advisor/sessions' && method === 'GET') {
+        return jsonResponse(200, [
+          { ...sessionPayload('s1'), messageCount: 1, preview: 'Pregunta uno' },
+          { ...sessionPayload('s2'), messageCount: 1, preview: 'Pregunta dos' },
+        ]);
+      }
+      if (url === '/api/advisor/sessions/s1')
+        return historyFor('s1', 'Pregunta uno', 'Respuesta uno.');
+      if (url === '/api/advisor/sessions/s2')
+        return historyFor('s2', 'Pregunta dos', 'Respuesta dos.');
+      if (url === '/api/advisor/sessions/s2/messages') return sseResponse(RECOMMEND_SSE);
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    const orderLabels = (): (string | null)[] =>
+      [
+        ...screen
+          .getByRole('combobox', { name: messages.chat.historyLabel })
+          .querySelectorAll('option'),
+      ].map((option) => option.textContent);
+
+    // Initial restore keeps the server order.
+    await waitFor(() => {
+      expect(orderLabels()).toEqual(['Pregunta uno (1)', 'Pregunta dos (1)']);
+    });
+
+    // Switching to the second conversation shows it without reordering.
+    fireEvent.change(screen.getByRole('combobox', { name: messages.chat.historyLabel }), {
+      target: { value: 's2' },
+    });
+    expect(await screen.findByText('Pregunta dos')).toBeInTheDocument();
+    expect(orderLabels()).toEqual(['Pregunta uno (1)', 'Pregunta dos (1)']);
+    expect(screen.getByRole('combobox', { name: messages.chat.historyLabel })).toHaveValue('s2');
+
+    // Chatting in the selected conversation updates its data in place.
+    fireEvent.change(screen.getByLabelText(messages.chat.inputLabel), {
+      target: { value: 'Otra duda' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.send }));
+    expect((await screen.findAllByText(/Estas opciones encajan/)).length).toBeGreaterThanOrEqual(1);
+    expect(orderLabels()).toEqual(['Pregunta uno (1)', 'Pregunta dos (3)']);
+    expect(calls).not.toContain('POST /api/advisor/sessions');
+  });
+
   it('keeps the previous conversation selectable after starting a new chat', async () => {
     let seq = 1;
     stubFetch((url, init) => {

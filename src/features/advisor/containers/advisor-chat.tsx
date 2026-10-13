@@ -130,12 +130,6 @@ function mergeHistory(
   return merged;
 }
 
-function moveHistoryToFront(items: HistoryItem[], sessionId: string): HistoryItem[] {
-  const current = items.find((item) => item.id === sessionId);
-  if (!current) return items;
-  return [current, ...items.filter((item) => item.id !== sessionId)];
-}
-
 function formatHistoryLabel(item: HistoryItem, locale: string, fallback: string): string {
   let datePart = '';
   const dateSource = item.preview ? null : item.updatedAt || item.createdAt || null;
@@ -238,11 +232,10 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       setSessions((prev) => {
         const existing = prev.find((item) => item.id === id);
         if (existing) {
-          return moveHistoryToFront(
-            prev.map((item) =>
-              item.id === id ? { ...item, preview: preview ?? item.preview, updatedAt: now } : item,
-            ),
-            id,
+          // In-place update: the selector order never changes for existing
+          // sessions, so clicking or chatting never reshuffles the list.
+          return prev.map((item) =>
+            item.id === id ? { ...item, preview: preview ?? item.preview, updatedAt: now } : item,
           );
         }
         return [{ id, messageCount: 0, createdAt: now, updatedAt: now, preview }, ...prev];
@@ -306,15 +299,12 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
           const refreshed = readChatSessionHistory(locale);
           const withPreview = new Map(refreshed.map((entry) => [entry.id, entry.preview]));
           setSessions(
-            moveHistoryToFront(
-              mergeHistory(list.status === 'ok' ? list.sessions : null, refreshed).map((item) => ({
-                ...item,
-                messageCount: item.id === candidate ? history.messageCount : item.messageCount,
-                updatedAt: item.id === candidate ? history.updatedAt : item.updatedAt,
-                preview: withPreview.get(item.id) ?? item.preview,
-              })),
-              candidate,
-            ),
+            mergeHistory(list.status === 'ok' ? list.sessions : null, refreshed).map((item) => ({
+              ...item,
+              messageCount: item.id === candidate ? history.messageCount : item.messageCount,
+              updatedAt: item.id === candidate ? history.updatedAt : item.updatedAt,
+              preview: withPreview.get(item.id) ?? item.preview,
+            })),
           );
           setSessionId(candidate);
           setBubbles(historyToBubbles(history));
@@ -330,11 +320,9 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       const id = await openSession();
       if (isCancelled()) return;
       if (id !== null) {
+        // `trackSession` already prepends the brand-new session above.
         trackSession(id);
         setSessionId(id);
-        setSessions((prev) =>
-          prev.some((item) => item.id === id) ? moveHistoryToFront(prev, id) : prev,
-        );
         if (list.status === 'failed') setErrorMessage(chat.historyListError);
         else setErrorMessage(null);
       } else {
@@ -491,18 +479,15 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
             const existing = prev.find((item) => item.id === sid);
             const preview = existing?.preview ?? truncateSessionPreview(content);
             if (existing) {
-              return moveHistoryToFront(
-                prev.map((item) =>
-                  item.id === sid
-                    ? {
-                        ...item,
-                        preview,
-                        messageCount: item.messageCount + 2,
-                        updatedAt: now,
-                      }
-                    : item,
-                ),
-                sid,
+              return prev.map((item) =>
+                item.id === sid
+                  ? {
+                      ...item,
+                      preview,
+                      messageCount: item.messageCount + 2,
+                      updatedAt: now,
+                    }
+                  : item,
               );
             }
             return [{ id: sid, messageCount: 2, createdAt: now, updatedAt: now, preview }, ...prev];
@@ -573,18 +558,17 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
         setSessions((prev) => {
           const existing = prev.find((item) => item.id === id);
           if (existing) {
-            return moveHistoryToFront(
-              prev.map((item) =>
-                item.id === id
-                  ? {
-                      ...item,
-                      preview: preview ? truncateSessionPreview(preview) : item.preview,
-                      messageCount: history.messageCount,
-                      updatedAt: history.updatedAt,
-                    }
-                  : item,
-              ),
-              id,
+            // Selecting a conversation only refreshes its data in place: the
+            // selector order stays exactly as it was.
+            return prev.map((item) =>
+              item.id === id
+                ? {
+                    ...item,
+                    preview: preview ? truncateSessionPreview(preview) : item.preview,
+                    messageCount: history.messageCount,
+                    updatedAt: history.updatedAt,
+                  }
+                : item,
             );
           }
           return [
@@ -636,9 +620,7 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
           setErrorMessage(chat.sessionError);
           return;
         }
-        setSessions((prev) =>
-          prev.some((item) => item.id === id) ? moveHistoryToFront(prev, id) : prev,
-        );
+        // `startFreshSession` already prepends the brand-new session above.
         setBubbles([]);
         setPendingClarification(false);
         lastSentRef.current = '';
@@ -717,13 +699,10 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
           : { id: nextId, updatedAt: history.updatedAt },
       );
       setSessions(
-        moveHistoryToFront(
-          alive.map((item) =>
-            item.id === nextId
-              ? { ...item, messageCount: history.messageCount, updatedAt: history.updatedAt }
-              : item,
-          ),
-          nextId,
+        alive.map((item) =>
+          item.id === nextId
+            ? { ...item, messageCount: history.messageCount, updatedAt: history.updatedAt }
+            : item,
         ),
       );
       setSessionId(nextId);
