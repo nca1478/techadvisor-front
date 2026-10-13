@@ -46,7 +46,7 @@ describe('AccountOrdersView pagination', () => {
     expect(screen.getByText('Página 2 de 2')).toBeDefined();
   });
 
-  it('hides the page controls when everything fits on a single page', () => {
+  it('shows disabled page controls below the table on a single page', () => {
     render(
       <AccountOrdersView
         orders={elevenOrders.slice(0, 1)}
@@ -56,6 +56,36 @@ describe('AccountOrdersView pagination', () => {
       />,
     );
     expect(rows()).toBe(1);
-    expect(screen.queryByRole('navigation', { name: 'Pagination' })).toBeNull();
+    expect(screen.getByText('Página 1 de 1')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Anterior' })).toHaveProperty('disabled', true);
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toHaveProperty('disabled', true);
+  });
+
+  it('links the order id to the order detail', () => {
+    render(
+      <AccountOrdersView
+        orders={elevenOrders.slice(0, 1)}
+        loadError={false}
+        locale="es"
+        messages={messages}
+      />,
+    );
+    const idLink = screen.getByRole('link', { name: 'order-00…' });
+    expect(idLink.getAttribute('href')).toBe('/es/cuenta/ordenes/order-00-uuid');
+  });
+
+  it('numbers rows with a No column, continuous across pages', () => {
+    render(
+      <AccountOrdersView orders={elevenOrders} loadError={false} locale="es" messages={messages} />,
+    );
+    const table = screen.getByRole('table');
+    expect(within(table).getByRole('columnheader', { name: 'No' })).toBeDefined();
+    const firstPageRows = within(table).getAllByRole('row');
+    expect(within(firstPageRows[1]).getAllByRole('cell')[0].textContent).toBe('1');
+    expect(within(firstPageRows[10]).getAllByRole('cell')[0].textContent).toBe('10');
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+    const secondPageRows = within(screen.getByRole('table')).getAllByRole('row');
+    expect(secondPageRows.length - 1).toBe(1);
+    expect(within(secondPageRows[1]).getAllByRole('cell')[0].textContent).toBe('11');
   });
 });

@@ -68,6 +68,7 @@ export function AccountOrdersView({
         locale={locale}
         messages={messages}
         detailHrefFor={(id) => `/${locale}/cuenta/ordenes/${encodeURIComponent(id)}`}
+        rowOffset={(safePage - 1) * PAGE_SIZE}
       />
       <Pagination
         page={safePage}
@@ -76,6 +77,7 @@ export function AccountOrdersView({
         previousLabel={messages.previous}
         nextLabel={messages.next}
         statusLabel={(current, total) => formatPage(messages.pageOf, current, total)}
+        alwaysVisible
       />
     </Stack>
   );

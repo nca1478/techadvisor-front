@@ -26,17 +26,23 @@ export function OrdersTable({
   locale,
   messages,
   detailHrefFor,
+  rowOffset = 0,
 }: {
   orders: Order[];
   locale: string;
   messages: Dictionary['account'];
   detailHrefFor: (id: string) => string;
+  /** Number of rows on previous pages (keeps the No column continuous). */
+  rowOffset?: number;
 }) {
   return (
     <div className="overflow-x-auto rounded-md border border-border">
       <table className="w-full min-w-[42rem] border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border">
+            <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
+              {messages.tableNumber}
+            </th>
             <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
               {messages.tableOrder}
             </th>
@@ -58,13 +64,15 @@ export function OrdersTable({
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
+          {orders.map((order, index) => (
             <tr key={order.id} className="border-b border-border last:border-0">
-              <th
-                scope="row"
-                className="px-4 py-3 font-mono text-xs font-normal text-muted-foreground"
-              >
-                {order.id.slice(0, 8)}…
+              <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                {rowOffset + index + 1}
+              </td>
+              <th scope="row" className="px-4 py-3 font-mono text-xs font-normal">
+                <Link href={detailHrefFor(order.id)} className="font-mono text-xs">
+                  {order.id.slice(0, 8)}…
+                </Link>
               </th>
               <td className="px-4 py-3 text-muted-foreground">
                 {formatOrderDate(order.createdAt, locale)}
@@ -98,6 +106,9 @@ export function OrderDetail({
   messages: Dictionary['account'];
 }) {
   const shipping = order.shipping;
+  const street = [shipping.line1, shipping.line2]
+    .filter((part) => part !== undefined && part.length > 0)
+    .join(', ');
   const locality = [shipping.city, shipping.region, shipping.postalCode, shipping.country]
     .filter((part) => part !== undefined && part.length > 0)
     .join(' · ');
@@ -160,23 +171,38 @@ export function OrderDetail({
         {messages.shippingTitle}
       </Text>
       <Card>
-        <Stack gap="sm">
+        <div className="grid grid-cols-[max-content_1fr] items-baseline gap-x-4 gap-y-3">
+          <Text variant="small" tone="muted" className="font-bold">
+            {messages.shippingFullName}:
+          </Text>
           <Text variant="small" as="p" className="font-medium">
             {shipping.fullName}
           </Text>
-          <Text variant="small" tone="muted">
-            {shipping.line1}
-            {shipping.line2 !== undefined && shipping.line2.length > 0 ? `, ${shipping.line2}` : ''}
+          <Text variant="small" tone="muted" className="font-bold">
+            {messages.shippingAddress}:
           </Text>
-          <Text variant="small" tone="muted">
-            {locality}
+          <Text variant="small" tone="muted" as="p">
+            {street}
           </Text>
-          {shipping.phone !== undefined && shipping.phone.length > 0 ? (
-            <Text variant="small" tone="muted">
-              {shipping.phone}
-            </Text>
+          {locality.length > 0 ? (
+            <>
+              <span aria-hidden="true" />
+              <Text variant="small" tone="muted" as="p">
+                {locality}
+              </Text>
+            </>
           ) : null}
-        </Stack>
+          {shipping.phone !== undefined && shipping.phone.length > 0 ? (
+            <>
+              <Text variant="small" tone="muted" className="font-bold">
+                {messages.shippingPhone}:
+              </Text>
+              <Text variant="small" tone="muted" as="p">
+                {shipping.phone}
+              </Text>
+            </>
+          ) : null}
+        </div>
       </Card>
     </Stack>
   );
