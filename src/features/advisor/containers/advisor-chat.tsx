@@ -41,6 +41,21 @@ function errorTextFor(kind: ReturnType<typeof classifyAdvisorError>, messages: D
   }
 }
 
+function dedupeCitations(citations: AdvisorCitation[]): AdvisorCitation[] {
+  // The backend persists message-level citations as a flatMap of per-product
+  // citations, so the same `[n]` / chunkId can arrive repeated when several
+  // products cite the same chunk. Dedupe by `n` (display number) and skip a
+  // chunkId already shown under another number to keep React keys unique.
+  const byNumber = new Map<number, AdvisorCitation>();
+  const seenChunkIds = new Set<string>();
+  for (const citation of citations) {
+    if (byNumber.has(citation.n) || seenChunkIds.has(citation.chunkId)) continue;
+    byNumber.set(citation.n, citation);
+    seenChunkIds.add(citation.chunkId);
+  }
+  return [...byNumber.values()].sort((a, b) => a.n - b.n);
+}
+
 function historyToBubbles(history: ChatHistory): ChatBubble[] {
   return history.messages.map((message) =>
     message.role === 'USER'
@@ -49,9 +64,11 @@ function historyToBubbles(history: ChatHistory): ChatBubble[] {
           id: message.id,
           role: 'assistant' as const,
           text: message.content,
-          citations: message.citations
-            .map((citation) => asAdvisorCitation(citation))
-            .filter((citation): citation is AdvisorCitation => citation !== null),
+          citations: dedupeCitations(
+            message.citations
+              .map((citation) => asAdvisorCitation(citation))
+              .filter((citation): citation is AdvisorCitation => citation !== null),
+          ),
           products: message.products
             .map((product) => asRecommendProduct(product))
             .filter((product): product is RecommendProduct => product !== null),
@@ -60,13 +77,7 @@ function historyToBubbles(history: ChatHistory): ChatBubble[] {
 }
 
 function unionCitations(products: RecommendProduct[]): AdvisorCitation[] {
-  const byNumber = new Map<number, AdvisorCitation>();
-  for (const product of products) {
-    for (const citation of product.citations) {
-      if (!byNumber.has(citation.n)) byNumber.set(citation.n, citation);
-    }
-  }
-  return [...byNumber.values()].sort((a, b) => a.n - b.n);
+  return dedupeCitations(products.flatMap((product) => product.citations));
 }
 
 async function openSession(): Promise<string | null> {

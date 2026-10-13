@@ -47,6 +47,16 @@ describe('AdvisorAnswer', () => {
     expect(screen.getAllByText(/Inventado/).length).toBeGreaterThanOrEqual(1);
   });
 
+  it('dedupes repeated citations so keys stay unique', () => {
+    const duplicated = [...citations, { ...citations[0] }];
+    const { container } = render(
+      <AdvisorAnswer answer="Dura 10 h [1] y RAM 16 GB [2]." citations={duplicated} {...labels} />,
+    );
+    // One row per citation number, even when the backend repeats the chunk.
+    expect(container.querySelectorAll('ol > li')).toHaveLength(2);
+    expect(screen.getByText('Manual X')).toBeInTheDocument();
+  });
+
   it('expands a citation to show title and snippet on click', () => {
     render(<AdvisorAnswer answer="Dura 10 h [1]." citations={citations} {...labels} />);
     expect(screen.queryByText('Batería hasta 10 horas.')).toBeNull();

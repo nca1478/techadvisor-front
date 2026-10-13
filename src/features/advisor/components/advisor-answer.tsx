@@ -28,7 +28,14 @@ export function AdvisorAnswer({
   hideSnippetLabel,
 }: AdvisorAnswerProps) {
   const [openCitation, setOpenCitation] = useState<number | null>(null);
-  const byNumber = new Map(citations.map((citation) => [citation.n, citation]));
+  // Defensive dedupe: the backend stores message-level citations as a flatMap
+  // of per-product citations, so the same `[n]` (and chunkId) can arrive
+  // repeated (e.g. two products citing [1]). Keep the first per `n` so React
+  // keys stay unique and the list shows no duplicated rows.
+  const uniqueCitations = [
+    ...new Map(citations.map((citation) => [citation.n, citation])).values(),
+  ];
+  const byNumber = new Map(uniqueCitations.map((citation) => [citation.n, citation]));
   const parts = answer.split(/(\[\d+\])/g);
 
   return (
@@ -63,11 +70,11 @@ export function AdvisorAnswer({
         })}
       </p>
       <ol className="mt-3 flex flex-col gap-2" aria-label={sourceLabel}>
-        {citations.map((citation) => {
+        {uniqueCitations.map((citation) => {
           const expanded = openCitation === citation.n;
           return (
             <li
-              key={citation.chunkId}
+              key={citation.n}
               className="rounded-md border border-border bg-background px-3 py-2"
             >
               <button
