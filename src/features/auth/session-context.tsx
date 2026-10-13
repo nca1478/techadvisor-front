@@ -1,7 +1,16 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
+import { clearAdvisorChatState } from '@/lib/api/advisor';
 import type { AuthUser } from '@/lib/api/auth';
 import type { LoginFormValues, RegisterFormValues } from './schemas';
 
@@ -13,7 +22,7 @@ export interface SessionContextValue {
   login: (values: LoginFormValues) => Promise<{ ok: true } | { ok: false; message: string }>;
   register: (values: RegisterFormValues) => Promise<{ ok: true } | { ok: false; message: string }>;
   logout: () => Promise<void>;
-  refresh: () => Promise<void>;
+  refresh: () => Promise<AuthUser | null>;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -47,15 +56,29 @@ function errorMessage(status: number, body: unknown): string {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<SessionStatus>('loading');
   const [user, setUser] = useState<AuthUser | null>(null);
+  // Last known authenticated id. A ref (not state) because `login`/`register`
+  // close over `refresh` and must see the id that was current when they run.
+  const userIdRef = useRef<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<AuthUser | null> => {
     try {
       const session = await readSession();
-      setUser(session.authenticated ? session.user : null);
-      setStatus(session.authenticated ? 'authenticated' : 'anonymous');
+      const next = session.authenticated ? session.user : null;
+      if (userIdRef.current !== null && next !== null && userIdRef.current !== next.id) {
+        // Account switch without a logout in between (e.g. expired session +
+        // login as someone else): drop the previous account's advisor chat so
+        // its conversation is never shown to the new account.
+        clearAdvisorChatState();
+      }
+      userIdRef.current = next?.id ?? null;
+      setUser(next);
+      setStatus(next ? 'authenticated' : 'anonymous');
+      return next;
     } catch {
+      userIdRef.current = null;
       setUser(null);
       setStatus('anonymous');
+      return null;
     }
   }, []);
 
@@ -64,11 +87,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     readSession()
       .then((session) => {
         if (cancelled) return;
-        setUser(session.authenticated ? session.user : null);
-        setStatus(session.authenticated ? 'authenticated' : 'anonymous');
+        const next = session.authenticated ? session.user : null;
+        userIdRef.current = next?.id ?? null;
+        setUser(next);
+        setStatus(next ? 'authenticated' : 'anonymous');
       })
       .catch(() => {
         if (!cancelled) {
+          userIdRef.current = null;
           setUser(null);
           setStatus('anonymous');
         }
@@ -132,6 +158,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     try {
       await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
     } finally {
+      // Drop the advisor chat (localStorage + mounted bubbles) so the next
+      // account (or a guest) never sees the previous user's conversation.
+      clearAdvisorChatState();
+      userIdRef.current = null;
       setUser(null);
       setStatus('anonymous');
     }

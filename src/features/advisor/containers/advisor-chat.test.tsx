@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Dictionary } from '@/lib/i18n/index';
 import { getDictionarySync } from '@/lib/i18n/index';
-import { chatSessionHistoryStorageKey } from '@/lib/api/advisor';
+import { ADVISOR_CHAT_CLEARED_EVENT, chatSessionHistoryStorageKey } from '@/lib/api/advisor';
 import { AdvisorChat } from './advisor-chat';
 
 const addItemMock = vi.fn(() => Promise.resolve({ ok: true as const }));
@@ -340,6 +340,60 @@ describe('AdvisorChat', () => {
     expect(
       screen.getByRole('combobox', { name: messages.chat.historyLabel }).querySelectorAll('option'),
     ).toHaveLength(1);
+  });
+
+  it('drops the conversation when the advisor state is cleared (logout)', async () => {
+    window.localStorage.setItem(SESSION_KEY, 's1');
+    let opened = 0;
+    stubFetch((url, init) => {
+      const method = init?.method ?? 'GET';
+      if (url === '/api/advisor/sessions/s1') {
+        return jsonResponse(200, {
+          ...sessionPayload('s1'),
+          messageCount: 2,
+          messages: [
+            {
+              id: 'm1',
+              role: 'USER',
+              content: 'Portátil para estudiar',
+              citations: [],
+              products: [],
+              createdAt: '2026-10-09T12:00:00.000Z',
+            },
+            {
+              id: 'm2',
+              role: 'ASSISTANT',
+              content: 'Estas opciones encajan [1].',
+              citations: [],
+              products: [],
+              createdAt: '2026-10-09T12:01:00.000Z',
+            },
+          ],
+        });
+      }
+      if (url === '/api/advisor/sessions' && method === 'POST') {
+        opened += 1;
+        return jsonResponse(201, sessionPayload('fresh'));
+      }
+      return jsonResponse(404, { statusCode: 404, code: 'NOT_FOUND', message: 'x' });
+    });
+
+    render(<AdvisorChat locale="es" messages={messages} />);
+    expect(await screen.findByText('Portátil para estudiar')).toBeInTheDocument();
+
+    // Logout clears the persisted slots first, then notifies mounted chats.
+    window.localStorage.clear();
+    window.dispatchEvent(new Event(ADVISOR_CHAT_CLEARED_EVENT));
+
+    // The previous account's bubbles disappear and a fresh session opens.
+    await waitFor(() => {
+      expect(screen.queryByText('Portátil para estudiar')).not.toBeInTheDocument();
+    });
+    await screen.findByText(messages.chat.startersLabel);
+    await waitFor(() => {
+      expect(opened).toBeGreaterThanOrEqual(1);
+      expect(window.localStorage.getItem(SESSION_KEY)).toBe('fresh');
+    });
   });
 
   it('shows a rate-limit alert with retry that resends without duplicating the question', async () => {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCart } from '@/features/cart/cart-context';
 import {
+  ADVISOR_CHAT_CLEARED_EVENT,
   asAdvisorCitation,
   asRecommendProduct,
   classifyAdvisorError,
@@ -355,6 +356,39 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
     },
     [],
   );
+
+  // Logout (or any `clearAdvisorChatState()` caller): drop the in-memory
+  // conversation at once and open a fresh guest session, so the previous
+  // account's bubbles are never shown. The localStorage slots are already
+  // cleared by the time this event fires.
+  useEffect(() => {
+    const handleCleared = (): void => {
+      abortRef.current?.abort();
+      lastSentRef.current = '';
+      setBubbles([]);
+      setSessions([]);
+      setSessionId(null);
+      setInput('');
+      setStreamingText(null);
+      setSending(false);
+      setErrorMessage(null);
+      setPendingClarification(false);
+      setConfirmingDelete(false);
+      setSwitchingSession(false);
+      setDeletingSession(false);
+      setHistoryLoading(false);
+      setOpenFailed(false);
+      setOpening(true);
+      void startFreshSession().then((id) => {
+        setOpenFailed(id === null);
+        setOpening(false);
+      });
+    };
+    window.addEventListener(ADVISOR_CHAT_CLEARED_EVENT, handleCleared);
+    return () => {
+      window.removeEventListener(ADVISOR_CHAT_CLEARED_EVENT, handleCleared);
+    };
+  }, [startFreshSession]);
 
   const send = useCallback(
     async (

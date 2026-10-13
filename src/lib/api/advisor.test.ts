@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from './errors';
 import {
+  ADVISOR_CHAT_CLEARED_EVENT,
   asAdvisorCitation,
   asRecommendProduct,
   chatSessionHistoryStorageKey,
   chatSessionStorageKey,
   classifyAdvisorError,
+  clearAdvisorChatState,
   createAdvisorApi,
   migrateLegacyChatSession,
   parseChatHistory,
@@ -408,6 +410,32 @@ describe('createAdvisorApi', () => {
     expect(readChatSessionHistory('es').map((entry) => entry.id)).toEqual(['s2']);
 
     expect(chatSessionHistoryStorageKey('es')).not.toBe(chatSessionHistoryStorageKey('en'));
+    window.localStorage.clear();
+  });
+
+  it('clears every advisor chat slot and notifies mounted chats', () => {
+    window.localStorage.clear();
+    window.localStorage.setItem(chatSessionStorageKey('es'), 's-es');
+    window.localStorage.setItem(chatSessionHistoryStorageKey('es'), '[]');
+    window.localStorage.setItem(chatSessionStorageKey('en'), 's-en');
+    window.localStorage.setItem(chatSessionHistoryStorageKey('en'), '[]');
+    window.localStorage.setItem('techadvisor:unrelated', 'keep');
+    let notified = 0;
+    const listener = (): void => {
+      notified += 1;
+    };
+    window.addEventListener(ADVISOR_CHAT_CLEARED_EVENT, listener);
+    try {
+      clearAdvisorChatState();
+    } finally {
+      window.removeEventListener(ADVISOR_CHAT_CLEARED_EVENT, listener);
+    }
+    expect(window.localStorage.getItem(chatSessionStorageKey('es'))).toBeNull();
+    expect(window.localStorage.getItem(chatSessionHistoryStorageKey('es'))).toBeNull();
+    expect(window.localStorage.getItem(chatSessionStorageKey('en'))).toBeNull();
+    expect(window.localStorage.getItem(chatSessionHistoryStorageKey('en'))).toBeNull();
+    expect(window.localStorage.getItem('techadvisor:unrelated')).toBe('keep');
+    expect(notified).toBe(1);
     window.localStorage.clear();
   });
 

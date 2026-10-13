@@ -333,6 +333,39 @@ export function removeChatSessionFromHistory(
   return next;
 }
 
+/** Window event fired when the advisor chat state is cleared (e.g. logout). */
+export const ADVISOR_CHAT_CLEARED_EVENT = 'techadvisor:advisor-chat-cleared';
+
+/** localStorage prefix for every advisor chat slot (current session + history). */
+const ADVISOR_CHAT_STORAGE_PREFIX = 'techadvisor:advisor-chat:';
+
+/**
+ * Clears every browser-side advisor chat slot (current session + history, all
+ * locales) and notifies mounted chat components so they drop their in-memory
+ * bubbles instead of showing the previous account's conversation. Safe to
+ * call when storage is unavailable (private mode) or outside a browser.
+ */
+export function clearAdvisorChatState(): void {
+  try {
+    if (typeof window === 'undefined') return;
+    const doomed: string[] = [];
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (key?.startsWith(ADVISOR_CHAT_STORAGE_PREFIX)) doomed.push(key);
+    }
+    for (const key of doomed) window.localStorage.removeItem(key);
+  } catch {
+    // Private mode: there may be nothing persisted to clear.
+  }
+  try {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event(ADVISOR_CHAT_CLEARED_EVENT));
+    }
+  } catch {
+    // Event dispatch is best-effort (non-DOM runtimes in tests).
+  }
+}
+
 /**
  * One-time migration of the legacy single-session slot into the history
  * list. Returns the legacy id (if any) without duplicating existing entries.
