@@ -235,7 +235,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get a category by id (for the back-office edit screen) */
+    get: operations['AdminController_getCategory'];
     put?: never;
     post?: never;
     /** Delete a category (409 while subcategories or products exist) */
@@ -309,6 +310,23 @@ export interface paths {
     };
     /** List stock movements for a product (newest first) */
     get: operations['AdminController_listMovements'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/metrics/overview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Exact dashboard aggregation over an optional date range */
+    get: operations['AdminController_getMetricsOverview'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1505,6 +1523,84 @@ export interface components {
        */
       createdAt: string;
     };
+    AdminMetricsStatusCountDto: {
+      /** @example PAID */
+      status: string;
+      /** @example 12 */
+      count: number;
+    };
+    AdminMetricsRevenueDto: {
+      /** @example USD */
+      currency: string;
+      /**
+       * @description Sum in minor units (never float).
+       * @example 259800
+       */
+      amount: number;
+      /**
+       * @description Collected orders counted in this currency.
+       * @example 12
+       */
+      count: number;
+    };
+    AdminMetricsBucketDto: {
+      /** @example 2026-10-07T00:00:00.000Z */
+      key: string;
+      /** @example 45000 */
+      amount: number;
+    };
+    AdminMetricsAttentionDto: {
+      /**
+       * @description Products with zero available units.
+       * @example 3
+       */
+      outOfStock: number;
+      /**
+       * @description Products at or below the low-stock threshold.
+       * @example 5
+       */
+      lowStock: number;
+      /**
+       * @description Reviews awaiting moderation.
+       * @example 2
+       */
+      pendingReviews: number;
+      /**
+       * @description Live (non-deleted) documents in FAILED.
+       * @example 1
+       */
+      failedDocs: number;
+      /**
+       * @description Unanswered queries in NEW or IN_REVIEW.
+       * @example 4
+       */
+      openUnanswered: number;
+    };
+    AdminMetricsOverviewDto: {
+      /** @example 2026-10-07T00:00:00.000Z */
+      from: Record<string, never> | null;
+      /** @example 2026-10-13T15:30:00.000Z */
+      to: Record<string, never> | null;
+      /**
+       * @example day
+       * @enum {string}
+       */
+      granularity: 'hour' | 'day';
+      /**
+       * @description Orders created in range (exact).
+       * @example 42
+       */
+      ordersTotal: number;
+      byStatus: components['schemas']['AdminMetricsStatusCountDto'][];
+      revenue: components['schemas']['AdminMetricsRevenueDto'][];
+      /**
+       * @description Mode currency of collected orders; null when none.
+       * @example USD
+       */
+      bucketCurrency: Record<string, never> | null;
+      buckets: components['schemas']['AdminMetricsBucketDto'][];
+      attention: components['schemas']['AdminMetricsAttentionDto'];
+    };
     AdminOrderItemDto: {
       /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
       productId: string;
@@ -1519,11 +1615,36 @@ export interface components {
       /** @example 259800 */
       lineTotalAmount: number;
     };
+    ShippingAddressDto: {
+      /** @example Ada Lovelace */
+      fullName: string;
+      /** @example Calle Mayor 1, 2º B */
+      line1: string;
+      /** @example Edificio Norte */
+      line2?: string;
+      /** @example Madrid */
+      city: string;
+      /** @example Madrid */
+      region?: string;
+      /** @example 28001 */
+      postalCode?: string;
+      /**
+       * @description ISO 3166-1 alpha-2 country code.
+       * @example ES
+       */
+      country: string;
+      /** @example +34 600 123 456 */
+      phone?: string;
+    };
     AdminOrderDto: {
       /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
       id: string;
       /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
       userId: string;
+      /** @example Ada Lovelace */
+      userName: string | null;
+      /** @example ada@example.com */
+      userEmail: string;
       /** @example PAID */
       status: string;
       /** @example USD */
@@ -1531,6 +1652,7 @@ export interface components {
       /** @example 259800 */
       totalAmount: number;
       items: components['schemas']['AdminOrderItemDto'][];
+      shipping: components['schemas']['ShippingAddressDto'];
       /**
        * Format: date-time
        * @example 2026-10-06T12:00:00.000Z
@@ -1864,27 +1986,6 @@ export interface components {
       satisfactionRate: number | null;
       /** @description Top normalized open questions (max 10) by frequency. */
       topQueries: components['schemas']['AdminAdvisorTopQueryDto'][];
-    };
-    ShippingAddressDto: {
-      /** @example Ada Lovelace */
-      fullName: string;
-      /** @example Calle Mayor 1, 2º B */
-      line1: string;
-      /** @example Edificio Norte */
-      line2?: string;
-      /** @example Madrid */
-      city: string;
-      /** @example Madrid */
-      region?: string;
-      /** @example 28001 */
-      postalCode?: string;
-      /**
-       * @description ISO 3166-1 alpha-2 country code.
-       * @example ES
-       */
-      country: string;
-      /** @example +34 600 123 456 */
-      phone?: string;
     };
     CreateOrderDto: {
       shipping: components['schemas']['ShippingAddressDto'];
@@ -3653,6 +3754,52 @@ export interface operations {
       };
     };
   };
+  AdminController_getCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminCategoryDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
   AdminController_deleteCategory: {
     parameters: {
       query?: never;
@@ -4034,6 +4181,52 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminInventoryMovementDto'][];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminController_getMetricsOverview: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminMetricsOverviewDto'];
         };
       };
       /** @description Bad request. */
