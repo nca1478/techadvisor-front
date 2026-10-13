@@ -1,5 +1,5 @@
 /**
- * Generated from the backend OpenAPI contract (http://localhost:3001/api/v1/docs-json).
+ * Generated from the backend OpenAPI contract (http://localhost:3002/api/v1/docs-json).
  * Do not edit by hand - run `npm run api:types` instead.
  */
 export interface paths {
@@ -2699,6 +2699,11 @@ export interface components {
        * @example 2026-10-09T12:00:00.000Z
        */
       updatedAt: string;
+      /**
+       * @description First user message truncated for list labels; absent when the session has no user message yet.
+       * @example Busco un portátil para estudiar.
+       */
+      preview?: string;
     };
     ChatMessageResponseDto: {
       /**
@@ -2757,6 +2762,11 @@ export interface components {
        * @example 2026-10-09T12:00:00.000Z
        */
       updatedAt: string;
+      /**
+       * @description First user message truncated for list labels; absent when the session has no user message yet.
+       * @example Busco un portátil para estudiar.
+       */
+      preview?: string;
       messages: components['schemas']['ChatMessageResponseDto'][];
     };
     RecommendRequestDto: {
