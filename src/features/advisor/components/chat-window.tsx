@@ -355,9 +355,6 @@ export function ChatWindow({
       </form>
 
       <Text variant="caption" tone="muted">
-        {messages.advisor.disclaimer}
-      </Text>
-      <Text variant="caption" tone="muted">
         {messages.advisor.privacyNote}
       </Text>
     </Stack>

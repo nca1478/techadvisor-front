@@ -36,7 +36,7 @@ describe('ChatWindow', () => {
     expect(screen.getByRole('log', { name: messages.chat.logLabel })).toBeInTheDocument();
     expect(screen.getByLabelText(messages.chat.inputLabel)).toBeInTheDocument();
     expect(screen.getByText(messages.advisor.privacyNote)).toBeInTheDocument();
-    expect(screen.getByText(messages.advisor.disclaimer)).toBeInTheDocument();
+    expect(screen.queryByText(messages.advisor.disclaimer)).not.toBeInTheDocument();
   });
 
   it('renders user and assistant bubbles with product cards from data', () => {
