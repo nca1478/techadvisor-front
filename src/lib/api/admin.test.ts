@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { adminNextStatuses, availableUnits, isLowStock, toAdminQuery } from '@/lib/api/admin';
+import {
+  adminNextStatuses,
+  availableUnits,
+  isAdminStockFilter,
+  isLowStock,
+  toAdminQuery,
+} from '@/lib/api/admin';
 
 describe('toAdminQuery', () => {
   it('builds an empty string for empty queries', () => {
@@ -10,6 +16,23 @@ describe('toAdminQuery', () => {
     expect(toAdminQuery({ status: 'ACTIVE', q: '', page: 2, limit: 20 })).toBe(
       '?status=ACTIVE&page=2&limit=20',
     );
+  });
+
+  it('serializes the inventory stock filter with its threshold', () => {
+    expect(toAdminQuery({ stock: 'low_stock', lowStockThreshold: 5, page: 1, limit: 10 })).toBe(
+      '?stock=low_stock&lowStockThreshold=5&page=1&limit=10',
+    );
+  });
+});
+
+describe('isAdminStockFilter', () => {
+  it('accepts only the three backend stock values', () => {
+    expect(isAdminStockFilter('out_of_stock')).toBe(true);
+    expect(isAdminStockFilter('low_stock')).toBe(true);
+    expect(isAdminStockFilter('reserved')).toBe(true);
+    expect(isAdminStockFilter('')).toBe(false);
+    expect(isAdminStockFilter('foo')).toBe(false);
+    expect(isAdminStockFilter(null)).toBe(false);
   });
 });
 

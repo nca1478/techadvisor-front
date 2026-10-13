@@ -76,7 +76,15 @@ export function DashboardView(props: DashboardSummary) {
     '30d': dashboard.range30d,
   };
   const salesMax = salesBuckets.reduce((top, bucket) => Math.max(top, bucket.amount), 0);
-  const labelStep = salesBuckets.length <= 8 ? 1 : salesBuckets.length <= 24 ? 4 : 5;
+  // Eje X legible en rangos largos (ver ADR 0038): hasta 8 buckets se rotula
+  // todo, hasta 24 cada 4, y en 30d máx. 5 etiquetas equidistantes
+  // (primera y última siempre visibles) en una sola línea.
+  const labelStep =
+    salesBuckets.length <= 8
+      ? 1
+      : salesBuckets.length <= 24
+        ? 4
+        : Math.ceil((salesBuckets.length - 1) / 4);
 
   const revenueText =
     revenueCurrency === null
@@ -91,12 +99,12 @@ export function DashboardView(props: DashboardSummary) {
     {
       label: dashboard.attentionOutOfStock,
       count: outOfStockCount,
-      href: `/${locale}/admin/inventario`,
+      href: `/${locale}/admin/inventario?stock=out_of_stock`,
     },
     {
       label: dashboard.attentionLowStock,
       count: lowStockCount,
-      href: `/${locale}/admin/inventario`,
+      href: `/${locale}/admin/inventario?stock=low_stock`,
     },
     {
       label: dashboard.attentionReviews,
@@ -231,8 +239,17 @@ export function DashboardView(props: DashboardSummary) {
                       />
                     </div>
                     <span
+                      // Todas las columnas reservan la misma altura de etiqueta
+                      // para que la base de las barras quede alineada (ver ADR
+                      // 0038): las ocultas usan `invisible` (conserva el espacio)
+                      // en vez de `sr-only` (absoluto, descuadra la base).
+                      // La barra ya expone `aria-label "fecha · importe"`, así
+                      // que la etiqueta oculta se excluye de AT.
+                      aria-hidden={showLabel ? undefined : true}
                       className={
-                        showLabel ? 'text-xs leading-normal text-muted-foreground' : 'sr-only'
+                        showLabel
+                          ? 'whitespace-nowrap text-xs leading-normal text-muted-foreground'
+                          : 'invisible whitespace-nowrap text-xs leading-normal'
                       }
                     >
                       {bucket.label}

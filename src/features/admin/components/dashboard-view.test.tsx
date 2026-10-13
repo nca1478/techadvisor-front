@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DashboardView, type DashboardSummary } from '@/features/admin/components/dashboard-view';
 import { getDictionarySync } from '@/lib/i18n/index';
@@ -53,7 +53,7 @@ describe('DashboardView', () => {
     render(<DashboardView {...baseProps()} />);
 
     expect(screen.getByText('Ingresos cobrados')).toBeInTheDocument();
-    expect(screen.getByText('Ticket medio')).toBeInTheDocument();
+    expect(screen.getByText('Ventas promedio')).toBeInTheDocument();
     expect(screen.getByText('Requieren atención')).toBeInTheDocument();
     expect(screen.getByText('7 días · USD · 2')).toBeInTheDocument();
   });
@@ -73,6 +73,23 @@ describe('DashboardView', () => {
     expect(screen.getByText('Reseñas pendientes')).toBeInTheDocument();
     expect(screen.getByText('Documentos fallidos')).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Ver todo' }).length).toBeGreaterThan(0);
+  });
+
+  it('links the stock queue rows to the pre-filtered inventory', () => {
+    render(<DashboardView {...baseProps()} />);
+
+    const outItem = screen.getByText('Sin stock').closest('li');
+    const lowItem = screen.getByText('Poco stock').closest('li');
+    expect(outItem).not.toBeNull();
+    expect(lowItem).not.toBeNull();
+    expect(within(outItem as HTMLElement).getByRole('link', { name: 'Ver todo' })).toHaveAttribute(
+      'href',
+      '/es/admin/inventario?stock=out_of_stock',
+    );
+    expect(within(lowItem as HTMLElement).getByRole('link', { name: 'Ver todo' })).toHaveAttribute(
+      'href',
+      '/es/admin/inventario?stock=low_stock',
+    );
   });
 
   it('shows the empty-queue state when nothing needs attention', () => {
@@ -107,6 +124,28 @@ describe('DashboardView', () => {
 
     expect(screen.getByText('Ventas cobradas')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /12 oct/ })).toBeInTheDocument();
+  });
+
+  it('shows at most five one-line axis labels on the 30-day chart', () => {
+    const buckets = Array.from({ length: 30 }, (_, index) => ({
+      key: `2026-09-${String(index + 1).padStart(2, '0')}T00:00:00.000Z`,
+      label: `D${String(index + 1)}`,
+      amount: (index + 1) * 1000,
+    }));
+    render(<DashboardView {...baseProps({ salesBuckets: buckets, salesCurrency: 'USD' })} />);
+
+    // step = ceil(29 / 4) = 8 → ticks 0, 8, 16, 24 + last (29)
+    for (const label of ['D1', 'D9', 'D17', 'D25', 'D30']) {
+      const node = screen.getByText(label);
+      expect(node).not.toHaveClass('invisible');
+      expect(node).toHaveClass('whitespace-nowrap');
+    }
+    // Las ocultas reservan la misma altura (invisible, no sr-only) para que
+    // la base de las barras quede alineada en todas las columnas.
+    const hidden = screen.getByText('D2');
+    expect(hidden).toHaveClass('invisible');
+    expect(hidden).toHaveClass('whitespace-nowrap');
+    expect(hidden).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('shows the empty sales state without collected orders', () => {

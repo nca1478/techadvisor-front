@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
+import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
-import { AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { Pagination } from '@/features/catalog/components/pagination';
-import type { AdminProductList } from '@/lib/api/admin';
+import type { AdminProductList, AdminStockFilter } from '@/lib/api/admin';
 import { availableUnits } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
@@ -17,14 +18,16 @@ function formatPage(template: string, page: number, totalPages: number): string 
 }
 
 /**
- * Inventory container: paginated product table with exact levels plus the
- * selected product's adjust form and movement history below. Selection and
- * pagination travel in the URL so the view survives reloads.
+ * Inventory container: stock filter + paginated product table with exact
+ * levels plus the selected product's adjust form and movement history
+ * below. Filter, selection and pagination travel in the URL so the view
+ * survives reloads (and the dashboard queue can link to it pre-filtered).
  */
 export function InventoryView({
   data,
   loadError,
   page,
+  stock,
   selectedProductId,
   locale,
   messages,
@@ -33,6 +36,7 @@ export function InventoryView({
   data: AdminProductList | null;
   loadError: boolean;
   page: number;
+  stock: AdminStockFilter | null;
   selectedProductId: string | null;
   locale: string;
   messages: Dictionary;
@@ -41,19 +45,57 @@ export function InventoryView({
   const router = useRouter();
   const inventory = messages.admin.inventory;
 
-  function navigate(next: { page?: number; productId?: string | null }) {
+  function navigate(next: {
+    page?: number;
+    stock?: AdminStockFilter | null;
+    productId?: string | null;
+  }) {
+    const merged = {
+      page: next.page ?? page,
+      stock: next.stock === undefined ? stock : next.stock,
+      productId: next.productId === undefined ? selectedProductId : next.productId,
+    };
     const params = new URLSearchParams();
-    params.set('page', String(next.page ?? page));
-    const productId = next.productId === undefined ? selectedProductId : next.productId;
-    if (productId) params.set('productId', productId);
-    // Sin scroll al principio: la paginación vive junto a la tabla, así que
-    // conservar la posición evita perderla (igual que en documentos).
+    params.set('page', String(merged.page));
+    if (merged.stock !== null) params.set('stock', merged.stock);
+    if (merged.productId) params.set('productId', merged.productId);
+    // Sin scroll al principio: filtros y paginación viven junto a la tabla,
+    // así que conservar la posición evita perderla (igual que en productos).
     router.push(`/${locale}/admin/inventario?${params.toString()}`, { scroll: false });
   }
 
   return (
     <Stack gap="md">
       <AdminHeaderCard title={inventory.title} subtitle={inventory.subtitle} />
+      <AdminFiltersCard>
+        <div className="min-w-44">
+          <Select
+            label={inventory.stockFilter}
+            name="stock"
+            value={stock ?? ''}
+            options={[
+              { value: '', label: inventory.allStock },
+              { value: 'out_of_stock', label: inventory.stock_out_of_stock },
+              { value: 'low_stock', label: inventory.stock_low_stock },
+              { value: 'reserved', label: inventory.stock_reserved },
+            ]}
+            onChange={(event) => {
+              const value = event.target.value as AdminStockFilter | '';
+              // El producto seleccionado puede no estar en el listado
+              // filtrado: al cambiar de filtro se limpia la selección.
+              navigate({ stock: value === '' ? null : value, page: 1, productId: null });
+            }}
+          />
+        </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            navigate({ stock: null, page: 1, productId: null });
+          }}
+        >
+          {messages.catalog.clearFilters}
+        </Button>
+      </AdminFiltersCard>
       {loadError || data === null ? (
         <Text role="alert" className="text-destructive">
           {messages.admin.loadError}

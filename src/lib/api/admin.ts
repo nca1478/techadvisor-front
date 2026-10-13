@@ -170,11 +170,29 @@ export type UpdateCategoryRequest = Partial<
   }
 >;
 
+/**
+ * Stock filter for the inventory screen (backend `GET /admin/products`,
+ * see backend ADR 0045): `out_of_stock` is zero available units,
+ * `low_stock` is at or below `lowStockThreshold` (inclusive, so it
+ * contains `out_of_stock` — same definition as the dashboard attention
+ * counts), and `reserved` is any held units.
+ * // mantener en sync con backend (`modules/admin/admin.schemas.ts`).
+ */
+export const ADMIN_STOCK_FILTERS = ['out_of_stock', 'low_stock', 'reserved'] as const;
+
+export type AdminStockFilter = (typeof ADMIN_STOCK_FILTERS)[number];
+
+export function isAdminStockFilter(value: unknown): value is AdminStockFilter {
+  return typeof value === 'string' && (ADMIN_STOCK_FILTERS as readonly string[]).includes(value);
+}
+
 export interface AdminProductListQuery {
   status?: AdminProductStatus;
   category?: string;
   brand?: string;
   q?: string;
+  stock?: AdminStockFilter;
+  lowStockThreshold?: number;
   page?: number;
   limit?: number;
 }

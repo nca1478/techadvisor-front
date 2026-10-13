@@ -10,8 +10,9 @@ import type {
   AdminInventoryMovement,
   AdminProduct,
   AdminProductList,
+  AdminStockFilter,
 } from '@/lib/api/admin';
-import { toAdminQuery } from '@/lib/api/admin';
+import { isAdminStockFilter, LOW_STOCK_THRESHOLD, toAdminQuery } from '@/lib/api/admin';
 import { isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
 
@@ -58,6 +59,8 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
   const messages = await getDictionary(locale);
   const queryParams = ((await searchParams) ?? {}) as Record<string, unknown>;
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
+  const rawStock = firstParam(queryParams, 'stock');
+  const stock: AdminStockFilter | null = isAdminStockFilter(rawStock) ? rawStock : null;
   const rawProductId = firstParam(queryParams, 'productId');
   const selectedProductId = /^[0-9a-f-]{36}$/i.test(rawProductId) ? rawProductId : null;
 
@@ -67,10 +70,18 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
     .map((cookie) => `${cookie.name}=${cookie.value}`)
     .join('; ');
 
-  const listResult = await backendFetch(`/admin/products${toAdminQuery({ page, limit: 10 })}`, {
-    method: 'GET',
-    cookieHeader,
-  });
+  const listResult = await backendFetch(
+    `/admin/products${toAdminQuery({
+      ...(stock === null ? {} : { stock }),
+      lowStockThreshold: LOW_STOCK_THRESHOLD,
+      page,
+      limit: 10,
+    })}`,
+    {
+      method: 'GET',
+      cookieHeader,
+    },
+  );
   const data = listResult.status === 200 && isProductList(listResult.body) ? listResult.body : null;
 
   const selected: AdminProduct | null =
@@ -108,6 +119,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
       data={data}
       loadError={data === null}
       page={page}
+      stock={stock}
       selectedProductId={selectedProductId}
       locale={locale}
       messages={messages}
