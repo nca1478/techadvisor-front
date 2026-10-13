@@ -8,7 +8,7 @@ export const DASHBOARD_RECENT_COUNT = 5;
 
 export const DASHBOARD_RANGES = ['today', '7d', '30d'] as const;
 export type DashboardRange = (typeof DASHBOARD_RANGES)[number];
-export const DEFAULT_DASHBOARD_RANGE: DashboardRange = '7d';
+export const DEFAULT_DASHBOARD_RANGE: DashboardRange = 'today';
 
 /** Unknown/missing range falls back to the default (documented in ADR 0036). */
 export function parseDashboardRange(value: unknown): DashboardRange {

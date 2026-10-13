@@ -33,12 +33,12 @@ function overview(overrides: Record<string, unknown> = {}) {
 }
 
 describe('dashboard range', () => {
-  it('defaults unknown ranges to 7d and maps granularity', () => {
+  it('defaults unknown ranges to today and maps granularity', () => {
     expect(parseDashboardRange('7d')).toBe('7d');
     expect(parseDashboardRange('today')).toBe('today');
     expect(parseDashboardRange('30d')).toBe('30d');
-    expect(parseDashboardRange('90d')).toBe('7d');
-    expect(parseDashboardRange(undefined)).toBe('7d');
+    expect(parseDashboardRange('90d')).toBe('today');
+    expect(parseDashboardRange(undefined)).toBe('today');
     expect(rangeGranularity('today')).toBe('hour');
     expect(rangeGranularity('7d')).toBe('day');
     expect(rangeGranularity('30d')).toBe('day');

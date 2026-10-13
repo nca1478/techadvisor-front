@@ -39,3 +39,9 @@ frontend, sin endpoint nuevo ni dependencias.
   El endpoint agregado `GET /admin/metrics/overview` (P1) lo resolverá.
 - Buckets en UTC; el admin ve horas/días UTC en el gráfico (aceptable en P1,
   documentar si se quiere zona del navegador).
+
+## Addendum — rango por defecto `today` (2026-10-13)
+
+A petición explícita, el defecto pasa de `7d` a `today`: al abrir
+`/admin` sin `?range`, la pill "Hoy" queda seleccionada y el gráfico
+agrupa por hora UTC del día en curso. `?range=7d|30d` siguen disponibles.
