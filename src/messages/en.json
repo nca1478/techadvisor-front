@@ -291,6 +291,10 @@
     "required": "This field is required.",
     "loginLink": "Sign in",
     "registerLink": "Create account",
+    "noAccount": "Don't have an account?",
+    "createAccountCta": "Create account",
+    "hasAccount": "Already have an account?",
+    "signInCta": "Sign in",
     "logout": "Sign out",
     "accountShort": "Account"
   },

@@ -291,6 +291,10 @@
     "required": "Este campo es obligatorio.",
     "loginLink": "Iniciar sesión",
     "registerLink": "Crear cuenta",
+    "noAccount": "¿No tienes cuenta?",
+    "createAccountCta": "Crear cuenta",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signInCta": "Iniciar sesión",
     "logout": "Cerrar sesión",
     "accountShort": "Cuenta"
   },

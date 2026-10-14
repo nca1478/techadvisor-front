@@ -45,6 +45,8 @@ export default async function LoginPage({ params, searchParams }: AuthPageProps)
       next={resolveNext(query, locale)}
       title={messages.auth.loginTitle}
       subtitle={messages.auth.loginSubtitle}
+      noAccountPrompt={messages.auth.noAccount}
+      registerCta={messages.auth.createAccountCta}
       messages={{
         email: messages.auth.email,
         password: messages.auth.password,

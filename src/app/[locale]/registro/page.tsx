@@ -45,6 +45,8 @@ export default async function RegisterPage({ params, searchParams }: AuthPagePro
       next={resolveNext(query, locale)}
       title={messages.auth.registerTitle}
       subtitle={messages.auth.registerSubtitle}
+      hasAccountPrompt={messages.auth.hasAccount}
+      signInCta={messages.auth.signInCta}
       messages={{
         email: messages.auth.email,
         password: messages.auth.password,

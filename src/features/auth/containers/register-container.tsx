@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
@@ -18,14 +19,23 @@ export function RegisterContainer({
   next,
   title,
   subtitle,
+  hasAccountPrompt,
+  signInCta,
   messages,
 }: {
   locale: string;
   next: string;
   title: string;
   subtitle: string;
+  hasAccountPrompt: string;
+  signInCta: string;
   messages: AuthFormMessages;
 }) {
+  const defaultHome = `/${locale}`;
+  const loginHref =
+    next && next !== defaultHome
+      ? `/${locale}/ingresar?next=${encodeURIComponent(next)}`
+      : `/${locale}/ingresar`;
   const router = useRouter();
   const { register } = useSession();
   const [values, setValues] = useState({ email: '', password: '', name: '' });
@@ -84,6 +94,12 @@ export function RegisterContainer({
                 }}
                 onSubmit={() => void handleSubmit()}
               />
+              <Stack gap="sm" className="items-center">
+                <Text tone="muted">{hasAccountPrompt}</Text>
+                <Button variant="dark" size="lg" href={loginHref} className="w-full">
+                  {signInCta}
+                </Button>
+              </Stack>
             </Stack>
           </Card>
         </Stack>
