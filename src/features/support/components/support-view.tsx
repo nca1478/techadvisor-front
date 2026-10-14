@@ -107,7 +107,7 @@ export function SupportView({
         )}
 
         {status === 'error' && (
-          <div role="alert" className="rounded-md border border-destructive px-3 py-2">
+          <div role="alert" className="rounded-lg border border-destructive/40 px-3 py-2">
             <Text variant="small">{errorMessage ?? messages.genericError}</Text>
             <div className="mt-2">
               <Button variant="secondary" size="sm" onClick={onRetry}>
@@ -120,7 +120,7 @@ export function SupportView({
         {showResult && (
           <div aria-live="polite" className="flex flex-col gap-3">
             {result.abstained ? (
-              <div className="rounded-md border border-border bg-background px-3 py-2">
+              <div className="rounded-lg border border-border bg-surface-raise px-3 py-2">
                 <Badge tone="neutral">{messages.abstentionBadge}</Badge>
                 <Text variant="small" className="mt-1.5">
                   {result.answer}
