@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T20:05:00Z",
+  "title": "Design System: TechAdvisor Signal Lab",
+  "extensions": {
+    "colorMeta": {
+      "volt": {
+        "role": "primary",
+        "displayName": "Volt Signal",
+        "canonical": "#c9f24b",
+        "tonalRamp": [
+          "#141a08",
+          "#1d2612",
+          "#2c3a1c",
+          "#43581f",
+          "#5f7d2c",
+          "#86ab38",
+          "#a9d145",
+          "#c9f24b"
+        ]
+      },
+      "volt-hover": {
+        "role": "primary",
+        "displayName": "Volt Hover",
+        "canonical": "#d9f973",
+        "tonalRamp": [
+          "#141a08",
+          "#1d2612",
+          "#2c3a1c",
+          "#43581f",
+          "#5f7d2c",
+          "#86ab38",
+          "#a9d145",
+          "#d9f973"
+        ]
+      },
+      "volt-subtle": {
+        "role": "primary",
+        "displayName": "Volt Ground",
+        "canonical": "#1d2612",
+        "tonalRamp": [
+          "#0c1106",
+          "#141a08",
+          "#1d2612",
+          "#2c3a1c",
+          "#43581f",
+          "#5f7d2c",
+          "#86ab38",
+          "#a9d145"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Lab Ink",
+        "canonical": "#0a0e13",
+        "tonalRamp": [
+          "#0a0e13",
+          "#11161d",
+          "#182029",
+          "#232d38",
+          "#324052",
+          "#4c5d6d",
+          "#9fb0be",
+          "#edf1f5"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "#11161d",
+        "tonalRamp": [
+          "#0a0e13",
+          "#11161d",
+          "#182029",
+          "#232d38",
+          "#324052",
+          "#4c5d6d",
+          "#9fb0be",
+          "#edf1f5"
+        ]
+      },
+      "panel-raise": {
+        "role": "neutral",
+        "displayName": "Panel Raise",
+        "canonical": "#182029",
+        "tonalRamp": [
+          "#0a0e13",
+          "#11161d",
+          "#182029",
+          "#232d38",
+          "#324052",
+          "#4c5d6d",
+          "#9fb0be",
+          "#edf1f5"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper Copy",
+        "canonical": "#edf1f5",
+        "tonalRamp": [
+          "#232d38",
+          "#324052",
+          "#4c5d6d",
+          "#6b7c8c",
+          "#9fb0be",
+          "#c3ced8",
+          "#e2e8ee",
+          "#edf1f5"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Tinted Muted",
+        "canonical": "#9fb0be",
+        "tonalRamp": [
+          "#232d38",
+          "#324052",
+          "#4c5d6d",
+          "#6b7c8c",
+          "#9fb0be",
+          "#c3ced8",
+          "#e2e8ee",
+          "#edf1f5"
+        ]
+      },
+      "signal-cyan": {
+        "role": "secondary",
+        "displayName": "Advisor Cyan",
+        "canonical": "#22d3ee",
+        "tonalRamp": [
+          "#062830",
+          "#0b4552",
+          "#0e7490",
+          "#0891b2",
+          "#06b6d4",
+          "#22d3ee",
+          "#67e8f9",
+          "#a5f3fc"
+        ]
+      },
+      "signal-cyan-bright": {
+        "role": "secondary",
+        "displayName": "Signal Link",
+        "canonical": "#67e8f9",
+        "tonalRamp": [
+          "#062830",
+          "#0b4552",
+          "#0e7490",
+          "#0891b2",
+          "#06b6d4",
+          "#22d3ee",
+          "#67e8f9",
+          "#a5f3fc"
+        ]
+      },
+      "success": {
+        "role": "status",
+        "displayName": "Stock Green",
+        "canonical": "#4ade80",
+        "tonalRamp": [
+          "#04140a",
+          "#0f2a1c",
+          "#14532d",
+          "#15803d",
+          "#16a34a",
+          "#22c55e",
+          "#4ade80",
+          "#bbf7d0"
+        ]
+      },
+      "warning": {
+        "role": "status",
+        "displayName": "Caution Amber",
+        "canonical": "#fbbf24",
+        "tonalRamp": [
+          "#241a03",
+          "#2e230b",
+          "#573b0a",
+          "#92400e",
+          "#b45309",
+          "#d97706",
+          "#fbbf24",
+          "#fde68a"
+        ]
+      },
+      "danger": {
+        "role": "status",
+        "displayName": "Alert Coral",
+        "canonical": "#fb7185",
+        "tonalRamp": [
+          "#2b060b",
+          "#331016",
+          "#4c0519",
+          "#881337",
+          "#be123c",
+          "#e11d48",
+          "#fb7185",
+          "#fecdd3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Lab Display",
+        "purpose": "Hero and page titles in Chakra Petch; uppercase only for short thesis headlines."
+      },
+      "price": {
+        "displayName": "Price Voice",
+        "purpose": "Every amount on screen in tabular JetBrains Mono; totals in volt."
+      },
+      "label": {
+        "displayName": "Readout Label",
+        "purpose": "Mono uppercase micro-labels for badges, brands and telemetry."
+      }
+    },
+    "shadows": [
+      {
+        "name": "volt-glow",
+        "value": "0 8px 24px -8px rgb(201 242 75 / 0.55)",
+        "purpose": "Primary CTA at rest; intensifies on hover."
+      },
+      {
+        "name": "panel-lift",
+        "value": "0 6px 18px rgb(0 0 0 / 0.45)",
+        "purpose": "Raised cards, sticky summaries and dialogs."
+      },
+      {
+        "name": "deep",
+        "value": "0 18px 48px rgb(0 0 0 / 0.5)",
+        "purpose": "Floating advisor entry and overlays."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-lab",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "The single easing for every transition; never bounce."
+      },
+      {
+        "name": "duration-fast",
+        "value": "140ms",
+        "purpose": "Micro feedback: active press, border shifts."
+      },
+      { "name": "duration-base", "value": "240ms", "purpose": "Hovers, lifts and reveals." },
+      {
+        "name": "duration-slow",
+        "value": "480ms",
+        "purpose": "Image zoom, entrance rises, cart pop."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single conversion action: volt ground, volt-ink text, glow and press-down.",
+      "html": "<button class=\"ds-btn-primary\">Browse available products</button>",
+      "css": ".ds-btn-primary { background: #c9f24b; color: #0c1106; font-weight: 600; padding: 0 24px; height: 48px; border: none; border-radius: 10px; box-shadow: 0 8px 24px -8px rgb(201 242 75 / 0.55); transition: background-color 150ms cubic-bezier(0.22,1,0.36,1), box-shadow 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { background: #d9f973; box-shadow: 0 10px 32px -8px rgb(201 242 75 / 0.7); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet actions on panel ground with a strong-line border.",
+      "html": "<button class=\"ds-btn-secondary\">Continue shopping</button>",
+      "css": ".ds-btn-secondary { background: #11161d; color: #edf1f5; padding: 0 16px; height: 40px; border: 1px solid #324052; border-radius: 10px; transition: border-color 150ms cubic-bezier(0.22,1,0.36,1), background-color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-secondary:hover { border-color: rgb(201 242 75 / 0.6); background: #182029; } .ds-btn-secondary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Mono uppercase readout with tone border, tint and signal dot.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>In stock</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; background: #0f2a1c; color: #4ade80; border: 1px solid rgb(74 222 128 / 0.3); border-radius: 6px; padding: 4px 10px; font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: #4ade80; }"
+    },
+    {
+      "name": "Panel Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat lab panel; dashed boredom marks empty states; never nests.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Order summary</div><div class=\"ds-card-total\">$1,024.00</div></div>",
+      "css": ".ds-card { background: #11161d; border: 1px solid #232d38; border-radius: 20px; padding: 16px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.45); } .ds-card-title { font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: #9fb0be; } .ds-card-total { font-family: monospace; font-size: 30px; color: #c9f24b; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Panel-ground field with strong-line border and volt focus.",
+      "html": "<label class=\"ds-field-label\">What will you use it for?<input class=\"ds-input\" placeholder=\"e.g. gaming at 1080p\" /></label>",
+      "css": ".ds-field-label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #edf1f5; } .ds-input { background: #11161d; color: #edf1f5; height: 40px; padding: 0 12px; border: 1px solid #324052; border-radius: 10px; } .ds-input::placeholder { color: #9fb0be; } .ds-input:focus { outline: none; border-color: #c9f24b; }"
+    },
+    {
+      "name": "Price",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "The price voice: tabular mono, tight tracking, volt at totals.",
+      "html": "<span class=\"ds-price\">$131.17</span>",
+      "css": ".ds-price { font-family: monospace; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 20px; letter-spacing: -0.01em; color: #edf1f5; }"
+    },
+    {
+      "name": "Citation Marker",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Advisor evidence marker in cyan with snippet disclosure.",
+      "html": "<button class=\"ds-cite\">[1]</button>",
+      "css": ".ds-cite { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; background: rgb(34 211 238 / 0.1); color: #22d3ee; border: 1px solid rgb(34 211 238 / 0.4); border-radius: 6px; font-family: monospace; font-size: 12px; font-weight: 600; } .ds-cite:hover { text-decoration: underline; } .ds-cite:focus-visible { outline: 2px solid #c9f24b; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Signal Lab",
+    "overview": "A deep-ink laboratory bench for buying tech fast. The ground is near-black ink, panels lift one tonal step, and a single volt-lime signal marks everything that converts: price, primary action, focus. A second signal, cyan, belongs exclusively to the RAG advisor — citations, assistant identity, links — so shoppers learn that cyan means cited evidence and volt means buy. Typography pairs a squared technical display voice with a quiet body workhorse and a tabular mono reserved for data. Motion is one exponential ease-out, never bounce; empty states are first-class panels, not afterthoughts.",
+    "keyCharacteristics": [
+      "Dark-first ink ground, never pure black; muted tones tinted from the ink hue.",
+      "One conversion signal (volt), one advisor signal (cyan); they never compete.",
+      "Display type with instrument character; prices in tabular mono.",
+      "Flat panels at rest; glow and lift respond to state.",
+      "Tactile and confident components with visible focus and motion-safe delight."
+    ],
+    "rules": [
+      {
+        "name": "The Two Signals Rule",
+        "body": "Volt converts, cyan evidences. A screen element carries one signal at most; cyan never prices or sells.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Muted Rule",
+        "body": "Secondary text is tinted from the ink hue. Flat gray on color is a defect.",
+        "section": "colors"
+      },
+      {
+        "name": "The Price Voice Rule",
+        "body": "Amounts are always mono tabular. A price set in body type is unfinished.",
+        "section": "typography"
+      },
+      {
+        "name": "The Heading Weight Rule",
+        "body": "Headings carry their own weight; kickers and eyebrow labels above them are banned.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces are flat at rest. Shadow and glow answer state changes only.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do price every amount in mono tabulars via the price voice.",
+      "Do reserve volt for conversion and cyan for evidence on every screen.",
+      "Do theme browser surfaces (selection, caret, scrollbar, focus) from the palette.",
+      "Do draw icons as SVG; keep the star glyph for ratings where it is content.",
+      "Do honor reduced-motion across zoom, pop, shimmer and smooth scroll."
+    ],
+    "donts": [
+      "Don't nest cards; compose sections with dividers and spacing.",
+      "Don't set display type in Inter or body type in the mono face.",
+      "Don't use emoji as icons, gradient text, glass decoration, or bounce easing.",
+      "Don't write kickers above headings or number sections that carry no sequence.",
+      "Don't let the LLM invent prices, stock, or guarantees — data comes from SQL or cited chunks."
+    ]
+  }
+}
