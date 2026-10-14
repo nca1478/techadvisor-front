@@ -45,7 +45,15 @@ export function ProductCard({
       className="group flex h-full flex-col transition-[border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
     >
       <a href={detailHref} aria-label={product.name} className="block">
-        <MediaFrame src={image.src} alt={image.alt} rounded="sm" lift />
+        <MediaFrame
+          src={image.src}
+          alt={image.alt}
+          rounded="sm"
+          lift
+          fit="contain"
+          tone="light"
+          className="p-2"
+        />
       </a>
       <Stack gap="sm" className="flex flex-1 flex-col p-4">
         <Text

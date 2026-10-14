@@ -33,4 +33,26 @@ describe('MediaFrame', () => {
     );
     expect(screen.getByAltText('Speedlogic product')).toBeInTheDocument();
   });
+
+  it('defaults to cover fit on the dark lab ground', () => {
+    render(<MediaFrame src="/design-system-placeholder.svg" alt="Neutral placeholder" />);
+    const image = screen.getByAltText('Neutral placeholder');
+    expect(image).toHaveClass('object-cover');
+    expect(image.parentElement).toHaveClass('bg-surface-raise');
+  });
+
+  it('unifies catalog photos with contain fit on a white matte', () => {
+    render(
+      <MediaFrame
+        src="/design-system-placeholder.svg"
+        alt="Neutral placeholder"
+        fit="contain"
+        tone="light"
+        className="p-2"
+      />,
+    );
+    const image = screen.getByAltText('Neutral placeholder');
+    expect(image).toHaveClass('object-contain');
+    expect(image.parentElement).toHaveClass('bg-white');
+  });
 });

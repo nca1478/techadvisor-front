@@ -23,12 +23,33 @@ export interface MediaFrameProps {
   className?: string;
   /** Lab zoom on hover (GPU-cheap scale, motion-safe). Off by default. */
   lift?: boolean;
+  /**
+   * Image fit inside the fixed-aspect frame. `cover` fills + center-crops
+   * (detailHero/gallery); `contain` shows the whole product (catalog grid,
+   * where source PNGs have different intrinsic crops).
+   */
+  fit?: keyof typeof FIT;
+  /** Frame ground behind the image. `light` unifies mixed photo backgrounds. */
+  tone?: keyof typeof TONE;
 }
 
 const ROUNDED = {
   sm: 'rounded-sm',
   md: 'rounded-md',
   lg: 'rounded-lg',
+} as const;
+
+const FIT = {
+  cover: 'object-cover',
+  contain: 'object-contain',
+} as const;
+
+const TONE = {
+  /** Dark lab ground: loading state + transparent pixels while fetching. */
+  dark: 'bg-surface-raise',
+  /** White product matte: unifies catalog photos with different source
+   * backgrounds (white vs transparent PNGs) on the same ground. */
+  light: 'bg-white',
 } as const;
 
 /**
@@ -60,11 +81,12 @@ class ImageErrorBoundary extends Component<
 }
 
 /**
- * Fixed-aspect-ratio image frame (prevents layout shift). Images are cropped
- * centered with object-cover on a surface background while loading. When `src`
- * is missing, fails to load, or is rejected by `next/image` (unconfigured
- * remote host), `fallbackSrc` is shown instead so product cards never render
- * an empty frame — and never crash the page.
+ * Fixed-aspect-ratio image frame (prevents layout shift). `cover` crops
+ * centered on a surface background while loading; `contain` letterboxes the
+ * whole product on the `tone` ground so mixed source crops read as one grid.
+ * When `src` is missing, fails to load, or is rejected by `next/image`
+ * (unconfigured remote host), `fallbackSrc` is shown instead so product
+ * cards never render an empty frame — and never crash the page.
  */
 export function MediaFrame({
   src,
@@ -75,6 +97,8 @@ export function MediaFrame({
   fallbackSrc = '/placeholder.svg',
   className,
   lift = false,
+  fit = 'cover',
+  tone = 'dark',
 }: MediaFrameProps) {
   const [failed, setFailed] = useState(false);
   const effectiveSrc = src && !failed ? src : fallbackSrc;
@@ -82,7 +106,8 @@ export function MediaFrame({
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden bg-surface-raise',
+        'relative w-full overflow-hidden',
+        TONE[tone],
         RATIOS[ratio],
         ROUNDED[rounded],
         lift && 'media-lift',
@@ -97,7 +122,7 @@ export function MediaFrame({
             alt={alt}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover"
+            className={FIT[fit]}
             priority={priority}
           />
         }
@@ -107,7 +132,7 @@ export function MediaFrame({
           alt={alt}
           fill
           sizes="(max-width: 768px) 50vw, 25vw"
-          className="object-cover"
+          className={FIT[fit]}
           priority={priority}
           onError={() => {
             setFailed(true);
