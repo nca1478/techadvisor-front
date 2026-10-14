@@ -45,21 +45,28 @@ export function CartSummary({
 }) {
   const blocked = compatibilityGate?.required === true && !compatibilityGate.checked;
   return (
-    <Card>
+    <Card variant="raise" className="lg:sticky lg:top-6">
       <Stack gap="md">
-        <Text variant="lead" as="span">
+        <Text
+          variant="caption"
+          as="span"
+          tone="muted"
+          className="font-mono uppercase tracking-[0.12em]"
+        >
           {messages.title}
         </Text>
         <Stack direction="horizontal" justify="between">
           <Text tone="muted">{messages.items.replace('{count}', String(itemCount))}</Text>
-          <Text as="span">{formatPrice(totalAmount, currency, locale)}</Text>
+          <Text as="span" className="price">
+            {formatPrice(totalAmount, currency, locale)}
+          </Text>
         </Stack>
-        <div className="border-t border-border" aria-hidden="true" />
-        <Stack direction="horizontal" justify="between" align="center">
-          <Text variant="lead" as="span">
+        <div className="border-t border-dashed border-border-strong" aria-hidden="true" />
+        <Stack direction="horizontal" justify="between" align="baseline">
+          <Text variant="body" as="span">
             {messages.total}
           </Text>
-          <Text variant="lead" as="span" role="status" className="font-bold">
+          <Text variant="price-lg" as="span" role="status" className="text-primary">
             {formatPrice(totalAmount, currency, locale)}
           </Text>
         </Stack>

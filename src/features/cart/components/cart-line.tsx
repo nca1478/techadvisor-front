@@ -35,14 +35,14 @@ export function CartLine({
 }) {
   const imageSrc = typeof item.imageUrl === 'string' ? item.imageUrl : null;
   return (
-    <li className="flex flex-col gap-3 rounded-md border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex min-w-0 flex-1 gap-3">
+    <li className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-1 gap-4">
         <a
           href={`/${locale}/productos/${item.slug}`}
           aria-label={messages.productLink}
           className="w-20 shrink-0 self-start"
         >
-          <MediaFrame src={imageSrc} alt={item.name} ratio="square" rounded="sm" />
+          <MediaFrame src={imageSrc} alt={item.name} ratio="square" rounded="md" lift />
         </a>
         <Stack gap="sm" className="min-w-0">
           <Link
@@ -50,11 +50,11 @@ export function CartLine({
             title={item.name}
             className="truncate no-underline"
           >
-            <Text as="span" variant="lead" className="truncate">
+            <Text as="span" variant="body" className="truncate font-medium">
               {item.name}
             </Text>
           </Link>
-          <Text variant="small" tone="muted">
+          <Text variant="small" tone="muted" className="price">
             {formatPrice(item.unitPriceAmount, currency, locale)}
           </Text>
           {!item.sufficientStock && (
@@ -64,33 +64,39 @@ export function CartLine({
           )}
         </Stack>
       </div>
-      <Stack direction="horizontal" gap="sm" align="center">
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={pending || item.qty <= 1}
-          aria-label={messages.decrease}
-          onClick={() => {
-            onUpdateQty(item.qty - 1);
-          }}
+      <Stack direction="horizontal" gap="sm" align="center" className="flex-wrap">
+        <div
+          role="group"
+          aria-label={messages.quantity}
+          className="flex items-center rounded-lg border border-border bg-background"
         >
-          −
-        </Button>
-        <Text variant="small" role="status" aria-label={messages.quantity}>
-          {item.qty}
-        </Text>
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={pending || item.qty >= item.availableQuantity}
-          aria-label={messages.increase}
-          onClick={() => {
-            onUpdateQty(item.qty + 1);
-          }}
-        >
-          +
-        </Button>
-        <Text as="span" variant="lead" className="min-w-24 text-right">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={pending || item.qty <= 1}
+            aria-label={messages.decrease}
+            onClick={() => {
+              onUpdateQty(item.qty - 1);
+            }}
+          >
+            −
+          </Button>
+          <Text variant="small" role="status" className="price min-w-8 text-center">
+            {item.qty}
+          </Text>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={pending || item.qty >= item.availableQuantity}
+            aria-label={messages.increase}
+            onClick={() => {
+              onUpdateQty(item.qty + 1);
+            }}
+          >
+            +
+          </Button>
+        </div>
+        <Text as="span" variant="price" className="min-w-24 text-right">
           {formatPrice(item.lineTotalAmount, currency, locale)}
         </Text>
         <Button variant="ghost" size="sm" disabled={pending} onClick={onRemove}>

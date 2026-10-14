@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Grid } from '@/components/ui/grid';
 import { Heading } from '@/components/ui/heading';
@@ -90,8 +92,35 @@ export function CartPageContainer({
         <Section>
           <Stack gap="md">
             <Heading level={1}>{messages.title}</Heading>
-            <Text tone="muted">{messages.empty}</Text>
-            <Link href={`/${locale}/productos`}>{messages.browseProducts}</Link>
+            <Card className="border-dashed">
+              <Stack gap="md" align="center" className="px-6 py-12 text-center">
+                <svg
+                  aria-hidden="true"
+                  width="72"
+                  height="72"
+                  viewBox="0 0 72 72"
+                  fill="none"
+                  className="text-border-strong"
+                >
+                  <rect
+                    x="10"
+                    y="20"
+                    width="52"
+                    height="36"
+                    rx="6"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                  <path d="M10 30h52M26 20l6-8h12l6 8" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="28" cy="48" r="2.5" fill="#c9f24b" />
+                  <circle cx="46" cy="48" r="2.5" fill="#c9f24b" />
+                </svg>
+                <Text tone="muted" className="max-w-md">
+                  {messages.empty}
+                </Text>
+                <Button href={`/${locale}/productos`}>{messages.browseProducts}</Button>
+              </Stack>
+            </Card>
           </Stack>
         </Section>
       </Container>
