@@ -118,4 +118,32 @@ describe('ProductCard', () => {
     expect(screen.getByText('Agotado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Agregar al carrito' })).toBeDisabled();
   });
+
+  it('shows the product image with the product name as alt', () => {
+    render(
+      <ProductCard
+        product={{ ...product, imageUrl: 'https://placehold.co/600x400?text=RAM' }}
+        locale="es"
+        productHref="/x"
+        messages={messages}
+        onAdd={() => Promise.resolve({ ok: true as const })}
+      />,
+    );
+    const image = screen.getByAltText('Mock Laptop 13');
+    expect(image).toHaveAttribute('src', expect.stringContaining('placehold.co') as string);
+  });
+
+  it('falls back to the placeholder when the product has no image', () => {
+    render(
+      <ProductCard
+        product={{ ...product, imageUrl: null }}
+        locale="es"
+        productHref="/x"
+        messages={messages}
+        onAdd={() => Promise.resolve({ ok: true as const })}
+      />,
+    );
+    const image = screen.getByAltText('Mock Laptop 13');
+    expect(image).toHaveAttribute('src', expect.stringContaining('placeholder') as string);
+  });
 });

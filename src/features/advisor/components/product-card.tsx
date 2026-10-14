@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { MediaFrame } from '@/components/ui/media-frame';
 import { Text } from '@/components/ui/text';
 import type { RecommendProduct } from '@/lib/api/advisor';
 import { formatPrice } from '@/lib/money/format';
@@ -63,17 +64,9 @@ export function ProductCard({ product, locale, productHref, messages, onAdd }: P
       aria-label={product.name}
       className="flex gap-3 rounded-md border border-border bg-surface px-3 py-2.5"
     >
-      {product.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={product.imageUrl}
-          alt=""
-          loading="lazy"
-          width={64}
-          height={64}
-          className="size-16 shrink-0 rounded-md border border-border object-cover"
-        />
-      ) : null}
+      <div className="size-16 shrink-0">
+        <MediaFrame src={product.imageUrl} alt={product.name} ratio="square" rounded="sm" />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <a
