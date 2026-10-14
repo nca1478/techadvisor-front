@@ -28,7 +28,7 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
             key={category.id}
             href={hrefFor(category.slug)}
             aria-label={category.name}
-            className="relative block overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
+            className="group relative block overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
           >
             {/* Decorative photo: the link already exposes the category name. */}
             <MediaFrame
@@ -37,15 +37,16 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
               ratio="video"
               rounded="lg"
               priority={index === 0}
+              lift
             />
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-header/85 via-header/25 to-transparent"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-header/85 via-header/25 to-transparent"
             />
             <Text
               variant="body"
               as="span"
-              className="absolute bottom-0 left-0 p-4 font-medium text-header-foreground"
+              className="pointer-events-none absolute bottom-0 left-0 p-4 font-medium text-header-foreground"
             >
               {category.name}
             </Text>
