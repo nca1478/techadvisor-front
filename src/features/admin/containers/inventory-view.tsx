@@ -150,7 +150,11 @@ export function InventoryView({
                           {(data.page - 1) * data.limit + index + 1}
                         </td>
                         <th scope="row" className="px-4 py-3 font-medium">
-                          {product.name}
+                          <Link
+                            href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}
+                          >
+                            {product.name}
+                          </Link>
                           <Text variant="caption" tone="muted" as="span" className="block">
                             {product.sku}
                           </Text>

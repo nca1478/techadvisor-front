@@ -99,4 +99,13 @@ describe('AdminOrderDetailContainer customer card', () => {
 
     expect(screen.queryByText('Dirección de envío')).toBeNull();
   });
+
+  it('links each item name to its admin product detail page', () => {
+    render(
+      <AdminOrderDetailContainer initialOrder={orderWith()} locale="es" messages={messages} />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Samsung 990 PRO 1TB NVMe (7450MB/s)' });
+    expect(link.getAttribute('href')).toBe('/es/admin/productos/prod-1');
+  });
 });

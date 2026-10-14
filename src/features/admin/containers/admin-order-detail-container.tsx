@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
+import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -181,7 +182,9 @@ export function AdminOrderDetailContainer({
             {order.items.map((item) => (
               <tr key={item.productId} className="border-b border-border last:border-0">
                 <th scope="row" className="px-4 py-3 font-medium">
-                  {item.name}
+                  <Link href={`/${locale}/admin/productos/${encodeURIComponent(item.productId)}`}>
+                    {item.name}
+                  </Link>
                 </th>
                 <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
                 <td className="px-4 py-3 text-right tabular-nums">

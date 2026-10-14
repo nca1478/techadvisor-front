@@ -147,4 +147,13 @@ describe('InventoryView stock filter', () => {
     // available = stock - reserved = 6 for the first row.
     expect(screen.getByText('6')).toBeInTheDocument();
   });
+
+  it('links each product name to its admin product detail page', () => {
+    renderView(null);
+
+    const link = screen.getByRole('link', { name: 'Asus ROG Maximus Z890' });
+    expect(link.getAttribute('href')).toBe(
+      '/es/admin/productos/11111111-1111-4111-8111-111111111111',
+    );
+  });
 });
