@@ -1,8 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
@@ -28,6 +30,7 @@ export function InventoryView({
   loadError,
   page,
   stock,
+  q,
   selectedProductId,
   locale,
   messages,
@@ -37,6 +40,7 @@ export function InventoryView({
   loadError: boolean;
   page: number;
   stock: AdminStockFilter | null;
+  q: string;
   selectedProductId: string | null;
   locale: string;
   messages: Dictionary;
@@ -44,20 +48,24 @@ export function InventoryView({
 }) {
   const router = useRouter();
   const inventory = messages.admin.inventory;
+  const [draft, setDraft] = useState(q);
 
   function navigate(next: {
     page?: number;
     stock?: AdminStockFilter | null;
+    q?: string;
     productId?: string | null;
   }) {
     const merged = {
       page: next.page ?? page,
       stock: next.stock === undefined ? stock : next.stock,
+      q: next.q === undefined ? q : next.q,
       productId: next.productId === undefined ? selectedProductId : next.productId,
     };
     const params = new URLSearchParams();
     params.set('page', String(merged.page));
     if (merged.stock !== null) params.set('stock', merged.stock);
+    if (merged.q !== '') params.set('q', merged.q);
     if (merged.productId) params.set('productId', merged.productId);
     // Sin scroll al principio: filtros y paginación viven junto a la tabla,
     // así que conservar la posición evita perderla (igual que en productos).
@@ -68,6 +76,19 @@ export function InventoryView({
     <Stack gap="md">
       <AdminHeaderCard title={inventory.title} subtitle={inventory.subtitle} />
       <AdminFiltersCard>
+        <div className="min-w-56">
+          <Input
+            label={messages.admin.products.searchPlaceholder}
+            name="q"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1, productId: null });
+            }}
+          />
+        </div>
         <div className="min-w-44">
           <Select
             label={inventory.stockFilter}
@@ -90,7 +111,8 @@ export function InventoryView({
         <Button
           variant="secondary"
           onClick={() => {
-            navigate({ stock: null, page: 1, productId: null });
+            setDraft('');
+            navigate({ stock: null, q: '', page: 1, productId: null });
           }}
         >
           {messages.catalog.clearFilters}

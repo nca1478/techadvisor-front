@@ -35,13 +35,14 @@ const data = {
   totalPages: 1,
 } as unknown as AdminProductList;
 
-function renderView(stock: 'out_of_stock' | 'low_stock' | 'reserved' | null = null) {
+function renderView(stock: 'out_of_stock' | 'low_stock' | 'reserved' | null = null, q = '') {
   return render(
     <InventoryView
       data={data}
       loadError={false}
       page={1}
       stock={stock}
+      q={q}
       selectedProductId={null}
       locale="es"
       messages={messages}
@@ -92,6 +93,7 @@ describe('InventoryView stock filter', () => {
         loadError={false}
         page={1}
         stock={null}
+        q=""
         selectedProductId="11111111-1111-4111-8111-111111111111"
         locale="es"
         messages={messages}
@@ -121,6 +123,7 @@ describe('InventoryView stock filter', () => {
         loadError={false}
         page={2}
         stock="low_stock"
+        q=""
         selectedProductId={null}
         locale="es"
         messages={messages}

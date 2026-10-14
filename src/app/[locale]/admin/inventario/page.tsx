@@ -61,6 +61,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
   const rawStock = firstParam(queryParams, 'stock');
   const stock: AdminStockFilter | null = isAdminStockFilter(rawStock) ? rawStock : null;
+  const q = firstParam(queryParams, 'q').trim().slice(0, 100);
   const rawProductId = firstParam(queryParams, 'productId');
   const selectedProductId = /^[0-9a-f-]{36}$/i.test(rawProductId) ? rawProductId : null;
 
@@ -73,6 +74,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
   const listResult = await backendFetch(
     `/admin/products${toAdminQuery({
       ...(stock === null ? {} : { stock }),
+      ...(q === '' ? {} : { q }),
       lowStockThreshold: LOW_STOCK_THRESHOLD,
       page,
       limit: 10,
@@ -120,6 +122,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
       loadError={data === null}
       page={page}
       stock={stock}
+      q={q}
       selectedProductId={selectedProductId}
       locale={locale}
       messages={messages}
