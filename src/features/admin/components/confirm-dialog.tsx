@@ -59,14 +59,14 @@ export function ConfirmDialog({
     <dialog
       ref={ref}
       aria-labelledby="confirm-dialog-title"
-      className="rounded-lg border border-border bg-surface p-6 text-foreground backdrop:bg-black/50"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 text-foreground shadow-lg backdrop:bg-black/50 sm:max-w-md sm:p-6"
     >
-      <Stack gap="md" className="w-full min-w-72 max-w-sm">
+      <Stack gap="md" className="w-full min-w-0">
         <Heading level={2}>
           <span id="confirm-dialog-title">{title || messages.confirmTitle}</span>
         </Heading>
         {body ? <Text tone="muted">{body}</Text> : null}
-        <Stack direction="horizontal" gap="md" justify="end">
+        <Stack direction="horizontal" gap="md" justify="end" wrap>
           <Button variant="secondary" onClick={onClose} disabled={pending}>
             {cancelLabel ?? messages.cancel}
           </Button>
