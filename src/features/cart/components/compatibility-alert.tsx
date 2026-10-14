@@ -40,7 +40,7 @@ export function CompatibilityAlert({
 
   if (compatible && issues.length === 0) {
     return (
-      <div role="status" className="rounded-md border border-border bg-success-subtle p-4">
+      <div role="status" className="rounded-lg border border-border bg-success-subtle p-4">
         <Stack gap="sm">
           <Text variant="lead" as="span">
             {title}
@@ -54,7 +54,7 @@ export function CompatibilityAlert({
   }
 
   return (
-    <div role="alert" className="rounded-md border border-warning bg-warning-subtle p-4">
+    <div role="alert" className="rounded-lg border border-warning/40 bg-warning-subtle p-4">
       <Stack gap="sm">
         <Text variant="lead" as="span">
           {title}
