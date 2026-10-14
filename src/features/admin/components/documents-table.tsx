@@ -108,6 +108,7 @@ export function DocumentsTable({
                     <Text className="font-medium">{document.title}</Text>
                     <Text tone="muted" className="text-xs">
                       {document.locale}
+                      {` · ${document.source}`}
                       {document.fileName ? ` · ${document.fileName}` : null}
                       {document.sourceUrl ? ` · ${document.sourceUrl}` : null}
                     </Text>

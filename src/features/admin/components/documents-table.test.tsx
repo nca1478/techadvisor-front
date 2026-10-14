@@ -81,6 +81,9 @@ describe('DocumentsTable', () => {
     expect(screen.getByText('X1 manual')).toBeInTheDocument();
     expect(screen.getByText(messages.status_READY)).toBeInTheDocument();
     expect(screen.getByText(messages.type_MANUAL)).toBeInTheDocument();
+    // Provenance: the row exposes the document source so seeded corpus
+    // rows (auto:product, seed:faq:…) are distinguishable from uploads.
+    expect(screen.getByText('en · manual · x1-manual.pdf')).toBeInTheDocument();
     expect(screen.getByText('12 fragmentos')).toBeInTheDocument();
     // Numeric columns align right with tabular figures for comparability.
     expect(screen.getByText('12 fragmentos').closest('td')).toHaveClass(
@@ -187,5 +190,25 @@ describe('DocumentsTable', () => {
     );
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(screen.getByText(messages.pollingStopped)).toBeInTheDocument();
+  });
+
+  it('exposes the seeded provenance source of each row', () => {
+    render(
+      <DocumentsTable
+        documents={[
+          makeDocument({ source: 'seed:faq:es:general', fileName: null, sourceUrl: null }),
+        ]}
+        messages={messages}
+        locale="es"
+        pendingIds={new Set()}
+        stoppedIds={new Set()}
+        filtered={false}
+        clearFiltersLabel="Limpiar filtros"
+        onReingest={() => undefined}
+        onDelete={() => undefined}
+        onClearFilters={() => undefined}
+      />,
+    );
+    expect(screen.getByText(/seed:faq:es:general/)).toBeInTheDocument();
   });
 });
