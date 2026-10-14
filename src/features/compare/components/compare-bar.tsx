@@ -28,9 +28,9 @@ export function CompareBar({
   return (
     <div
       role="status"
-      className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface px-4 py-2"
+      className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/25 bg-surface-raise px-4 py-2 shadow-md"
     >
-      <Text variant="small">
+      <Text variant="small" className="font-mono">
         {messages.status.replace('{count}', String(count)).replace('{max}', String(max))}
       </Text>
       <div className="flex items-center gap-2">

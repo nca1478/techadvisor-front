@@ -47,13 +47,18 @@ export function CompareTable({
   messages: CompareTableMessages;
 }) {
   return (
-    <div className="overflow-x-auto rounded-md border border-border bg-surface">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-md">
       <table className="w-full min-w-[560px] border-collapse bg-surface text-sm">
         <caption className="sr-only">{messages.feature}</caption>
         <thead>
           <tr>
-            <th scope="col" className="border-b border-border bg-surface p-3 text-left font-bold">
-              <Text variant="small" as="span">
+            <th scope="col" className="border-b border-border-strong bg-surface p-3 text-left">
+              <Text
+                variant="small"
+                as="span"
+                className="font-mono uppercase tracking-[0.1em]"
+                tone="muted"
+              >
                 {messages.feature}
               </Text>
             </th>
@@ -61,7 +66,7 @@ export function CompareTable({
               <th
                 key={product.productId}
                 scope="col"
-                className="border-b border-border bg-surface p-3 text-left"
+                className="border-b border-border-strong bg-surface p-3 text-left"
               >
                 <Link href={`/${locale}/productos/${product.slug}`} ariaLabel={product.name}>
                   {product.name}
@@ -78,7 +83,7 @@ export function CompareTable({
               <tr key={row.key} data-row={row.key} data-highlighted={highlighted || undefined}>
                 <th
                   scope="row"
-                  className="border-b border-border bg-surface p-3 text-left font-bold"
+                  className="border-b border-border bg-surface p-3 text-left font-medium"
                 >
                   {rowLabel(row.key, specLabels, messages.priceRow)}
                 </th>
@@ -88,8 +93,9 @@ export function CompareTable({
                       ? row.values[index]
                       : null;
                   const isBest = best.has(index);
+                  const isPriceRow = row.key === 'price_amount';
                   const cell =
-                    row.key === 'price_amount' && typeof value === 'number'
+                    isPriceRow && typeof value === 'number'
                       ? formatPrice(value, product.currency, locale)
                       : formatCompareCell(value, messages.missing);
                   return (
@@ -98,11 +104,11 @@ export function CompareTable({
                       data-best={isBest || undefined}
                       className={
                         isBest
-                          ? 'border-b border-border bg-surface p-3 font-semibold'
+                          ? 'border-b border-border bg-primary-subtle p-3 font-semibold text-primary'
                           : 'border-b border-border bg-surface p-3'
                       }
                     >
-                      {cell}
+                      <span className={isPriceRow ? 'price' : undefined}>{cell}</span>
                       {isBest ? (
                         <Badge tone="success" className="ml-2">
                           {messages.best}

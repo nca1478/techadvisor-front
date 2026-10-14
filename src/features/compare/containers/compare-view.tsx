@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
-import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -120,8 +121,14 @@ export function CompareView({
         <Section>
           <Stack gap="md">
             <Heading level={1}>{messages.title}</Heading>
-            <Text tone="muted">{messages.needTwo}</Text>
-            <Link href={productsHref}>{messages.browseProducts}</Link>
+            <Card className="border-dashed">
+              <Stack gap="md" align="center" className="px-6 py-12 text-center">
+                <Text tone="muted" className="max-w-md">
+                  {messages.needTwo}
+                </Text>
+                <Button href={productsHref}>{messages.browseProducts}</Button>
+              </Stack>
+            </Card>
           </Stack>
         </Section>
       </Container>
@@ -166,15 +173,10 @@ export function CompareView({
                 onChange={(event) => {
                   setUseCase(event.target.value);
                 }}
-                className="h-10 rounded-md border border-border bg-background px-3"
+                className="h-10 rounded-lg border border-border-strong bg-surface px-3 transition-colors duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] placeholder:text-muted-foreground focus:border-primary"
               />
             </label>
-            <button
-              type="submit"
-              className="inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground"
-            >
-              {messages.compareAction}
-            </button>
+            <Button type="submit">{messages.compareAction}</Button>
           </form>
 
           {status === 'loading' ? <Text role="status">{messages.loading}</Text> : null}
@@ -183,15 +185,15 @@ export function CompareView({
               <Text role="alert" className="text-destructive">
                 {error ?? messages.loadError}
               </Text>
-              <button
-                type="button"
-                className="self-start underline"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setRunId((value) => value + 1);
                 }}
               >
                 {messages.retry}
-              </button>
+              </Button>
             </Stack>
           ) : null}
 
