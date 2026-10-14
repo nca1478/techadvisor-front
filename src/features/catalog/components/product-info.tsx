@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Disclosure } from '@/components/ui/disclosure';
 import { Heading } from '@/components/ui/heading';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -55,7 +56,9 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
 
       <Stack gap="sm">
         <Heading level={3}>{messages.descriptionTitle}</Heading>
-        <Text tone="muted">{product.description}</Text>
+        <Disclosure title={messages.descriptionToggle}>
+          <Text tone="muted">{product.description}</Text>
+        </Disclosure>
       </Stack>
 
       {specs.length > 0 && (

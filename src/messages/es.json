@@ -54,6 +54,7 @@
     "addToCartError": "No se pudo agregar este producto al carrito.",
     "specsTitle": "Especificaciones",
     "descriptionTitle": "Descripción",
+    "descriptionToggle": "Presiona para mostrar",
     "backToList": "Volver a productos",
     "detailTabsLabel": "Reseñas y asesor",
     "homeFeaturedTitle": "Productos destacados",

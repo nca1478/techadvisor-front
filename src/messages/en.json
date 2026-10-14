@@ -54,6 +54,7 @@
     "addToCartError": "Could not add this product to the cart.",
     "specsTitle": "Specifications",
     "descriptionTitle": "Description",
+    "descriptionToggle": "Press to show",
     "backToList": "Back to products",
     "detailTabsLabel": "Reviews and advisor",
     "homeFeaturedTitle": "Featured products",
