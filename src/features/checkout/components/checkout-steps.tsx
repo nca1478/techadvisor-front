@@ -22,7 +22,7 @@ export function CheckoutSteps({
 }) {
   const steps = [messages.address, messages.payment, messages.done];
   return (
-    <ol aria-label={label} className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <ol aria-label={label} className="flex flex-wrap items-center gap-x-2 gap-y-2">
       {steps.map((step, index) => {
         const number = index + 1;
         const isCurrent = number === current;
@@ -36,10 +36,12 @@ export function CheckoutSteps({
             <span
               aria-hidden="true"
               className={cn(
-                'flex size-6 items-center justify-center rounded-full text-xs font-bold',
-                isCurrent || isDone
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border border-border bg-surface text-muted-foreground',
+                'flex size-7 items-center justify-center rounded-lg font-mono text-xs font-semibold',
+                isCurrent
+                  ? 'bg-primary text-primary-foreground shadow-[0_0_16px_rgb(201_242_75/0.45)]'
+                  : isDone
+                    ? 'border border-primary/50 bg-primary-subtle text-primary'
+                    : 'border border-border bg-surface text-muted-foreground',
               )}
             >
               {number}
@@ -47,11 +49,20 @@ export function CheckoutSteps({
             <span
               className={cn(
                 'text-sm',
-                isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground',
+                isCurrent ? 'font-semibold text-foreground' : 'text-muted-foreground',
               )}
             >
               {step}
             </span>
+            {index < steps.length - 1 && (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'mx-2 h-px w-8',
+                  number < current ? 'bg-primary/60' : 'bg-border-strong',
+                )}
+              />
+            )}
           </li>
         );
       })}

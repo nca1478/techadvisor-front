@@ -28,7 +28,12 @@ export function OrderSummary({
 }) {
   return (
     <Stack gap="md">
-      <Text variant="lead" as="span">
+      <Text
+        variant="caption"
+        as="span"
+        tone="muted"
+        className="font-mono uppercase tracking-[0.12em]"
+      >
         {title}
       </Text>
       <ul className="flex flex-col gap-2">
@@ -40,7 +45,7 @@ export function OrderSummary({
             <Text variant="small" tone="muted" className="min-w-0 truncate">
               {item.name} × {item.qty}
             </Text>
-            <Text variant="small" as="span" className="shrink-0">
+            <Text variant="small" as="span" className="price shrink-0">
               {formatPrice(item.lineTotalAmount, currency, locale)}
             </Text>
           </li>
@@ -50,16 +55,16 @@ export function OrderSummary({
         <Text variant="small" tone="muted">
           {itemsLabel.replace('{count}', String(itemCount))}
         </Text>
-        <Text variant="small" as="span" className="shrink-0">
+        <Text variant="small" as="span" className="price shrink-0">
           {formatPrice(totalAmount, currency, locale)}
         </Text>
       </Stack>
-      <div className="border-t border-border" aria-hidden="true" />
-      <Stack direction="horizontal" justify="between" align="center">
-        <Text variant="lead" as="span">
+      <div className="border-t border-dashed border-border-strong" aria-hidden="true" />
+      <Stack direction="horizontal" justify="between" align="baseline">
+        <Text variant="body" as="span">
           {totalLabel}
         </Text>
-        <Text variant="lead" as="span" role="status" className="font-bold">
+        <Text variant="price-lg" as="span" role="status" className="text-primary">
           {formatPrice(totalAmount, currency, locale)}
         </Text>
       </Stack>
