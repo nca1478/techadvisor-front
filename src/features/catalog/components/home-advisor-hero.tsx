@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/container';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 
@@ -54,7 +55,7 @@ export function HomeAdvisorHero({
         className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0e13] to-transparent"
       />
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start px-6 py-20 md:px-12 md:py-32">
+      <Container className="relative flex flex-col items-start py-20 md:py-32">
         <div className="animate-rise-in flex items-center gap-3">
           <span
             aria-hidden="true"
@@ -102,7 +103,7 @@ export function HomeAdvisorHero({
             />
           ))}
         </div>
-      </div>
+      </Container>
     </div>
   );
 }
