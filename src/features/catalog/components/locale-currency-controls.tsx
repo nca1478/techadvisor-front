@@ -22,6 +22,9 @@ export function LocaleCurrencyControls({
 }: SiteHeaderControlsProps) {
   const switchLocale = useLocaleSwitcher();
   const { current, switchCurrency } = useCurrencySwitcher(currencyFallback);
+  // Operación en moneda única (USD): sin alternativas no hay nada que elegir;
+  // el selector reaparece solo cuando el backend anuncie 2+ monedas (EUR).
+  const showCurrency = currencies.length > 1;
 
   return (
     <span className="inline-flex items-center gap-1 text-header-foreground">
@@ -38,19 +41,21 @@ export function LocaleCurrencyControls({
           }}
         />
       </div>
-      <div className="w-20">
-        <Select
-          label={currencyLabel}
-          labelHidden
-          size="sm"
-          name="currency"
-          value={current}
-          options={currencies.map((code) => ({ value: code, label: code }))}
-          onChange={(event) => {
-            switchCurrency(event.target.value);
-          }}
-        />
-      </div>
+      {showCurrency ? (
+        <div className="w-20">
+          <Select
+            label={currencyLabel}
+            labelHidden
+            size="sm"
+            name="currency"
+            value={current}
+            options={currencies.map((code) => ({ value: code, label: code }))}
+            onChange={(event) => {
+              switchCurrency(event.target.value);
+            }}
+          />
+        </div>
+      ) : null}
     </span>
   );
 }

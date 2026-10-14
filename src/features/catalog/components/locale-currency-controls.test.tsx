@@ -38,6 +38,11 @@ describe('LocaleCurrencyControls', () => {
     expect(screen.getByRole('option', { name: 'EUR' })).toBeInTheDocument();
   });
 
+  it('hides the currency select on single-currency operation (USD only)', () => {
+    renderControls(['USD']);
+    expect(screen.getByLabelText('Idioma')).toBeVisible();
+    expect(screen.queryByLabelText('Moneda')).not.toBeInTheDocument();
+  });
   it('switches currency through the URL without new messages', () => {
     renderControls();
     fireEvent.change(screen.getByLabelText('Moneda'), { target: { value: 'EUR' } });
