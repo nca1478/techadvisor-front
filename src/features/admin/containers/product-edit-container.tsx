@@ -9,6 +9,7 @@ import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import { formatMinorToMajor } from '@/features/admin/lib/admin-schemas';
 import {
   buildUpdateRequest,
+  pickInitialTranslation,
   validateProductForm,
   type ProductFormErrors,
   type ProductFormState,
@@ -31,9 +32,10 @@ function specsToRaw(specs: Record<string, unknown>): Record<string, string> {
 /**
  * Edit container: base fields via `PATCH /admin/products/:id`. Status moves
  * through its own endpoint (see `ProductStatusContainer`) and images through
- * `PUT .../images`, so `translations` are only sent when the admin fills the
- * optional translation block — otherwise the existing set is left untouched
- * (the backend replaces the whole set when present).
+ * `PUT .../images`. The optional translation block is prefilled with the
+ * existing non-default-locale translation (if any) and sent back on save;
+ * clearing it leaves the stored set untouched (the backend replaces the
+ * whole set only when `translations` is present).
  */
 export function ProductEditContainer({
   product,
@@ -52,6 +54,7 @@ export function ProductEditContainer({
   defaultLocale: string;
   messages: Dictionary;
 }) {
+  const initialTranslation = pickInitialTranslation(product.translations, defaultLocale);
   const [values, setValues] = useState<ProductFormState>(() => ({
     sku: product.sku,
     name: product.name,
@@ -64,9 +67,9 @@ export function ProductEditContainer({
     status: product.status,
     initialStock: '0',
     specsRaw: specsToRaw(product.specs),
-    translationLocale: '',
-    translationName: '',
-    translationDescription: '',
+    translationLocale: initialTranslation?.locale ?? '',
+    translationName: initialTranslation?.name ?? '',
+    translationDescription: initialTranslation?.description ?? '',
   }));
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [pending, setPending] = useState(false);

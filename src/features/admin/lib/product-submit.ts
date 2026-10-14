@@ -79,6 +79,26 @@ export function validateProductForm(
   return { errors, specs: record, priceAmount };
 }
 
+export interface ProductTranslationInput {
+  locale: string;
+  name: string;
+  description: string;
+}
+
+/**
+ * Picks the translation to prefill the optional translation block of the
+ * edit form: the first non-default locale, falling back to the first row.
+ * Returns `undefined` when the product has no translations (empty block).
+ */
+export function pickInitialTranslation(
+  translations: readonly ProductTranslationInput[],
+  defaultLocale: string,
+): ProductTranslationInput | undefined {
+  return (
+    translations.find((translation) => translation.locale !== defaultLocale) ?? translations[0]
+  );
+}
+
 export function collectTranslations(values: ProductFormState) {
   if (
     values.translationLocale.trim() === '' ||

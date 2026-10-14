@@ -15,6 +15,7 @@ import {
   buildUpdateRequest,
   collectTranslations,
   initialStockError,
+  pickInitialTranslation,
   validateProductForm,
   type ProductFormState,
 } from '@/features/admin/lib/product-submit';
@@ -206,6 +207,31 @@ describe('validateProductForm', () => {
     expect(validated.errors['priceMajor']).toBe(TEXTS.priceInvalid);
     expect(validated.errors['brandId']).toBe(TEXTS.required);
     expect(validated.priceAmount).toBeNull();
+  });
+});
+
+describe('pickInitialTranslation', () => {
+  it('prefers the first non-default locale', () => {
+    expect(
+      pickInitialTranslation(
+        [
+          { locale: 'en', name: 'Laptop', description: 'A laptop' },
+          { locale: 'es', name: 'Portátil', description: 'Un portátil' },
+        ],
+        'en',
+      ),
+    ).toEqual({ locale: 'es', name: 'Portátil', description: 'Un portátil' });
+  });
+
+  it('falls back to the first row and to undefined when empty', () => {
+    expect(
+      pickInitialTranslation([{ locale: 'en', name: 'Laptop', description: 'A' }], 'en'),
+    ).toEqual({
+      locale: 'en',
+      name: 'Laptop',
+      description: 'A',
+    });
+    expect(pickInitialTranslation([], 'en')).toBeUndefined();
   });
 });
 
