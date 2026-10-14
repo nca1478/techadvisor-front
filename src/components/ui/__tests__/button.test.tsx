@@ -12,8 +12,8 @@ describe('Button', () => {
 
   it.each([
     ['primary', 'bg-primary'],
-    ['secondary', 'border-border'],
-    ['dark', 'bg-header'],
+    ['secondary', 'border-border-strong'],
+    ['dark', 'bg-surface-raise'],
     ['danger', 'bg-destructive'],
     ['ghost', 'hover:bg-surface'],
     ['link', 'hover:underline'],

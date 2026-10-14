@@ -2,16 +2,16 @@ import type { ReactNode } from 'react';
 import { cn } from './cn';
 
 const TONES = {
-  neutral: 'bg-surface text-muted-foreground',
-  primary: 'bg-primary-subtle text-foreground',
-  success: 'bg-success-subtle text-foreground',
-  warning: 'bg-warning-subtle text-foreground',
-  destructive: 'bg-destructive-subtle text-foreground',
+  neutral: 'border border-border bg-surface text-muted-foreground',
+  primary: 'border border-primary/40 bg-primary-subtle text-primary',
+  success: 'border border-success/30 bg-success-subtle text-success',
+  warning: 'border border-warning/30 bg-warning-subtle text-warning',
+  destructive: 'border border-destructive/30 bg-destructive-subtle text-destructive',
 } as const;
 
 const DOTS = {
   neutral: 'bg-muted-foreground',
-  primary: 'bg-primary',
+  primary: 'bg-primary shadow-[0_0_8px_rgb(201_242_75/0.9)]',
   success: 'bg-success',
   warning: 'bg-warning',
   destructive: 'bg-destructive',
@@ -34,14 +34,14 @@ export interface BadgeProps {
 }
 
 /**
- * Status badge. Text always uses the foreground token on a subtle tint
- * (keeps WCAG AA); the tone is carried by a decorative dot.
+ * Status badge. Tone text sits on its own tinted ground (WCAG AA on the
+ * dark lab); the dot carries the signal glow for the primary tone.
  */
 export function Badge({ tone = 'neutral', className, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium leading-normal',
+        'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] leading-normal',
         TONES[tone],
         className,
       )}

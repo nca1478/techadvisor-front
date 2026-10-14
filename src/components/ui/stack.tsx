@@ -15,6 +15,7 @@ const GAPS = {
 const ALIGNS = {
   start: 'items-start',
   center: 'items-center',
+  baseline: 'items-baseline',
   end: 'items-end',
   stretch: 'items-stretch',
 } as const;

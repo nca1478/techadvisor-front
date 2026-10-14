@@ -9,10 +9,10 @@ const TAGS = {
 } as const;
 
 const LEVELS = {
-  1: 'text-4xl md:text-5xl font-bold tracking-tight leading-tight',
-  2: 'text-3xl md:text-4xl font-bold tracking-tight leading-tight',
-  3: 'text-2xl font-semibold tracking-tight leading-snug',
-  4: 'text-xl font-semibold leading-snug',
+  1: 'display text-4xl md:text-6xl font-semibold tracking-[-0.01em] leading-[1.02]',
+  2: 'display text-2xl md:text-4xl font-semibold tracking-[-0.01em] leading-[1.05]',
+  3: 'display text-lg md:text-xl font-semibold tracking-[0.01em] leading-snug',
+  4: 'text-lg font-semibold leading-snug',
 } as const;
 
 export type HeadingLevel = keyof typeof LEVELS;
@@ -23,7 +23,8 @@ export interface HeadingProps {
   children: ReactNode;
 }
 
-/** Section headings: fixed size/weight/leading per level, tight tracking. */
+/** Section headings: lab display voice (Chakra Petch) for levels 1–3,
+ * body sans for level 4. Heading carries its own weight — no kickers. */
 export function Heading({ level = 2, className, children }: HeadingProps) {
   return createElement(TAGS[level], { className: cn(LEVELS[level], className) }, children);
 }

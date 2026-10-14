@@ -2,9 +2,10 @@ import type { ReactNode } from 'react';
 import { cn } from './cn';
 
 const VARIANTS = {
-  default: 'border border-border bg-surface shadow-sm',
-  outline: 'border border-border bg-surface',
-  ghost: 'bg-surface',
+  default: 'border border-border bg-surface shadow-md',
+  outline: 'border border-border-strong bg-transparent',
+  ghost: 'bg-transparent',
+  raise: 'border border-border bg-surface-raise shadow-md',
 } as const;
 
 const PADDINGS = {
@@ -20,11 +21,12 @@ export interface CardProps {
   children: ReactNode;
 }
 
-/** Surface container with locked radius, border and shadow tokens. */
+/** Lab panel: single flat surface. Never nest Card inside Card — compose
+ * sections with dividers and spacing instead (anti-pattern audit 0043). */
 export function Card({ variant = 'default', padding = 'sm', className, children }: CardProps) {
   return (
     <div
-      className={cn('overflow-hidden rounded-lg', VARIANTS[variant], PADDINGS[padding], className)}
+      className={cn('overflow-hidden rounded-xl', VARIANTS[variant], PADDINGS[padding], className)}
     >
       {children}
     </div>

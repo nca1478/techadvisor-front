@@ -6,6 +6,9 @@ const VARIANTS = {
   body: 'text-base leading-relaxed',
   small: 'text-sm leading-relaxed',
   caption: 'text-xs leading-normal',
+  /** Price voice: mono tabulars, tight — amounts scan in one glance. */
+  price: 'price text-xl font-semibold leading-none',
+  'price-lg': 'price text-3xl font-semibold tracking-tight leading-none',
 } as const;
 
 const TONES = {

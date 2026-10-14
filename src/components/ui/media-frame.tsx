@@ -21,6 +21,8 @@ export interface MediaFrameProps {
   /** Local placeholder shown when `src` is empty or fails to load. */
   fallbackSrc?: string;
   className?: string;
+  /** Lab zoom on hover (GPU-cheap scale, motion-safe). Off by default. */
+  lift?: boolean;
 }
 
 const ROUNDED = {
@@ -72,6 +74,7 @@ export function MediaFrame({
   priority = false,
   fallbackSrc = '/placeholder.svg',
   className,
+  lift = false,
 }: MediaFrameProps) {
   const [failed, setFailed] = useState(false);
   const effectiveSrc = src && !failed ? src : fallbackSrc;
@@ -79,9 +82,10 @@ export function MediaFrame({
   return (
     <div
       className={cn(
-        'relative w-full overflow-hidden bg-surface',
+        'relative w-full overflow-hidden bg-surface-raise',
         RATIOS[ratio],
         ROUNDED[rounded],
+        lift && 'media-lift',
         className,
       )}
     >

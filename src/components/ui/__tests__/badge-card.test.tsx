@@ -24,7 +24,7 @@ describe('Card', () => {
       </Card>,
     );
     const card = screen.getByText('Content').parentElement;
-    expect(card).toHaveClass('rounded-lg', 'border-border', 'shadow-sm', 'p-4');
+    expect(card).toHaveClass('rounded-xl', 'border-border', 'shadow-md', 'p-4');
   });
 
   it('supports outline and ghost variants without padding', () => {
@@ -34,13 +34,14 @@ describe('Card', () => {
       </Card>,
     );
     expect(screen.getByText('Content').parentElement).toHaveClass('p-0');
-    expect(screen.getByText('Content').parentElement).not.toHaveClass('shadow-sm');
+    expect(screen.getByText('Content').parentElement).not.toHaveClass('shadow-md');
 
     rerender(
       <Card variant="ghost" padding="md">
         <span>Content</span>
       </Card>,
     );
-    expect(screen.getByText('Content').parentElement).toHaveClass('bg-surface', 'p-6');
+    expect(screen.getByText('Content').parentElement).toHaveClass('p-6');
+    expect(screen.getByText('Content').parentElement).not.toHaveClass('bg-surface');
   });
 });
