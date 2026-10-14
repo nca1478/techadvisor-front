@@ -40,19 +40,17 @@ export function AccountView({
       key={defaultTab}
       label={messages.tabsLabel}
       defaultId={defaultTab}
-      // The tab-button row hugs the profile card width; the panel below
-      // stays full width so the orders table is never squeezed. Panel and
-      // page heights are content-driven, so they already match the card.
+      // The tab-button row hugs its content; the panel below stays full
+      // width so profile and orders use all available space.
       tablistClassName="max-w-md"
       items={[
         {
           id: 'perfil',
           label: messages.profileTitle,
           content: (
-            <Card className="max-w-md">
+            <Card className="w-full">
               <ProfileEditContainer
                 email={user.email}
-                role={user.role}
                 initialName={initialName}
                 messages={messages}
               />

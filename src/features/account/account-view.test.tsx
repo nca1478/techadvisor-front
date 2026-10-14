@@ -43,16 +43,14 @@ describe('normalizeAccountTab', () => {
 });
 
 describe('AccountView tabs', () => {
-  it('shows the editable profile form by default, with email and role read-only', () => {
+  it('shows the editable profile form by default, name first and email read-only, without role', () => {
     renderView();
     expect(screen.getByRole('tab', { name: 'Perfil', selected: true })).toBeDefined();
     expect(screen.getByDisplayValue('Ada Lovelace')).toBeDefined();
     const email = screen.getByLabelText('Correo electrónico');
-    const role = screen.getByLabelText('Rol');
     expect(email).toHaveValue('ada@example.com');
     expect(email).toBeDisabled();
-    expect(role).toHaveValue('CUSTOMER');
-    expect(role).toBeDisabled();
+    expect(screen.queryByLabelText('Rol')).toBeNull();
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeDefined();
   });
 

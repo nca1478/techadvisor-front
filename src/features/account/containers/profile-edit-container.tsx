@@ -11,18 +11,16 @@ import { profileUpdateSchema } from '../schemas';
  * Profile edit container: validates locally with Zod (including the
  * UI-only password confirmation), PATCHes the BFF
  * (`/api/account/profile` → backend `PATCH /users/me`), then refreshes the
- * session so the new name is visible everywhere. Email and role are
- * display-only and never leave the browser. Layout-free (no
+ * session so the new name is visible everywhere. Email is
+ * display-only and never leaves the browser. Layout-free (no
  * Container/Section/Heading) so it embeds in the account tab panel.
  */
 export function ProfileEditContainer({
   email,
-  role,
   initialName,
   messages,
 }: {
   email: string;
-  role: string;
   initialName: string;
   messages: Dictionary['account'];
 }) {
@@ -85,7 +83,6 @@ export function ProfileEditContainer({
   return (
     <ProfileForm
       email={email}
-      role={role}
       values={values}
       errors={errors}
       pending={pending}
@@ -93,8 +90,6 @@ export function ProfileEditContainer({
       messages={{
         emailLabel: messages.emailLabel,
         emailHint: messages.emailHint,
-        roleLabel: messages.roleLabel,
-        roleHint: messages.roleHint,
         nameLabel: messages.nameLabel,
         newPasswordLabel: messages.newPasswordLabel,
         newPasswordHint: messages.newPasswordHint,
