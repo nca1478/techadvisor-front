@@ -1,40 +1,99 @@
 @import "tailwindcss";
 
 /*
- * TechAdvisor design tokens (ADR 0005, retema 0019 marketplace denso).
- * Semantic colors live in :root so every theme (including the future dark
- * theme) overrides plain CSS variables; @theme inline maps them to Tailwind
- * utilities (bg-background, text-foreground, border-border, ...).
+ * TechAdvisor design tokens — "Signal Lab" (ADR frontend 0043).
+ * Dark premium laboratory: deep ink ground, elevated panels, one electric
+ * signal (volt lime) reserved for conversion, cyan reserved for the advisor.
+ * Semantic colors live in :root so themes override plain CSS variables;
+ * @theme inline maps them to Tailwind utilities (bg-background,
+ * text-foreground, border-border, ...).
  * This file is the ONLY place where raw color values may appear.
+ *
+ * Contrast (dark ink ground): body copy #EDF1F5 on #0A0E13 ≈ 15:1;
+ * muted #9FB0BE on #0A0E13 ≈ 7:1; volt #C9F24B on ink ≈ 12:1 —
+ * all above WCAG AA. Muted tones are tinted from the ink hue, never gray.
  */
 
 :root {
+  color-scheme: dark;
+
+  --background: #0a0e13;
+  --surface: #11161d;
+  --surface-raise: #182029;
+  --foreground: #edf1f5;
+  --muted-foreground: #9fb0be;
+  --border: #232d38;
+  --border-strong: #324052;
+
+  /* Volt: the single conversion signal (price, primary CTA, focus). */
+  --primary: #c9f24b;
+  --primary-hover: #d9f973;
+  --primary-active: #aecf35;
+  --primary-subtle: #1d2612;
+  --primary-foreground: #0c1106;
+
+  /* Signal cyan: advisor/RAG identity + links. Never competes with volt. */
+  --link: #67e8f9;
+  --link-hover: #a5f3fc;
+
+  --header: #0a0e13;
+  --header-sub: #11161d;
+  --header-foreground: #edf1f5;
+  --header-muted: #9fb0be;
+
+  --accent: #22d3ee;
+  --accent-hover: #67e8f9;
+  --accent-foreground: #062830;
+
+  --ring: #c9f24b;
+
+  --success: #4ade80;
+  --success-subtle: #0f2a1c;
+  --success-foreground: #04140a;
+
+  --warning: #fbbf24;
+  --warning-subtle: #2e230b;
+  --warning-foreground: #241a03;
+
+  --destructive: #fb7185;
+  --destructive-subtle: #331016;
+  --destructive-foreground: #2b060b;
+}
+
+/*
+ * Light reading theme (kept for admin/print surfaces opting in via
+ * [data-theme="light"]). The storefront ships dark by default.
+ */
+[data-theme="light"] {
   color-scheme: light;
 
-  --background: #e3e6e6;
+  --background: #f2f4f6;
   --surface: #ffffff;
-  --foreground: #0f1111;
-  --muted-foreground: #565959;
-  --border: #d5d9d9;
+  --surface-raise: #ffffff;
+  --foreground: #0f1419;
+  --muted-foreground: #4c5d6d;
+  --border: #d8dee4;
+  --border-strong: #b9c4cf;
 
-  --primary: #ffd814;
-  --primary-hover: #f7ca00;
-  --primary-subtle: #fef3d3;
-  --primary-foreground: #0f1111;
+  --primary: #4d7c0f;
+  --primary-hover: #3f6212;
+  --primary-active: #365314;
+  --primary-subtle: #ecfccb;
+  --primary-foreground: #ffffff;
 
-  --link: #007185;
-  --link-hover: #c7511f;
+  --link: #0e7490;
+  --link-hover: #155e75;
 
-  --header: #131921;
-  --header-sub: #232f3e;
-  --header-foreground: #ffffff;
-  --header-muted: #cccccc;
+  --header: #0a0e13;
+  --header-sub: #11161d;
+  --header-foreground: #edf1f5;
+  --header-muted: #9fb0be;
 
-  --accent: #0f766e;
-  --accent-hover: #0c5f59;
+  --accent: #0e7490;
+  --accent-hover: #155e75;
   --accent-foreground: #ffffff;
 
-  --ring: #007185;
+  --ring: #4d7c0f;
 
   --success: #15803d;
   --success-subtle: #e7f4ec;
@@ -44,57 +103,23 @@
   --warning-subtle: #fbf0e0;
   --warning-foreground: #ffffff;
 
-  --destructive: #cc0c39;
+  --destructive: #be123c;
   --destructive-subtle: #fbeaea;
   --destructive-foreground: #ffffff;
-}
-
-/*
- * Dark theme: structure ready, NOT implemented yet (no toggle, no switching).
- * Do not reference [data-theme="dark"] until the dark-mode task lands.
- */
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  --background: #0f1319;
-  --surface: #171d26;
-  --foreground: #eef1f5;
-  --muted-foreground: #a7b1bd;
-  --border: #2a3340;
-
-  --primary: #6b9bff;
-  --primary-hover: #8db2ff;
-  --primary-subtle: #1a2c4e;
-  --primary-foreground: #0b1526;
-
-  --accent: #3ec9bb;
-  --accent-hover: #62d4c8;
-  --accent-foreground: #07322e;
-
-  --ring: #8db2ff;
-
-  --success: #4ade80;
-  --success-subtle: #123a24;
-  --success-foreground: #06230f;
-
-  --warning: #fbbf24;
-  --warning-subtle: #3d2c0c;
-  --warning-foreground: #331c02;
-
-  --destructive: #f87171;
-  --destructive-subtle: #431314;
-  --destructive-foreground: #3a0a0a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-raise: var(--surface-raise);
   --color-foreground: var(--foreground);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
   --color-primary-subtle: var(--primary-subtle);
   --color-primary-foreground: var(--primary-foreground);
 
@@ -125,7 +150,11 @@
   --color-destructive-foreground: var(--destructive-foreground);
 
   /* Typefaces are provided by next/font (src/app/fonts.ts); system fallbacks
-     keep text readable if the webfont fails to load. */
+     keep text readable if the webfont fails to load. Display is the lab
+     voice (headings/hero); sans is body only; mono is data (price/specs). */
+  --font-display:
+    var(--font-chakra-petch), "Arial Narrow", ui-sans-serif, system-ui,
+    sans-serif;
   --font-sans:
     var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -135,13 +164,53 @@
 
   /* Locked radii and shadows: components must use these, never raw values. */
   --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
 
-  --shadow-sm: 0 1px 2px rgb(19 23 28 / 0.06);
-  --shadow-md: 0 4px 12px rgb(19 23 28 / 0.08);
-  --shadow-lg: 0 12px 32px rgb(19 23 28 / 0.12);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 6px 18px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 18px 48px rgb(0 0 0 / 0.5);
+
+  /* Lab motion: single exponential ease-out, never bounce. */
+  --ease-lab: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+
+  --animate-cart-pop: cart-pop 480ms var(--ease-lab);
+  --animate-rise-in: rise-in 480ms var(--ease-lab) both;
+  --animate-scan: scan 2.8s linear infinite;
+
+  @keyframes cart-pop {
+    0% {
+      transform: scale(1);
+    }
+    35% {
+      transform: scale(1.06);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes scan {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(240%);
+    }
+  }
 }
 
 @layer base {
@@ -151,11 +220,16 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   ::selection {
@@ -165,6 +239,89 @@
 
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid var(--color-ring);
-    outline-offset: 2px;
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Browser surfaces carry the design too (craft floor). */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 8px;
+    border: 3px solid var(--color-background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+  * {
+    scrollbar-color: var(--color-border-strong) var(--color-background);
+  }
+  :where(input, textarea) {
+    caret-color: var(--color-primary);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-muted-foreground);
+    opacity: 1;
+  }
+  input[type="number"] {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Price voice: mono tabulars so amounts align and scan in one glance. */
+  .price {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .display {
+    font-family: var(--font-display);
+  }
+  /* Card image delight: slow lab zoom, GPU-cheap, motion-safe. */
+  .media-lift img {
+    transition: transform var(--duration-slow) var(--ease-lab);
+  }
+  .media-lift:hover img {
+    transform: scale(1.045);
+  }
+  /* Skeleton shimmer for loading states. */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-surface-raise);
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 45%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(201 242 75 / 0.08),
+      transparent
+    );
+    animation: var(--animate-scan);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
