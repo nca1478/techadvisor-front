@@ -131,9 +131,6 @@ export function AdminProductsView({
                       {products.tableProduct}
                     </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                      {products.tableSku}
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {products.tableStatus}
                     </th>
                     <th
@@ -159,12 +156,18 @@ export function AdminProductsView({
                       <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
                         {(data.page - 1) * data.limit + index + 1}
                       </td>
-                      <th scope="row" className="px-4 py-3 font-normal">
-                        <Link href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}>
+                      <th scope="row" className="max-w-96 px-4 py-3 font-normal">
+                        <Link
+                          href={`/${locale}/admin/productos/${encodeURIComponent(product.id)}`}
+                          title={product.name}
+                          className="block truncate"
+                        >
                           {product.name}
                         </Link>
+                        <Text variant="caption" tone="muted" as="span" className="block">
+                          {product.sku}
+                        </Text>
                       </th>
-                      <td className="px-4 py-3 font-mono text-xs">{product.sku}</td>
                       <td className="px-4 py-3">
                         <ProductStatusContainer
                           productId={product.id}
@@ -175,10 +178,10 @@ export function AdminProductsView({
                           }}
                         />
                       </td>
-                      <td className="px-4 py-3 text-right font-medium tabular-nums">
+                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums">
                         {formatPrice(product.priceAmount, product.currency, locale)}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums">
+                      <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums">
                         {products.outOfStock.replace('{count}', String(availableUnits(product)))}
                       </td>
                       <td className="px-4 py-3">
