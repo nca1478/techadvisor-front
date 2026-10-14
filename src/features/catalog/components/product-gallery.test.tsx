@@ -32,6 +32,24 @@ describe('ProductGallery', () => {
     expect(screen.getByRole('button', { name: 'Side view (2)' })).toBeVisible();
   });
 
+  it('renders the hero and thumbnails with contain fit on a white matte', () => {
+    render(
+      <ProductGallery
+        productName="Test Laptop"
+        images={[
+          { url: 'https://placehold.co/600x400?text=One', alt: noAlt, position: 0 },
+          { url: 'https://placehold.co/600x400?text=Two', alt: sideAlt, position: 1 },
+        ]}
+      />,
+    );
+    // Main hero + both thumbnails share the catalog matte (same as the grid).
+    const images = screen.getAllByAltText(/Test Laptop|Side view/);
+    for (const image of images) {
+      expect(image).toHaveClass('object-contain');
+      expect(image.parentElement).toHaveClass('bg-white');
+    }
+  });
+
   it('switches the active image on thumbnail click', () => {
     render(
       <ProductGallery

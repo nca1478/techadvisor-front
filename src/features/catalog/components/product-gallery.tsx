@@ -28,6 +28,9 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         ratio="standard"
         rounded="lg"
         priority
+        fit="contain"
+        tone="light"
+        className="border border-border p-6"
       />
       {images.length > 1 && (
         <div role="group" aria-label={productName} className="flex gap-4 overflow-x-auto pb-1">
@@ -53,6 +56,9 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 alt={productImageAlt(image, productName)}
                 ratio="square"
                 rounded="sm"
+                fit="contain"
+                tone="light"
+                className="p-1"
               />
             </button>
           ))}
