@@ -21,13 +21,11 @@ const DEFAULT_BACKGROUND_SRC =
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80';
 
 /**
- * Home cover hero (ADR 0024): full-bleed dark cover over a niche photo
- * (circuit board), centered headline + supporting line + a single pill CTA
- * to the product listing. Full viewport width with square corners so it sits
- * flush under the navbar; the inner copy stays centered in a max width.
- * The photo is decorative and plain `<img>` (no next/image remote host
- * needed); the `bg-header` base and overlay keep the white copy legible
- * even if the photo fails to load.
+ * Home cover hero (ADR 0043 Signal Lab): full-bleed instrument panel over a
+ * circuit photo. Left-aligned thesis composition — readout badge, display
+ * headline, one volt CTA — with a telemetry strip (spec ticks) anchoring the
+ * lab world. The photo is decorative plain `<img>` (no next/image remote
+ * host needed, ADR 0011); layered ink gradients keep copy legible offline.
  */
 export function HomeAdvisorHero({
   catalogHref,
@@ -36,8 +34,8 @@ export function HomeAdvisorHero({
   backgroundAlt = '',
 }: HomeAdvisorHeroProps) {
   return (
-    <div className="relative w-full overflow-hidden bg-header">
-      {/* eslint-disable-next-line @next/next/no-img-element -- decorative cover: plain img avoids next/image remote-host config (ADR 0011), bg-header keeps it legible offline */}
+    <div className="relative w-full overflow-hidden border-b border-border bg-header">
+      {/* eslint-disable-next-line @next/next/no-img-element -- decorative cover: plain img avoids next/image remote-host config (ADR 0011), ink gradients keep it legible offline */}
       <img
         src={backgroundSrc}
         alt={backgroundAlt}
@@ -45,23 +43,65 @@ export function HomeAdvisorHero({
         loading="eager"
         decoding="async"
         referrerPolicy="no-referrer"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover opacity-50"
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-header/75" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-r from-[#0a0e13] via-[#0a0e13]/85 to-[#0a0e13]/25"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0e13] to-transparent"
+      />
 
-      <div className="relative flex flex-col items-center px-6 py-16 text-center md:px-12 md:py-24">
-        <span>
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-start px-6 py-20 md:px-12 md:py-32">
+        <div className="animate-rise-in flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="inline-block size-2 animate-pulse rounded-full bg-primary shadow-[0_0_12px_rgb(201_242_75/0.9)]"
+          />
           <Badge tone="primary">{messages.badge}</Badge>
-        </span>
-        <Heading level={1} className="mt-4 max-w-2xl text-header-foreground">
+        </div>
+        <Heading
+          level={1}
+          className="animate-rise-in mt-6 max-w-3xl uppercase text-header-foreground [animation-delay:80ms]"
+        >
           {messages.title}
         </Heading>
-        <Text variant="lead" tone="headerMuted" as="p" className="mt-4 max-w-xl">
+        <Text
+          variant="lead"
+          tone="headerMuted"
+          as="p"
+          className="animate-rise-in mt-5 max-w-xl [animation-delay:160ms]"
+        >
           {messages.subtitle}
         </Text>
-        <Button href={catalogHref} variant="secondary" size="lg" className="mt-8">
-          {messages.cta}
-        </Button>
+        <div className="animate-rise-in mt-10 flex flex-wrap items-center gap-4 [animation-delay:240ms]">
+          <Button href={catalogHref} size="lg">
+            {messages.cta}
+          </Button>
+          <Text
+            variant="caption"
+            tone="headerMuted"
+            as="span"
+            className="font-mono uppercase tracking-[0.12em]"
+          >
+            1-tap add · cited answers
+          </Text>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className="mt-14 hidden w-full items-end justify-between gap-2 md:flex"
+        >
+          {Array.from({ length: 48 }).map((_, i) => (
+            <span
+              key={i}
+              className="w-px bg-primary/25"
+              style={{ height: `${String(8 + ((i * 37) % 28))}px` }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

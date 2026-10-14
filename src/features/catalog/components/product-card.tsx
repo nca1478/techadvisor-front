@@ -40,21 +40,32 @@ export function ProductCard({
   const price = formatPrice(product.priceAmount, currency, locale);
 
   return (
-    <Card padding="none" className="flex h-full flex-col">
-      <a href={detailHref} aria-label={product.name} className="block rounded-t-lg">
-        <MediaFrame src={image.src} alt={image.alt} rounded="sm" />
+    <Card
+      padding="none"
+      className="group flex h-full flex-col transition-[border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+    >
+      <a href={detailHref} aria-label={product.name} className="block">
+        <MediaFrame src={image.src} alt={image.alt} rounded="sm" lift />
       </a>
       <Stack gap="sm" className="flex flex-1 flex-col p-4">
+        <Text
+          variant="caption"
+          tone="muted"
+          as="p"
+          className="font-mono uppercase tracking-[0.1em]"
+        >
+          {product.brand.name}
+        </Text>
         <Link
           href={detailHref}
           ariaLabel={product.name}
-          className="line-clamp-2 min-h-10 text-sm font-medium"
+          className="line-clamp-2 min-h-10 text-[15px] font-medium leading-snug"
         >
           {product.name}
         </Link>
-        <Stack gap="sm" className="mt-auto">
-          <Stack direction="horizontal" gap="sm" align="center">
-            <Text variant="lead" as="span" className="font-bold">
+        <Stack gap="sm" className="mt-auto pt-2">
+          <Stack direction="horizontal" gap="sm" align="center" justify="between">
+            <Text variant="price" as="span">
               {price}
             </Text>
             {product.inStock ? (

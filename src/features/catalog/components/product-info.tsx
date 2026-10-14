@@ -16,19 +16,24 @@ export interface ProductInfoProps {
   messages: Dictionary['catalog'];
 }
 
-/** Presentational detail block: name, brand, price, stock, specs. */
+/** Buy box: brand readout, display name, mono price + stock signal, 1-tap CTA. */
 export function ProductInfo({ product, locale, currency, messages }: ProductInfoProps) {
   const specs = Object.entries(product.specs as unknown as Record<string, unknown>);
 
   return (
     <Stack gap="md">
       <Stack gap="sm">
-        <Text variant="small" tone="muted">
+        <Text
+          variant="caption"
+          tone="muted"
+          as="p"
+          className="font-mono uppercase tracking-[0.12em]"
+        >
           {product.brand.name} · {product.category.name}
         </Text>
         <Heading level={1}>{product.name}</Heading>
-        <Stack direction="horizontal" gap="sm" align="center">
-          <Text variant="lead" as="span" className="font-bold">
+        <Stack direction="horizontal" gap="md" align="center" className="mt-1 flex-wrap">
+          <Text variant="price-lg" as="span">
             {formatPrice(product.priceAmount, currency, locale)}
           </Text>
           {product.inStock ? (
@@ -38,21 +43,31 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
           )}
         </Stack>
         {product.inStock && product.availableQuantity > 0 && (
-          <Text variant="small" tone="muted" role="status">
+          <Text variant="small" tone="muted" role="status" className="font-mono">
             {messages.availableUnits.replace('{count}', String(product.availableQuantity))}
           </Text>
         )}
       </Stack>
 
-      <Stack gap="sm">
-        <AddToCartButton
-          productId={product.id}
-          disabled={!product.inStock}
-          label={messages.addToCart}
-          addedLabel={messages.addToCartAdded}
-          errorLabel={messages.addToCartError}
-        />
-      </Stack>
+      <div className="rounded-xl border border-primary/25 bg-primary-subtle p-4">
+        <Stack gap="sm">
+          <AddToCartButton
+            productId={product.id}
+            disabled={!product.inStock}
+            label={messages.addToCart}
+            addedLabel={messages.addToCartAdded}
+            errorLabel={messages.addToCartError}
+          />
+          <Text
+            variant="caption"
+            tone="muted"
+            as="p"
+            className="font-mono uppercase tracking-[0.1em]"
+          >
+            SKU {product.sku}
+          </Text>
+        </Stack>
+      </div>
 
       <Stack gap="sm">
         <Heading level={3}>{messages.descriptionTitle}</Heading>
