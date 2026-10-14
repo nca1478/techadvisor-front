@@ -139,7 +139,7 @@ export function OrderDetail({
             {order.items.map((item) => (
               <tr key={item.productId} className="border-b border-border last:border-0">
                 <th scope="row" className="px-4 py-3 font-medium">
-                  {item.name}
+                  <Link href={`/${locale}/productos/${item.slug}`}>{item.name}</Link>
                 </th>
                 <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
                 <td className="px-4 py-3 text-right tabular-nums">

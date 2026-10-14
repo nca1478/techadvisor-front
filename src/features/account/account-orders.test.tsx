@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { Order } from '@/lib/api/orders';
 import { getDictionarySync } from '@/lib/i18n/index';
+import { OrderDetail } from './components/orders-table';
 import { AccountOrdersView } from './containers/account-orders-view';
 
 const messages = getDictionarySync('es').account;
@@ -87,5 +88,28 @@ describe('AccountOrdersView pagination', () => {
     const secondPageRows = within(screen.getByRole('table')).getAllByRole('row');
     expect(secondPageRows.length - 1).toBe(1);
     expect(within(secondPageRows[1]).getAllByRole('cell')[0].textContent).toBe('11');
+  });
+});
+
+describe('OrderDetail product links', () => {
+  it('links each item name to its product detail page', () => {
+    const order = {
+      ...makeOrder(0),
+      items: [
+        {
+          productId: 'prod-1',
+          name: 'External USB 2TB Toshiba 2.5" (3.0) Hard Drive',
+          slug: 'external-usb-2tb-toshiba',
+          qty: 1,
+          unitPriceAmount: 22821,
+          lineTotalAmount: 22821,
+        },
+      ],
+    };
+    render(<OrderDetail order={order} locale="es" messages={messages} />);
+    const link = screen.getByRole('link', {
+      name: 'External USB 2TB Toshiba 2.5" (3.0) Hard Drive',
+    });
+    expect(link.getAttribute('href')).toBe('/es/productos/external-usb-2tb-toshiba');
   });
 });
