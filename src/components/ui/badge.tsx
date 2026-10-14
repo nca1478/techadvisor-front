@@ -20,7 +20,7 @@ const DOTS = {
 export type BadgeTone = keyof typeof TONES;
 
 /**
- * Tone maps shared with badge-styled action buttons (same pills as `Badge`,
+ * Tone maps shared with badge-styled action buttons (same shape as `Badge`,
  * but interactive — see `ProductStatusContainer`). Reuse these instead of
  * copying the tint/dot classes.
  */

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { useCart } from '@/features/cart/cart-context';
 import {
   ADVISOR_CHAT_CLEARED_EVENT,
@@ -757,16 +758,12 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
 
   if (openFailed && sessionId === null) {
     return (
-      <div role="alert" className="rounded-md border border-destructive px-3 py-2">
+      <div role="alert" className="rounded-lg border border-destructive/40 px-3 py-2">
         <p className="text-sm text-foreground">{chat.sessionError}</p>
         <div className="mt-2">
-          <button
-            type="button"
-            onClick={handleRetry}
-            className="inline-flex h-8 items-center rounded-full border border-border bg-surface px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
+          <Button variant="secondary" size="sm" onClick={handleRetry}>
             {messages.common.errorRetry}
-          </button>
+          </Button>
         </div>
       </div>
     );

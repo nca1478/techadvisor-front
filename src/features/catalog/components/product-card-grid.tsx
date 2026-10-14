@@ -60,10 +60,10 @@ export function ProductGridSkeleton({
     <Grid columns="products" gap="md" aria-busy="true" aria-label={loadingLabel}>
       {Array.from({ length: count }, (_, index) => (
         <Card key={index} padding="none" aria-hidden="true">
-          <div className="aspect-square w-full bg-surface" />
+          <div className="skeleton aspect-square w-full" />
           <Stack gap="sm" className="p-4">
-            <div className="h-4 w-3/4 rounded-sm bg-surface" />
-            <div className="h-4 w-1/2 rounded-sm bg-surface" />
+            <div className="skeleton h-4 w-3/4 rounded-sm" />
+            <div className="skeleton h-4 w-1/2 rounded-sm" />
           </Stack>
         </Card>
       ))}
@@ -73,8 +73,8 @@ export function ProductGridSkeleton({
 
 export function ProductGridEmpty({ message }: { message: string }) {
   return (
-    <Card>
-      <Stack gap="sm" align="center">
+    <Card className="border-dashed">
+      <Stack gap="sm" align="center" className="text-center">
         <Text tone="muted">{message}</Text>
       </Stack>
     </Card>

@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
@@ -25,19 +24,17 @@ export function HomeSkeleton({ loadingLabel }: SkeletonMessage) {
         </Section>
 
         <Section spacing="tight">
-          <Card variant="ghost" aria-hidden="true">
-            <Stack gap="md">
-              <div className="h-4 w-32 rounded-sm bg-border" />
-              <div className="h-8 w-3/4 rounded-md bg-border" />
-              <Card aria-hidden="true">
-                <Stack gap="sm">
-                  <div className="h-5 w-2/3 rounded-sm bg-surface" />
-                  <div className="h-4 w-1/2 rounded-sm bg-surface" />
-                  <div className="h-4 w-1/3 rounded-sm bg-surface" />
-                </Stack>
-              </Card>
-            </Stack>
-          </Card>
+          <Stack gap="md" aria-hidden="true">
+            <div className="skeleton h-4 w-32 rounded-sm" />
+            <div className="skeleton h-8 w-3/4 rounded-md" />
+            <div className="rounded-xl border border-border p-6">
+              <Stack gap="sm">
+                <div className="skeleton h-5 w-2/3 rounded-sm" />
+                <div className="skeleton h-4 w-1/2 rounded-sm" />
+                <div className="skeleton h-4 w-1/3 rounded-sm" />
+              </Stack>
+            </div>
+          </Stack>
         </Section>
 
         <Section spacing="tight">

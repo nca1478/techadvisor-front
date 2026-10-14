@@ -81,7 +81,7 @@ export function OrdersTable({
                 <OrderStatusBadge status={order.status} messages={messages} />
               </td>
               <td className="px-4 py-3 text-right tabular-nums">{order.itemCount}</td>
-              <td className="px-4 py-3 text-right font-bold tabular-nums">
+              <td className="price px-4 py-3 text-right font-semibold">
                 {formatPrice(order.totalAmount, order.currency, locale)}
               </td>
               <td className="px-4 py-3">
@@ -145,7 +145,7 @@ export function OrderDetail({
                 <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3 text-right font-bold tabular-nums">
+                <td className="price px-4 py-3 text-right font-semibold">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>
@@ -160,7 +160,7 @@ export function OrderDetail({
               >
                 {messages.tableTotal}
               </th>
-              <td className="px-4 py-3 text-right font-bold tabular-nums">
+              <td className="price px-4 py-3 text-right font-semibold">
                 {formatPrice(order.totalAmount, order.currency, locale)}
               </td>
             </tr>

@@ -25,10 +25,9 @@ const ACTION_TONES: Record<AdminProductStatus, BadgeTone> = {
 };
 
 /**
- * Badge-styled action button: the exact `Badge` pill (shape, tint, dot)
- * with the tone of its target status — archivar in amber, pasar a borrador
- * in neutral, activar in green — plus a focus ring and pointer affordance
- * for interactivity.
+ * Badge-styled action button: the `Badge` shape, tint and dot (see
+ * `badgeTones` / `badgeDots`) with the tone of its target status, plus a
+ * focus ring and pointer affordance for interactivity.
  */
 function StatusActionButton({
   tone,
@@ -44,7 +43,7 @@ function StatusActionButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium leading-normal',
+        'inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] leading-normal',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         badgeTones[tone],
       )}

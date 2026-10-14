@@ -41,7 +41,7 @@ export function CartNavLink({
       {showCount ? (
         <span
           aria-hidden="true"
-          className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[11px] font-bold leading-5 text-white"
+          className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 font-mono text-[11px] font-bold leading-5 text-destructive-foreground"
         >
           {String(count)}
         </span>
