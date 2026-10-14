@@ -11,7 +11,7 @@ export interface AdvisorFabProps {
 /**
  * Floating entry point to the conversational advisor, rendered from the
  * localized layout. Hidden on the `/asesor` page itself (it would link to
- * the page being viewed).
+ * the page being viewed). The glyph is a drawn chat mark (no emoji).
  */
 export function AdvisorFab({ locale, label }: AdvisorFabProps) {
   const pathname = usePathname();
@@ -21,7 +21,22 @@ export function AdvisorFab({ locale, label }: AdvisorFabProps) {
   return (
     <div className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6">
       <Button href={`/${locale}/asesor`} aria-label={label} size="lg" className="shadow-lg">
-        <span aria-hidden="true">{'💬'}</span>
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2.5 3.5h13v8h-7l-3.5 3v-3H2.5v-8Z" />
+          <circle cx="6.5" cy="7.5" r="0.6" fill="currentColor" stroke="none" />
+          <circle cx="9.5" cy="7.5" r="0.6" fill="currentColor" stroke="none" />
+          <circle cx="12.5" cy="7.5" r="0.6" fill="currentColor" stroke="none" />
+        </svg>
         {label}
       </Button>
     </div>

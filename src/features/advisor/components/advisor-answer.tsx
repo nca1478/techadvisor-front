@@ -62,7 +62,7 @@ export function AdvisorAnswer({
               onClick={() => {
                 setOpenCitation(expanded ? null : n);
               }}
-              className="mx-0.5 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full border border-border bg-background px-1.5 align-baseline text-xs font-semibold text-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="mx-0.5 inline-flex min-h-6 min-w-6 items-center justify-center rounded-md border border-accent/40 bg-accent/10 px-1.5 align-baseline font-mono text-xs font-semibold text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               [{String(n)}]
             </button>
@@ -73,10 +73,7 @@ export function AdvisorAnswer({
         {uniqueCitations.map((citation) => {
           const expanded = openCitation === citation.n;
           return (
-            <li
-              key={citation.n}
-              className="rounded-md border border-border bg-background px-3 py-2"
-            >
+            <li key={citation.n} className="rounded-lg border border-border bg-surface px-3 py-2">
               <button
                 type="button"
                 aria-expanded={expanded}

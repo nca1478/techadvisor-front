@@ -149,7 +149,7 @@ export function ChatWindow({
               <div
                 role="group"
                 aria-label={chat.deleteChat}
-                className="flex flex-wrap items-center gap-2 rounded-md border border-destructive px-3 py-2"
+                className="flex flex-wrap items-center gap-2 rounded-lg border border-destructive/40 px-3 py-2"
               >
                 <Text variant="small">{chat.deleteConfirm}</Text>
                 <div className="flex gap-2">
@@ -213,7 +213,7 @@ export function ChatWindow({
         role="log"
         aria-live="polite"
         aria-label={chat.logLabel}
-        className="flex max-h-[60dvh] min-h-[40dvh] flex-col gap-3 overflow-y-auto rounded-md border border-border bg-surface p-3"
+        className="flex max-h-[60dvh] min-h-[40dvh] flex-col gap-3 overflow-y-auto rounded-xl border border-border bg-surface p-3"
       >
         {bubbles.length === 0 && streamingText === null ? (
           <Text variant="small" tone="muted">
@@ -223,15 +223,22 @@ export function ChatWindow({
         {bubbles.map((bubble) =>
           bubble.role === 'user' ? (
             <div key={bubble.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-md rounded-br-none bg-primary px-3 py-2 text-primary-foreground">
+              <div className="max-w-[85%] rounded-lg rounded-br-none border border-primary/30 bg-primary-subtle px-3 py-2 text-foreground">
                 <span className="sr-only">{`${chat.userLabel}: `}</span>
                 <span className="text-sm leading-relaxed">{bubble.text}</span>
               </div>
             </div>
           ) : (
             <div key={bubble.id} className="flex justify-start">
-              <div className="flex max-w-[95%] flex-col gap-2 rounded-md rounded-bl-none border border-border bg-background px-3 py-2 sm:max-w-[85%]">
+              <div className="flex max-w-[95%] flex-col gap-2 rounded-lg rounded-bl-none border border-border bg-surface-raise px-3 py-2 sm:max-w-[85%]">
                 <span className="sr-only">{`${chat.assistantLabel}: `}</span>
+                <span
+                  aria-hidden="true"
+                  className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-accent"
+                >
+                  <span className="inline-block size-1.5 rounded-full bg-accent shadow-[0_0_8px_rgb(34_211_238/0.9)]" />
+                  {chat.assistantLabel}
+                </span>
                 {bubble.clarifying ? <Badge tone="warning">{chat.clarificationBadge}</Badge> : null}
                 {bubble.citations && bubble.citations.length > 0 ? (
                   <AdvisorAnswer
@@ -276,11 +283,11 @@ export function ChatWindow({
         )}
         {streamingText !== null ? (
           <div className="flex justify-start">
-            <div className="max-w-[95%] rounded-md rounded-bl-none border border-border bg-background px-3 py-2 sm:max-w-[85%]">
+            <div className="max-w-[95%] rounded-lg rounded-bl-none border border-border bg-surface-raise px-3 py-2 sm:max-w-[85%]">
               <span className="sr-only">{`${chat.assistantLabel}: `}</span>
               <p aria-hidden="true" className="text-sm leading-relaxed text-foreground">
                 {streamingText}
-                <span aria-hidden="true" className="animate-pulse">
+                <span aria-hidden="true" className="animate-pulse text-accent">
                   {'▍'}
                 </span>
               </p>
@@ -317,7 +324,7 @@ export function ChatWindow({
       ) : null}
 
       {errorMessage !== null ? (
-        <div role="alert" className="rounded-md border border-destructive px-3 py-2">
+        <div role="alert" className="rounded-lg border border-destructive/40 px-3 py-2">
           <Text variant="small">{errorMessage}</Text>
           <div className="mt-2">
             <Button variant="secondary" size="sm" onClick={onRetry}>

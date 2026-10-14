@@ -131,7 +131,7 @@ export function AdvisorView({
         )}
 
         {status === 'error' && (
-          <div role="alert" className="rounded-md border border-destructive px-3 py-2">
+          <div role="alert" className="rounded-lg border border-destructive/40 px-3 py-2">
             <Text variant="small">{errorMessage ?? messages.genericError}</Text>
             <div className="mt-2">
               <Button variant="secondary" size="sm" onClick={onRetry}>
@@ -144,7 +144,7 @@ export function AdvisorView({
         {showResult && (
           <div aria-live="polite" className="flex flex-col gap-3">
             {result.abstained ? (
-              <div className="rounded-md border border-border bg-background px-3 py-2">
+              <div className="rounded-lg border border-border bg-surface-raise px-3 py-2">
                 <Badge tone="neutral">{messages.abstentionBadge}</Badge>
                 <Text variant="small" className="mt-1.5">
                   {result.answer}
@@ -180,7 +180,19 @@ export function AdvisorView({
                   onFeedback('up');
                 }}
               >
-                <span aria-hidden="true">👍</span>
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5.5 7v6H2.8V7h2.7ZM5.5 7l2.6-4.2c.5-.1 1.1.3 1.1.9V6h3.4c.6 0 1 .5.9 1.1l-1.1 4.6c-.1.6-.7 1.1-1.3 1.1H5.5V7Z" />
+                </svg>
               </Button>
               <Button
                 variant={feedback === 'down' ? 'primary' : 'secondary'}
@@ -192,7 +204,19 @@ export function AdvisorView({
                   onFeedback('down');
                 }}
               >
-                <span aria-hidden="true">👎</span>
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10.5 9V3h2.7v6h-2.7ZM10.5 9l-2.6 4.2c-.5.1-1.1-.3-1.1-.9V10H3.4c-.6 0-1-.5-.9-1.1l1.1-4.6c.1-.6.7-1.1 1.3-1.1h5.6v6Z" />
+                </svg>
               </Button>
             </div>
           </div>

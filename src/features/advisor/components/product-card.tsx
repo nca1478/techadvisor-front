@@ -62,10 +62,10 @@ export function ProductCard({ product, locale, productHref, messages, onAdd }: P
   return (
     <article
       aria-label={product.name}
-      className="flex gap-3 rounded-md border border-border bg-surface px-3 py-2.5"
+      className="flex gap-3 rounded-lg border border-border bg-surface-raise px-3 py-2.5"
     >
       <div className="size-16 shrink-0">
-        <MediaFrame src={product.imageUrl} alt={product.name} ratio="square" rounded="sm" />
+        <MediaFrame src={product.imageUrl} alt={product.name} ratio="square" rounded="sm" lift />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -80,7 +80,7 @@ export function ProductCard({ product, locale, productHref, messages, onAdd }: P
             {product.inStock ? messages.inStock : messages.outOfStock}
           </Badge>
         </div>
-        <Text variant="lead" as="p" className="font-semibold">
+        <Text variant="price" as="p">
           {formatPrice(product.priceAmount, product.currency, locale)}
         </Text>
         {product.reason.trim().length > 0 ? (
