@@ -16,17 +16,27 @@ export interface LinkProps {
   className?: string;
   /** Accessible name override (e.g. "Cart, 3 items" for a badge link). */
   ariaLabel?: string;
+  /** Native tooltip (e.g. full product name on truncated text). */
+  title?: string;
   children: ReactNode;
 }
 
 /** Text link: primary or muted, underline on hover, visible focus ring. */
-export function Link({ href, variant = 'default', className, ariaLabel, children }: LinkProps) {
+export function Link({
+  href,
+  variant = 'default',
+  className,
+  ariaLabel,
+  title,
+  children,
+}: LinkProps) {
   const external = href.startsWith('http');
   return (
     <NextLink
       href={href}
       {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       {...(ariaLabel !== undefined ? { 'aria-label': ariaLabel } : {})}
+      {...(title !== undefined ? { title } : {})}
       className={cn(
         'rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         VARIANTS[variant],

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Link } from '@/components/ui/link';
 import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -44,9 +45,15 @@ export function CartLine({
           <MediaFrame src={imageSrc} alt={item.name} ratio="square" rounded="sm" />
         </a>
         <Stack gap="sm" className="min-w-0">
-          <Text as="span" variant="lead" className="truncate">
-            {item.name}
-          </Text>
+          <Link
+            href={`/${locale}/productos/${item.slug}`}
+            title={item.name}
+            className="truncate no-underline"
+          >
+            <Text as="span" variant="lead" className="truncate">
+              {item.name}
+            </Text>
+          </Link>
           <Text variant="small" tone="muted">
             {formatPrice(item.unitPriceAmount, currency, locale)}
           </Text>
