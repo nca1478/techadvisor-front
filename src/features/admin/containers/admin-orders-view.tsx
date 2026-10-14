@@ -166,7 +166,7 @@ export function AdminOrdersView({
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">{order.items.length}</td>
-                      <td className="px-4 py-3 text-right font-bold tabular-nums">
+                      <td className="price px-4 py-3 text-right font-semibold">
                         {formatPrice(order.totalAmount, order.currency, locale)}
                       </td>
                       <td className="px-4 py-3">

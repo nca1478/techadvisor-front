@@ -5,9 +5,9 @@ import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 
 /**
- * Consistent admin module header: title + subtitle inside a white
- * (surface) card, with an optional actions slot on the right
- * (e.g. "New product"). All list modules share this layout.
+ * Consistent admin module header: title + subtitle inside a lab surface
+ * card, with an optional actions slot on the right (e.g. "New product").
+ * All list modules share this layout.
  */
 export function AdminHeaderCard({
   title,
@@ -33,7 +33,7 @@ export function AdminHeaderCard({
 
 /**
  * Consistent admin filters container: every module wraps its filter
- * controls in a white (surface) card with the same horizontal layout.
+ * controls in a surface card with the same horizontal layout.
  */
 export function AdminFiltersCard({ children }: { children: ReactNode }) {
   return (

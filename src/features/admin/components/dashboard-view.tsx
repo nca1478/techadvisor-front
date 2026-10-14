@@ -146,7 +146,7 @@ export function DashboardView(props: DashboardSummary) {
             <Text variant="caption" tone="muted" as="div">
               {dashboard.kpiRevenue}
             </Text>
-            <Text variant="lead" as="div" className="font-bold tabular-nums">
+            <Text variant="price" as="div">
               {revenueText}
             </Text>
             <Text variant="caption" tone="muted" as="div">
@@ -162,7 +162,7 @@ export function DashboardView(props: DashboardSummary) {
             <Text variant="caption" tone="muted" as="div">
               {dashboard.kpiOrders}
             </Text>
-            <Text variant="lead" as="div" className="font-bold tabular-nums">
+            <Text variant="price" as="div">
               {ordersTotal === null ? dashboard.attentionUnknown : String(ordersTotal)}
             </Text>
             <Text variant="caption" tone="muted" as="div">
@@ -176,7 +176,7 @@ export function DashboardView(props: DashboardSummary) {
             <Text variant="caption" tone="muted" as="div">
               {dashboard.kpiTicket}
             </Text>
-            <Text variant="lead" as="div" className="font-bold tabular-nums">
+            <Text variant="price" as="div">
               {ticketText}
             </Text>
             <Text variant="caption" tone="muted" as="div">
@@ -190,7 +190,7 @@ export function DashboardView(props: DashboardSummary) {
             <Text variant="caption" tone="muted" as="div">
               {dashboard.kpiAttention}
             </Text>
-            <Text variant="lead" as="div" className="font-bold tabular-nums">
+            <Text variant="price" as="div">
               {String(attention)}
             </Text>
             <Text variant="caption" tone="muted" as="div">
@@ -321,8 +321,10 @@ export function DashboardView(props: DashboardSummary) {
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.status} messages={messages.account} />
                       </td>
-                      <td className="px-4 py-3 text-right font-bold tabular-nums">
-                        {formatPrice(order.totalAmount, order.currency, locale)}
+                      <td className="px-4 py-3 text-right">
+                        <span className="price font-semibold">
+                          {formatPrice(order.totalAmount, order.currency, locale)}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <Link href={`/${locale}/admin/ordenes/${encodeURIComponent(order.id)}`}>

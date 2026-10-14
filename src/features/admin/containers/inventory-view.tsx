@@ -183,7 +183,7 @@ export function InventoryView({
                         </th>
                         <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
-                        <td className="px-4 py-3 text-right font-bold tabular-nums">
+                        <td className="price px-4 py-3 text-right font-semibold">
                           {availableUnits(product)}
                         </td>
                         <td className="px-4 py-3">

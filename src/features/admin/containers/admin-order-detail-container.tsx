@@ -190,7 +190,7 @@ export function AdminOrderDetailContainer({
                 <td className="px-4 py-3 text-right tabular-nums">
                   {formatPrice(item.unitPriceAmount, order.currency, locale)}
                 </td>
-                <td className="px-4 py-3 text-right font-bold tabular-nums">
+                <td className="price px-4 py-3 text-right font-semibold">
                   {formatPrice(item.lineTotalAmount, order.currency, locale)}
                 </td>
               </tr>
@@ -205,7 +205,7 @@ export function AdminOrderDetailContainer({
               >
                 {orders.tableTotal}
               </th>
-              <td className="px-4 py-3 text-right font-bold tabular-nums">
+              <td className="price px-4 py-3 text-right font-semibold">
                 {formatPrice(order.totalAmount, order.currency, locale)}
               </td>
             </tr>
