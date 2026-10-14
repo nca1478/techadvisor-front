@@ -44,8 +44,9 @@ type Phase =
   | { kind: 'unknown' };
 
 /**
- * Order status view with bounded polling. While the order stays in
- * `PENDING_PAYMENT` it shows the "processing payment" state; the Stripe
+ * Order status view with bounded polling. The order renders as soon as the
+ * first fetch returns (a `PENDING_PAYMENT` order shows the "processing
+ * payment" state with its summary while polling continues); the Stripe
  * webhook (never the redirect) is what moves it to `PAID`. When polling is
  * exhausted the order is shown with a "pay again" action that reuses the
  * backend idempotency key (`checkout-{orderId}`).
@@ -82,7 +83,22 @@ export function OrderStatusView({
           }
           return (await res.json()) as Order;
         }),
-      { intervalMs: 2500, maxAttempts: 24 },
+      {
+        intervalMs: 2500,
+        maxAttempts: 24,
+        // Render the order as soon as the first fetch returns instead of
+        // holding "Loading order..." for the whole poll: a PENDING_PAYMENT
+        // order shows the processing state (summary + spinner) while the
+        // webhook confirmation arrives in the background.
+        onOrder: (order) => {
+          if (cancelled) return;
+          setPhase(
+            order.status === 'PENDING_PAYMENT'
+              ? { kind: 'processing', order }
+              : { kind: 'settled', order },
+          );
+        },
+      },
     )
       .then(({ order }) => {
         if (cancelled) return;

@@ -70,4 +70,25 @@ describe('pollOrderUntilSettled', () => {
     expect(result.settled).toBe(false);
     expect(result.attempts).toBe(3);
   });
+
+  it('reports every fetched order via onOrder for progressive rendering', async () => {
+    const states = [orderWith('PENDING_PAYMENT'), orderWith('PENDING_PAYMENT'), orderWith('PAID')];
+    const seen: { status: Order['status']; attempts: number }[] = [];
+    const result = await pollOrderUntilSettled(
+      () => Promise.resolve(states.shift() ?? orderWith('PAID')),
+      {
+        intervalMs: 1,
+        maxAttempts: 10,
+        onOrder: (order, attempts) => {
+          seen.push({ status: order.status, attempts });
+        },
+      },
+    );
+    expect(result.settled).toBe(true);
+    expect(seen).toEqual([
+      { status: 'PENDING_PAYMENT', attempts: 1 },
+      { status: 'PENDING_PAYMENT', attempts: 2 },
+      { status: 'PAID', attempts: 3 },
+    ]);
+  });
 });

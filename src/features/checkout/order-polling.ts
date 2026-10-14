@@ -28,6 +28,12 @@ export interface PollOptions {
   intervalMs?: number;
   maxAttempts?: number;
   isSettled?: (order: Order) => boolean;
+  /**
+   * Called after every fetch (including the first) so the UI can render the
+   * order progressively instead of waiting for the poll to finish. Firing
+   * the callback never changes the polling itself.
+   */
+  onOrder?: (order: Order, attempts: number) => void;
 }
 
 const DEFAULT_IS_SETTLED = (order: Order): boolean => order.status !== 'PENDING_PAYMENT';
@@ -42,13 +48,16 @@ export async function pollOrderUntilSettled(
   options: PollOptions = {},
 ): Promise<{ order: Order; settled: boolean; attempts: number }> {
   const { intervalMs = 2500, maxAttempts = 24, isSettled = DEFAULT_IS_SETTLED } = options;
+  const { onOrder } = options;
   let attempts = 0;
   let order = await fetchOrder();
   attempts += 1;
+  onOrder?.(order, attempts);
   while (!isSettled(order) && attempts < maxAttempts) {
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
     order = await fetchOrder();
     attempts += 1;
+    onOrder?.(order, attempts);
   }
   return { order, settled: isSettled(order), attempts };
 }
