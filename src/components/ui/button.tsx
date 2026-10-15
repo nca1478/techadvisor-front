@@ -1,3 +1,4 @@
+import NextLink from 'next/link';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from './cn';
 
@@ -27,8 +28,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Button with 5 variants x 3 sizes. Renders an anchor when `href` is given,
- * otherwise a native button. `loading` shows a spinner, announces busy state
+ * Button with 5 variants x 3 sizes. Renders a client-side `next/link` when
+ * `href` is an internal route (avoids full-page reloads that would remount
+ * the header providers), a plain anchor for external/hash links, otherwise
+ * a native button. `loading` shows a spinner, announces busy state
  * and disables interaction.
  */
 export function Button({
@@ -66,8 +69,20 @@ export function Button({
   );
 
   if (href !== undefined && !disabled && !loading) {
+    if (href.startsWith('/')) {
+      return (
+        <NextLink href={href} className={classes}>
+          {content}
+        </NextLink>
+      );
+    }
+    const external = href.startsWith('http');
     return (
-      <a href={href} className={classes}>
+      <a
+        href={href}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        className={classes}
+      >
         {content}
       </a>
     );
