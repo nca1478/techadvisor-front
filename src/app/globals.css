@@ -14,7 +14,8 @@
  * all above WCAG AA. Muted tones are tinted from the ink hue, never gray.
  */
 
-:root {
+:root,
+[data-theme='dark'] {
   color-scheme: dark;
 
   --background: #0a0e13;
@@ -61,8 +62,10 @@
 }
 
 /*
- * Light reading theme (kept for admin/print surfaces opting in via
- * [data-theme="light"]). The storefront ships dark by default.
+ * Light lab theme: same signal semantics on a paper ground for daylight
+ * reading. Volt stays conversion-only (deepened for contrast on paper),
+ * cyan stays advisor-only, header/footer keep the ink lab shell.
+ * Switchable at runtime via [data-theme] on <html> (see ThemeProvider).
  */
 [data-theme="light"] {
   color-scheme: light;
@@ -106,6 +109,11 @@
   --destructive: #be123c;
   --destructive-subtle: #fbeaea;
   --destructive-foreground: #ffffff;
+
+  /* Daylight depth: the same offsets, lifted for a paper ground. */
+  --shadow-sm: 0 1px 2px rgb(15 20 25 / 0.08);
+  --shadow-md: 0 6px 18px rgb(15 20 25 / 0.12);
+  --shadow-lg: 0 18px 48px rgb(15 20 25 / 0.16);
 }
 
 @theme inline {

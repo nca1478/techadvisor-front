@@ -7,7 +7,9 @@
     "emptyTitle": "No results",
     "language": "Language",
     "currency": "Currency",
-    "techAdvisor": "TechAdvisor"
+    "techAdvisor": "TechAdvisor",
+    "themeSwitchToLight": "Switch to light mode",
+    "themeSwitchToDark": "Switch to dark mode"
   },
   "nav": {
     "home": "Home",
