@@ -1,10 +1,10 @@
 /**
- * Curated background photo per category slug (ADR 0023).
+ * Fallback background photo per category slug (ADR 0023, backend ADR 0052).
  *
- * The backend stores no image per category, so the home "shop by category"
- * cards map each known `slug` to a related Unsplash photo. Unknown slugs
- * return `null` so callers fall back to the local placeholder — the grid
- * never breaks when the catalog gains a category.
+ * The backend is now the source of truth (`Category.imageUrl`, editable from
+ * the admin panel and seeded with these same photos). This map only covers
+ * slugs without a stored image so the grid never breaks when a category has
+ * no cover yet — callers prefer `category.imageUrl` first.
  *
  * Photos are hotlinked from `images.unsplash.com` (stable photo IDs,
  * verified HTTP 200). The host must stay listed in `IMAGE_REMOTE_HOSTS`
@@ -22,6 +22,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
   storage:
     'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?q=80&w=800&auto=format&fit=crop',
   psus: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop',
+  monitors:
+    'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=800&auto=format&fit=crop',
 };
 
 /** Related background photo for a category slug, or `null` when unknown. */

@@ -4,7 +4,15 @@ import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { CatalogCategory } from '@/lib/api/catalog';
+import { nullableString } from '@/lib/api/catalog';
 import { categoryImageSrc } from './category-images';
+
+/** Backend cover first, curated slug photo second, placeholder last (via MediaFrame). */
+export function categoryCardImage(
+  category: Pick<CatalogCategory, 'imageUrl' | 'slug'>,
+): string | null {
+  return nullableString(category.imageUrl) ?? categoryImageSrc(category.slug);
+}
 
 export interface CategoryGridProps {
   categories: CatalogCategory[];
@@ -32,7 +40,7 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
           >
             {/* Decorative photo: the link already exposes the category name. */}
             <MediaFrame
-              src={categoryImageSrc(category.slug)}
+              src={categoryCardImage(category)}
               alt=""
               ratio="video"
               rounded="lg"

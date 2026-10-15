@@ -29,7 +29,17 @@ const emptyCart = {
 };
 
 const categories: CatalogCategory[] = [
-  { id: 'c1', name: 'Audio', slug: 'audio', parentSlug: null, specsSchema: [], locale: 'en' },
+  {
+    id: 'c1',
+    name: 'Audio',
+    slug: 'audio',
+    parentSlug: null,
+    imageUrl: null,
+    imageAlt: null,
+    showInHome: true,
+    specsSchema: [],
+    locale: 'en',
+  },
 ];
 
 function response(overrides: Partial<SearchResponse> = {}): SearchResponse {
@@ -52,6 +62,9 @@ function response(overrides: Partial<SearchResponse> = {}): SearchResponse {
             name: 'Audio',
             slug: 'audio',
             parentSlug: null,
+            imageUrl: null,
+            imageAlt: null,
+            showInHome: true,
             specsSchema: [],
             locale: 'en',
           },

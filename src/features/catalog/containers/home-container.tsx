@@ -42,7 +42,11 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   }
 
   const products = featuredResult.value.data.filter((product) => product.inStock).slice(0, 8);
-  const categories = categoriesResult.value;
+  // The admin `showInHome` flag controls this section; rows created before
+  // the contract carry no flag and default to visible (same as the DB).
+  const categories = categoriesResult.value.filter(
+    (category) => (category as unknown as Record<string, unknown>)['showInHome'] !== false,
+  );
   const listHref = `/${locale}/productos`;
   const coverMessages = {
     badge: messages.catalog.homeCoverBadge,

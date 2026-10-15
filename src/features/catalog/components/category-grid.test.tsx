@@ -9,6 +9,9 @@ function category(overrides: Partial<CatalogCategory> = {}): CatalogCategory {
     name: 'Laptops',
     slug: 'laptops',
     parentSlug: null,
+    imageUrl: null,
+    imageAlt: null,
+    showInHome: true,
     specsSchema: [],
     locale: 'es',
     ...overrides,
@@ -98,5 +101,27 @@ describe('CategoryGrid', () => {
     const link = screen.getByRole('link', { name: 'Drones' });
     expect(link.querySelector('img')?.getAttribute('src')).toContain('placeholder.svg');
     expect(link).toHaveTextContent('Drones');
+  });
+
+  it('prefers the backend cover image over the curated slug photo', () => {
+    const backendCover = 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf';
+    render(
+      <CategoryGrid
+        categories={[
+          category({
+            id: 'c8',
+            name: 'Monitors',
+            slug: 'monitors',
+            imageUrl: backendCover as unknown as CatalogCategory['imageUrl'],
+          }),
+        ]}
+        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        title="Compra por categoría"
+        subtitle="Explora el catálogo por categoría."
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Monitors' });
+    expect(link.querySelector('img')?.getAttribute('src')).toContain('photo-1527443224154');
   });
 });
