@@ -10,10 +10,6 @@ import type { Dictionary } from '@/lib/i18n/index';
 
 const VALUE_TONES: readonly BadgeTone[] = ['primary', 'success', 'warning'];
 
-/**
- * Deterministic badge tone per value (same value → same color, like the
- * orders table maps each status to its tone). Empty values stay neutral.
- */
 function toneForValue(value: string): BadgeTone {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
@@ -22,14 +18,6 @@ function toneForValue(value: string): BadgeTone {
   return VALUE_TONES[hash % VALUE_TONES.length] ?? 'primary';
 }
 
-/**
- * Presentational category table. Rows arrive pre-ordered (roots first,
- * children nested with `depth`) from `orderCategoriesForDisplay`;
- * deletion is delegated to the container via `onDelete`, and the home
- * visibility switch via `onToggleHome` (the container PATCHes
- * `showInHome` with an optimistic override while the request is in
- * flight, so `homeOverrides` wins over the server row).
- */
 export function CategoriesTable({
   rows,
   locale,
