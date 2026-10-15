@@ -160,58 +160,60 @@ export function AdminOrderDetailContainer({
       <Text variant="lead" as="div">
         {messages.account.itemsTitle}
       </Text>
-      <div className="overflow-x-auto rounded-md border border-border">
-        <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
-          <thead>
-            <tr className="border-b border-border">
-              <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
-                {messages.account.itemsTitle}
-              </th>
-              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
-                {messages.account.quantityHeader}
-              </th>
-              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
-                {messages.account.unitPriceHeader}
-              </th>
-              <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
-                {messages.account.lineTotalHeader}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.items.map((item) => (
-              <tr key={item.productId} className="border-b border-border last:border-0">
-                <th scope="row" className="px-4 py-3 font-medium">
-                  <Link href={`/${locale}/admin/productos/${encodeURIComponent(item.productId)}`}>
-                    {item.name}
-                  </Link>
+      <Card padding="none">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[36rem] border-collapse bg-surface text-left text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th scope="col" className="px-4 py-3 text-xs font-bold text-foreground">
+                  {messages.account.itemsTitle}
                 </th>
-                <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
-                <td className="px-4 py-3 text-right tabular-nums">
-                  {formatPrice(item.unitPriceAmount, order.currency, locale)}
-                </td>
+                <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
+                  {messages.account.quantityHeader}
+                </th>
+                <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
+                  {messages.account.unitPriceHeader}
+                </th>
+                <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-foreground">
+                  {messages.account.lineTotalHeader}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {order.items.map((item) => (
+                <tr key={item.productId} className="border-b border-border last:border-0">
+                  <th scope="row" className="px-4 py-3 font-medium">
+                    <Link href={`/${locale}/admin/productos/${encodeURIComponent(item.productId)}`}>
+                      {item.name}
+                    </Link>
+                  </th>
+                  <td className="px-4 py-3 text-right tabular-nums">{item.qty}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">
+                    {formatPrice(item.unitPriceAmount, order.currency, locale)}
+                  </td>
+                  <td className="price px-4 py-3 text-right font-semibold">
+                    {formatPrice(item.lineTotalAmount, order.currency, locale)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-border">
+                <th
+                  scope="row"
+                  colSpan={3}
+                  className="px-4 py-3 text-right text-xs font-bold text-foreground"
+                >
+                  {orders.tableTotal}
+                </th>
                 <td className="price px-4 py-3 text-right font-semibold">
-                  {formatPrice(item.lineTotalAmount, order.currency, locale)}
+                  {formatPrice(order.totalAmount, order.currency, locale)}
                 </td>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t border-border">
-              <th
-                scope="row"
-                colSpan={3}
-                className="px-4 py-3 text-right text-xs font-bold text-foreground"
-              >
-                {orders.tableTotal}
-              </th>
-              <td className="price px-4 py-3 text-right font-semibold">
-                {formatPrice(order.totalAmount, order.currency, locale)}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+            </tfoot>
+          </table>
+        </div>
+      </Card>
       {hasShipping ? (
         <>
           <Text variant="lead" as="div">
