@@ -44,6 +44,7 @@ export function Button({
 }: ButtonProps) {
   const classes = cn(
     'inline-flex items-center justify-center gap-2 rounded-lg font-medium tracking-[-0.01em] transition-[background-color,border-color,box-shadow,transform,color] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]',
+    'cursor-pointer',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     'disabled:pointer-events-none disabled:opacity-50',
     'active:scale-[0.98]',

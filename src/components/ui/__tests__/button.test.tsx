@@ -6,7 +6,7 @@ describe('Button', () => {
   it('renders the primary medium button by default', () => {
     render(<Button>Save</Button>);
     const button = screen.getByRole('button', { name: 'Save' });
-    expect(button).toHaveClass('bg-primary', 'h-10');
+    expect(button).toHaveClass('bg-primary', 'h-10', 'cursor-pointer');
     expect(button).toHaveAttribute('type', 'button');
   });
 
