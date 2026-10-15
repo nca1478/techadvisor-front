@@ -32,11 +32,13 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
       className={`${fontSans.variable} ${fontMono.variable} ${fontDisplay.variable} h-full antialiased`}
     >
-      <Script
-        id="theme-init"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
-      />
+      <head>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
