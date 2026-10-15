@@ -60,7 +60,13 @@ export default async function LocaleLayout({
     // Header still renders with the base fallback; pages show their own error state.
   }
   try {
-    categories = await createCatalogApi(createApiClient()).listCategories(locale);
+    const allCategories = await createCatalogApi(createApiClient()).listCategories(locale);
+    // The admin `showInHome` flag controls the header menu too, same as the
+    // home "Shop by category" section; rows created before the contract
+    // carry no flag and default to visible (same as the DB).
+    categories = allCategories.filter(
+      (category) => (category as unknown as Record<string, unknown>)['showInHome'] !== false,
+    );
   } catch {
     // Header renders without the category row; pages show their own error state.
   }
