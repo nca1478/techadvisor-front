@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import Script from 'next/script';
 import './globals.css';
 import { fontDisplay, fontMono, fontSans } from './fonts';
 import { normalizeLocale } from '@/lib/i18n/config';
@@ -31,9 +32,11 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
       className={`${fontSans.variable} ${fontMono.variable} ${fontDisplay.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-      </head>
+      <Script
+        id="theme-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+      />
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
