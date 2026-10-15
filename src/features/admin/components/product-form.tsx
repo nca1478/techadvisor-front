@@ -109,6 +109,7 @@ export function ProductForm({
           </p>
         ) : null}
       </div>
+      <hr className="border-border" />
       <Stack direction="horizontal" gap="md" wrap>
         <div className="min-w-52 flex-1">
           <Select
@@ -195,6 +196,7 @@ export function ProductForm({
           </div>
         ) : null}
       </Stack>
+      <hr className="border-border" />
       <Stack gap="sm">
         <Text variant="lead" as="div">
           {formMessages.specsTitle}
@@ -263,53 +265,59 @@ export function ProductForm({
         )}
       </Stack>
       {otherLocales.length > 0 ? (
-        <Stack gap="sm">
-          <Text variant="lead" as="div">
-            {formMessages.translationTitle}
-          </Text>
-          <Text variant="small" tone="muted">
-            {formMessages.translationSubtitle}
-          </Text>
-          <Stack direction="horizontal" gap="md" wrap>
-            <div className="min-w-52 flex-1">
-              <Select
-                label={formMessages.translationLocale}
-                name="translationLocale"
-                value={values.translationLocale}
-                options={otherLocales.map((locale) => ({ value: locale, label: locale }))}
-                placeholder="—"
+        <>
+          <hr className="border-border" />
+          <Stack gap="sm">
+            <Text variant="lead" as="div">
+              {formMessages.translationTitle}
+            </Text>
+            <Text variant="small" tone="muted">
+              {formMessages.translationSubtitle}
+            </Text>
+            <Stack direction="horizontal" gap="md" wrap>
+              <div className="min-w-52 flex-1">
+                <Select
+                  label={formMessages.translationLocale}
+                  name="translationLocale"
+                  value={values.translationLocale}
+                  options={otherLocales.map((locale) => ({ value: locale, label: locale }))}
+                  placeholder="—"
+                  onChange={(event) => {
+                    set({ translationLocale: event.target.value });
+                  }}
+                />
+              </div>
+              <div className="min-w-52 flex-1">
+                <Input
+                  label={formMessages.translationName}
+                  name="translationName"
+                  value={values.translationName}
+                  onChange={(event) => {
+                    set({ translationName: event.target.value });
+                  }}
+                />
+              </div>
+            </Stack>
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="translationDescription"
+                className="text-sm font-medium text-foreground"
+              >
+                {formMessages.translationDescription}
+              </label>
+              <textarea
+                id="translationDescription"
+                name="translationDescription"
+                value={values.translationDescription}
+                rows={3}
                 onChange={(event) => {
-                  set({ translationLocale: event.target.value });
+                  set({ translationDescription: event.target.value });
                 }}
-              />
-            </div>
-            <div className="min-w-52 flex-1">
-              <Input
-                label={formMessages.translationName}
-                name="translationName"
-                value={values.translationName}
-                onChange={(event) => {
-                  set({ translationName: event.target.value });
-                }}
+                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               />
             </div>
           </Stack>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="translationDescription" className="text-sm font-medium text-foreground">
-              {formMessages.translationDescription}
-            </label>
-            <textarea
-              id="translationDescription"
-              name="translationDescription"
-              value={values.translationDescription}
-              rows={3}
-              onChange={(event) => {
-                set({ translationDescription: event.target.value });
-              }}
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            />
-          </div>
-        </Stack>
+        </>
       ) : null}
     </Stack>
   );
