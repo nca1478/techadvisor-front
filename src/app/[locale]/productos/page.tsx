@@ -103,7 +103,9 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
   ]);
 
   return (
-    <Suspense fallback={<ListingSkeleton loadingLabel={messages.common.loading} />}>
+    <Suspense
+      fallback={<ListingSkeleton loadingLabel={messages.common.loading} columns="featured" />}
+    >
       <ProductListView
         initialData={productsResult.status === 'fulfilled' ? productsResult.value : null}
         loadError={productsResult.status === 'rejected'}

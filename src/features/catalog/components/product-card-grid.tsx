@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { Grid } from '@/components/ui/grid';
+import { Grid, type GridProps } from '@/components/ui/grid';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { CompareToggleMessages } from '@/features/compare/components/compare-toggle';
@@ -21,9 +21,11 @@ export interface ProductCardGridProps {
   messages: Dictionary['catalog'];
   detailHrefFor: (slug: string) => string;
   compareFor?: (product: ProductListItem) => CompareSlot;
+  /** Grid column preset (home featured uses `featured`); defaults to `products`. */
+  columns?: GridProps['columns'];
 }
 
-/** Presentational product grid (uses the `products` Grid preset). */
+/** Presentational product grid (defaults to the `products` Grid preset). */
 export function ProductCardGrid({
   products,
   locale,
@@ -31,9 +33,10 @@ export function ProductCardGrid({
   messages,
   detailHrefFor,
   compareFor,
+  columns = 'products',
 }: ProductCardGridProps) {
   return (
-    <Grid columns="products" gap="md">
+    <Grid columns={columns} gap="md">
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -52,12 +55,14 @@ export function ProductCardGrid({
 export function ProductGridSkeleton({
   count = 8,
   loadingLabel,
+  columns = 'products',
 }: {
   count?: number;
   loadingLabel: string;
+  columns?: GridProps['columns'];
 }) {
   return (
-    <Grid columns="products" gap="md" aria-busy="true" aria-label={loadingLabel}>
+    <Grid columns={columns} gap="md" aria-busy="true" aria-label={loadingLabel}>
       {Array.from({ length: count }, (_, index) => (
         <Card key={index} padding="none" aria-hidden="true">
           <div className="skeleton aspect-square w-full" />

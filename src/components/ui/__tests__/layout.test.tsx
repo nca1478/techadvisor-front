@@ -57,4 +57,18 @@ describe('Layout primitives', () => {
       'lg:grid-cols-4',
     );
   });
+
+  it('renders the featured grid (1-2-4 columns)', () => {
+    render(
+      <Grid columns="featured">
+        <span>Content</span>
+      </Grid>,
+    );
+    expect(screen.getByText('Content').parentElement).toHaveClass(
+      'grid',
+      'grid-cols-1',
+      'sm:grid-cols-2',
+      'lg:grid-cols-4',
+    );
+  });
 });

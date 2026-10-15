@@ -4,6 +4,8 @@ import { cn } from './cn';
 const COLUMNS = {
   /** Product listing: 2 cols on mobile, 3 on tablet, 4 on desktop. */
   products: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+  /** Home featured: 1 col on mobile, 2 on tablet, 4 on desktop. */
+  featured: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
   two: 'grid-cols-1 sm:grid-cols-2',
   three: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
 } as const;

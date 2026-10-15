@@ -9,4 +9,10 @@ describe('ListingSkeleton', () => {
     expect(region).toHaveAttribute('aria-busy', 'true');
     expect(region.textContent.trim()).toBe('');
   });
+
+  it('uses the featured columns for the product listing page', () => {
+    const { container } = render(<ListingSkeleton loadingLabel="Loading…" columns="featured" />);
+    const grid = container.querySelector('.grid');
+    expect(grid).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-4');
+  });
 });

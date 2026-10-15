@@ -9,7 +9,7 @@ export interface SkeletonMessage {
 
 /**
  * Home loading shape (ADR 0016): title lines + advisor hero block +
- * featured grid with the same `products` preset. Text-free bars keep it
+ * featured grid with the same `featured` preset. Text-free bars keep it
  * locale-independent; the region announces the localized loading label.
  */
 export function HomeSkeleton({ loadingLabel }: SkeletonMessage) {
@@ -40,7 +40,7 @@ export function HomeSkeleton({ loadingLabel }: SkeletonMessage) {
         <Section spacing="tight">
           <Stack gap="md" aria-hidden="true">
             <div className="h-8 w-56 rounded-md bg-surface" />
-            <ProductGridSkeleton count={4} loadingLabel={loadingLabel} />
+            <ProductGridSkeleton count={4} loadingLabel={loadingLabel} columns="featured" />
           </Stack>
         </Section>
       </div>

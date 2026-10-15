@@ -131,6 +131,7 @@ export function ProductListView({
                 currency={currency}
                 messages={messages.catalog}
                 detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+                columns="featured"
                 compareFor={(product) => ({
                   checked: compare.isSelected(product.id),
                   disabled: !compare.canAdd(product.id),

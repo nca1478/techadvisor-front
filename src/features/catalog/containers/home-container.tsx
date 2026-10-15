@@ -27,7 +27,9 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   const catalog = createCatalogApi(createApiClient());
 
   const [featuredResult, categoriesResult] = await Promise.allSettled([
-    catalog.listProducts({ limit: 8, sort: 'newest', currency, locale }),
+    // Over-fetch: the backend paginates before stock is known, so asking for
+    // exactly 8 and then dropping out-of-stock rows can render 7 (or fewer).
+    catalog.listProducts({ limit: 24, sort: 'newest', currency, locale }),
     catalog.listCategories(locale),
   ]);
 
@@ -75,6 +77,7 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
                 currency={currency}
                 messages={messages.catalog}
                 detailHrefFor={(slug) => `/${locale}/productos/${slug}`}
+                columns="featured"
               />
             )}
             <Link href={listHref}>{messages.nav.viewAll}</Link>
