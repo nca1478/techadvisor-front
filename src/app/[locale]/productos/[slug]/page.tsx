@@ -14,10 +14,13 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-// ISR for product pages (see docs/decisions/0009-seo-isr.md): rendered on
-// demand and revalidated every 5 minutes. Price/stock staleness is bounded
-// and harmless here — the cart and checkout always read live data.
-export const revalidate = 300;
+// The detail page is always rendered on demand (`force-dynamic`): the
+// root layout reads the locale header and the theme cookie per request,
+// which is incompatible with static/ISR prerendering — an ISR attempt
+// throws DYNAMIC_SERVER_USAGE in production and every product URL 500s
+// (see ADR 0009 amendment). Metadata/JSON-LD stay server-rendered per
+// request, so SEO is preserved; only the 5-minute cache is gone.
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 type QueryParams = Record<string, string | string[] | undefined>;

@@ -47,3 +47,14 @@ cubría `title`/`description`/canónicos relativos y no había `sitemap.xml`,
 - Subir el catálogo tarda hasta 1 h en aparecer en el sitemap y 5 min en
   fichas; si se necesita inmediatez, revalidar bajo demanda (fuera de
   alcance Fase 1).
+
+## Enmienda 2026-10-15: ISR del detalle revertido a `force-dynamic`
+
+El layout raíz pasó a leer el header de idioma y la cookie de tema por
+petición (modo claro/oscuro con primer pintado en SSR). Eso es
+incompatible con el prerender estático/ISR: el render estático bajo
+demanda de la ficha lanzaba `DYNAMIC_SERVER_USAGE` en producción y **toda**
+URL de producto devolvía 500 (en desarrollo todo es dinámico y no se
+notaba). La ficha queda `force-dynamic` (render bajo demanda por
+petición, metadata/JSON-LD SSR intactos); solo se pierde la caché de
+5 min. El resto del ADR sigue vigente.
