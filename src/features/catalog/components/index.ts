@@ -6,6 +6,7 @@ export { HomeSkeleton, type SkeletonMessage } from './home-skeleton';
 export { ListingSkeleton } from './listing-skeleton';
 export { HomeAdvisorHero } from './home-advisor-hero';
 export { LocaleCurrencyControls } from './locale-currency-controls';
+export { MobileHeaderMenu } from './mobile-header-menu';
 export { Pagination } from './pagination';
 export { ProductCard } from './product-card';
 export { ProductCardGrid, ProductGridEmpty, ProductGridSkeleton } from './product-card-grid';

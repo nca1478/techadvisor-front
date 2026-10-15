@@ -99,7 +99,7 @@ export function SearchBar({
   const listboxId = 'header-search-suggestions';
 
   return (
-    <div ref={boxRef} className="relative w-full max-w-md">
+    <div ref={boxRef} className="relative w-full">
       <form
         role="search"
         className="relative flex items-center"

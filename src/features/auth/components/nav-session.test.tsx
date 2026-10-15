@@ -7,6 +7,13 @@ const push = vi.fn();
 const refresh = vi.fn();
 const logout = vi.fn((): Promise<void> => Promise.resolve());
 const navState = { path: '/es' };
+const sessionState: {
+  status: 'authenticated' | 'unauthenticated';
+  user: AuthUser | null;
+} = {
+  status: 'authenticated',
+  user: { id: 'u-1', email: 'ada@example.com', role: 'CUSTOMER' } as AuthUser,
+};
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, refresh }),
@@ -14,11 +21,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('../session-context', () => ({
-  useSession: () => ({
-    status: 'authenticated',
-    user: { id: 'u-1', email: 'ada@example.com', role: 'CUSTOMER' } as AuthUser,
-    logout,
-  }),
+  useSession: () => ({ status: sessionState.status, user: sessionState.user, logout }),
 }));
 
 const labels = {
@@ -33,6 +36,8 @@ const labels = {
 beforeEach(() => {
   vi.clearAllMocks();
   navState.path = '/es';
+  sessionState.status = 'authenticated';
+  sessionState.user = { id: 'u-1', email: 'ada@example.com', role: 'CUSTOMER' } as AuthUser;
 });
 
 describe('NavSession logout', () => {
@@ -60,5 +65,25 @@ describe('NavSession logout', () => {
     });
     expect(push).toHaveBeenCalledWith('/es');
     expect(refresh).toHaveBeenCalled();
+  });
+});
+
+describe('NavSession showLabel', () => {
+  beforeEach(() => {
+    sessionState.status = 'unauthenticated';
+    sessionState.user = null;
+  });
+
+  it('shows one visible labeled row per icon when showLabel is set', () => {
+    render(<NavSession {...labels} showLabel />);
+    expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toHaveTextContent(
+      'Iniciar sesión',
+    );
+    expect(screen.getByRole('link', { name: 'Crear cuenta' })).toHaveTextContent('Crear cuenta');
+  });
+
+  it('stays icon-only with screen-reader names by default', () => {
+    render(<NavSession {...labels} />);
+    expect(screen.getByText('Iniciar sesión')).toHaveClass('sr-only');
   });
 });

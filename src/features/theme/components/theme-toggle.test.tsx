@@ -38,4 +38,14 @@ describe('ThemeToggle', () => {
     expect(button).toHaveFocus();
     expect(button).toHaveAttribute('title', 'Switch to light mode');
   });
+
+  it('shows a visible label next to the icon when showLabel is set', () => {
+    render(
+      <ThemeProvider>
+        <ThemeToggle messages={MESSAGES} showLabel />
+      </ThemeProvider>,
+    );
+    const button = screen.getByRole('button', { name: 'Switch to light mode' });
+    expect(button).toHaveTextContent('Switch to light mode');
+  });
 });

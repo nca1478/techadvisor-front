@@ -55,4 +55,21 @@ describe('CartNavLink', () => {
     renderLink(0);
     expect(screen.getByRole('link', { name: 'Carrito' })).toHaveAttribute('href', '/es/carrito');
   });
+
+  it('shows a visible label next to the icon when showLabel is set', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((): Promise<Response> =>
+        Promise.resolve(new Response(JSON.stringify(cartResponse(0)), { status: 200 })),
+      ),
+    );
+    render(
+      <CartProvider>
+        <CartNavLink locale="es" messages={messages} showLabel />
+      </CartProvider>,
+    );
+    const link = screen.getByRole('link', { name: 'Carrito' });
+    expect(link).toHaveAttribute('href', '/es/carrito');
+    expect(link).toHaveTextContent('Carrito');
+  });
 });

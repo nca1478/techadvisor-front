@@ -22,7 +22,8 @@
     "cart": "Cart",
     "cartWithCount": "Cart, {count} items",
     "allProducts": "All",
-    "admin": "Admin"
+    "admin": "Admin",
+    "menu": "Menu"
   },
   "catalog": {
     "title": "Products",

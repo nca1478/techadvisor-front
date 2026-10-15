@@ -25,6 +25,7 @@ import { ThemeProvider, ThemeToggle } from '@/features/theme';
 import { CartNavLink } from '@/features/cart/components/cart-nav-link';
 import { CategoryNav } from '@/features/catalog/components/category-nav';
 import { LocaleCurrencyControls } from '@/features/catalog/components/locale-currency-controls';
+import { MobileHeaderMenu } from '@/features/catalog/components/mobile-header-menu';
 import { SearchBar } from '@/features/search/components/search-bar';
 import { getPublicConfig } from '@/lib/api/index';
 import { createCatalogApi, type CatalogCategory } from '@/lib/api/catalog';
@@ -98,10 +99,10 @@ export default async function LocaleLayout({
                   >
                     {messages.common.techAdvisor}
                   </Link>
-                  <div className="order-last ml-auto min-w-0 w-full flex-1 basis-full sm:order-none sm:w-64 sm:flex-none lg:w-80">
+                  <div className="order-last min-w-0 w-full flex-1 basis-full md:order-none md:ml-auto md:w-64 md:flex-none md:basis-auto lg:w-80">
                     <SearchBar locale={locale} messages={messages.search} />
                   </div>
-                  <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                  <div className="hidden shrink-0 items-center gap-2 sm:gap-3 md:flex">
                     <CartNavLink
                       locale={locale}
                       messages={{
@@ -131,6 +132,39 @@ export default async function LocaleLayout({
                       currencyLabel={messages.common.currency}
                     />
                   </div>
+                  <MobileHeaderMenu menuLabel={messages.nav.menu}>
+                    <CartNavLink
+                      locale={locale}
+                      messages={{
+                        label: messages.nav.cart,
+                        withCount: messages.nav.cartWithCount,
+                      }}
+                      showLabel
+                    />
+                    <NavSession
+                      locale={locale}
+                      loginLabel={messages.auth.loginLink}
+                      registerLabel={messages.auth.registerLink}
+                      logoutLabel={messages.auth.logout}
+                      accountShortLabel={messages.auth.accountShort}
+                      adminLabel={messages.nav.admin}
+                      showLabel
+                    />
+                    <ThemeToggle
+                      messages={{
+                        switchToLight: messages.common.themeSwitchToLight,
+                        switchToDark: messages.common.themeSwitchToDark,
+                      }}
+                      showLabel
+                    />
+                    <LocaleCurrencyControls
+                      locale={locale}
+                      currencies={currencies}
+                      currencyFallback={currencies[0] ?? 'USD'}
+                      languageLabel={messages.common.language}
+                      currencyLabel={messages.common.currency}
+                    />
+                  </MobileHeaderMenu>
                 </div>
               </Container>
               {/* Segunda línea: categorías, con divisora a todo el ancho. */}

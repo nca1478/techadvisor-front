@@ -22,7 +22,8 @@
     "cart": "Carrito",
     "cartWithCount": "Carrito, {count} artículos",
     "allProducts": "Todos",
-    "admin": "Admin"
+    "admin": "Admin",
+    "menu": "Menú"
   },
   "catalog": {
     "title": "Productos",
