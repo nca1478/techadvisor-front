@@ -206,7 +206,11 @@ export default async function LocaleLayout({
                     <Text variant="small" tone="headerMuted">
                       {messages.footer.note}
                     </Text>
-                    <Button href={`/${locale}/registro`} size="md" className="mt-2 rounded-full">
+                    <Button
+                      href={`/${locale}/registro`}
+                      size="md"
+                      className="mt-2 self-center rounded-full sm:self-start"
+                    >
                       {messages.footer.newsletter}
                     </Button>
                     <nav aria-label={messages.footer.socialLabel}>
