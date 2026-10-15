@@ -116,6 +116,63 @@
   --shadow-lg: 0 18px 48px rgb(15 20 25 / 0.16);
 }
 
+/*
+ * First-visit daylight: when the server stamped no [data-theme] (no cookie
+ * yet) and the OS asks for light, paint the paper ground with pure CSS so
+ * there is no dark flash before ThemeProvider hydrates. Same tokens as
+ * [data-theme="light"] above; the provider sets the attribute on mount and
+ * takes over from there. Keep both blocks in sync.
+ */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --background: #f2f4f6;
+    --surface: #ffffff;
+    --surface-raise: #ffffff;
+    --foreground: #0f1419;
+    --muted-foreground: #4c5d6d;
+    --border: #d8dee4;
+    --border-strong: #b9c4cf;
+
+    --primary: #4d7c0f;
+    --primary-hover: #3f6212;
+    --primary-active: #365314;
+    --primary-subtle: #ecfccb;
+    --primary-foreground: #ffffff;
+
+    --link: #0e7490;
+    --link-hover: #155e75;
+
+    --header: #0a0e13;
+    --header-sub: #11161d;
+    --header-foreground: #edf1f5;
+    --header-muted: #9fb0be;
+
+    --accent: #0e7490;
+    --accent-hover: #155e75;
+    --accent-foreground: #ffffff;
+
+    --ring: #4d7c0f;
+
+    --success: #15803d;
+    --success-subtle: #e7f4ec;
+    --success-foreground: #ffffff;
+
+    --warning: #b45309;
+    --warning-subtle: #fbf0e0;
+    --warning-foreground: #ffffff;
+
+    --destructive: #be123c;
+    --destructive-subtle: #fbeaea;
+    --destructive-foreground: #ffffff;
+
+    --shadow-sm: 0 1px 2px rgb(15 20 25 / 0.08);
+    --shadow-md: 0 6px 18px rgb(15 20 25 / 0.12);
+    --shadow-lg: 0 18px 48px rgb(15 20 25 / 0.16);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);

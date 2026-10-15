@@ -26,6 +26,7 @@ describe('ThemeToggle', () => {
     expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument();
     expect(document.documentElement.dataset.theme).toBe('light');
     expect(window.localStorage.getItem('techadvisor-theme')).toBe('light');
+    expect(document.cookie).toContain('techadvisor-theme=light');
     fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
     expect(document.documentElement.dataset.theme).toBe('dark');
   });
