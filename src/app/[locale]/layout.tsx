@@ -2,8 +2,17 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Container } from '@/components/ui/container';
-import { Grid } from '@/components/ui/grid';
+import { Button } from '@/components/ui/button';
 import { Link } from '@/components/ui/link';
+import {
+  DiscordIcon,
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TikTokIcon,
+  VoltBoltIcon,
+  YouTubeIcon,
+} from '@/components/ui/social-icons';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { NavSession } from '@/features/auth/components/nav-session';
@@ -141,52 +150,163 @@ export default async function LocaleLayout({
               {children}
             </main>
             <AdvisorFab locale={locale} label={messages.nav.asesor} />
-            <footer className="bg-header-sub">
+            <footer className="border-t border-border bg-header text-header-foreground">
               <Container>
-                <Grid columns="three" gap="md" className="py-8">
-                  <Stack gap="sm">
-                    <Text variant="lead" as="span" tone="header">
+                <div className="grid grid-cols-1 gap-6 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8 lg:py-12">
+                  <Stack gap="sm" align="start">
+                    <Link
+                      href={`/${locale}`}
+                      variant="brand"
+                      className="display inline-flex items-center gap-2 text-xl font-semibold uppercase leading-relaxed tracking-tight"
+                      ariaLabel={messages.nav.home}
+                    >
+                      <VoltBoltIcon className="size-6 text-primary" />
                       {messages.common.techAdvisor}
-                    </Text>
+                    </Link>
                     <Text variant="small" tone="headerMuted">
                       {messages.footer.note}
                     </Text>
+                    <Button href={`/${locale}/registro`} size="md" className="mt-2 rounded-full">
+                      {messages.footer.newsletter}
+                    </Button>
+                    <nav aria-label={messages.footer.socialLabel}>
+                      <ul className="mt-2 flex flex-wrap items-center gap-1">
+                        <li>
+                          <Link
+                            href="https://youtube.com"
+                            variant="header"
+                            ariaLabel="YouTube"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <YouTubeIcon />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="https://facebook.com"
+                            variant="header"
+                            ariaLabel="Facebook"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <FacebookIcon />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="https://linkedin.com"
+                            variant="header"
+                            ariaLabel="LinkedIn"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <LinkedInIcon />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="https://instagram.com"
+                            variant="header"
+                            ariaLabel="Instagram"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <InstagramIcon />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="https://tiktok.com"
+                            variant="header"
+                            ariaLabel="TikTok"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <TikTokIcon />
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="https://discord.com"
+                            variant="header"
+                            ariaLabel="Discord"
+                            className="inline-flex p-2 text-header-muted transition-colors duration-150 hover:text-header-foreground"
+                          >
+                            <DiscordIcon />
+                          </Link>
+                        </li>
+                      </ul>
+                    </nav>
                   </Stack>
-                  <Stack gap="sm">
-                    <Text variant="small" as="p" tone="header" className="font-medium">
-                      {messages.footer.shopTitle}
-                    </Text>
-                    <Link href={`/${locale}/productos`} variant="header">
-                      {messages.nav.products}
-                    </Link>
-                    <Link href={`/${locale}/buscar`} variant="header">
-                      {messages.search.title}
-                    </Link>
-                    <Link href={`/${locale}/asesor`} variant="header">
-                      {messages.nav.asesor}
-                    </Link>
-                    <Link href={`/${locale}/soporte`} variant="header">
-                      {messages.support.navLabel}
-                    </Link>
-                    <Link href={`/${locale}/carrito`} variant="header">
-                      {messages.nav.cart}
-                    </Link>
-                  </Stack>
-                  <Stack gap="sm">
-                    <Text variant="small" as="p" tone="header" className="font-medium">
-                      {messages.footer.accountTitle}
-                    </Text>
-                    <Link href={`/${locale}/ingresar`} variant="header">
-                      {messages.auth.loginLink}
-                    </Link>
-                    <Link href={`/${locale}/registro`} variant="header">
-                      {messages.auth.registerLink}
-                    </Link>
-                    <Link href={`/${locale}/cuenta`} variant="header">
-                      {messages.footer.myAccount}
-                    </Link>
-                  </Stack>
-                </Grid>
+                  <nav aria-label={messages.footer.productsTitle}>
+                    <Stack gap="sm">
+                      <Text
+                        variant="small"
+                        as="p"
+                        tone="headerMuted"
+                        className="font-mono text-xs font-medium uppercase tracking-widest"
+                      >
+                        {messages.footer.productsTitle}
+                      </Text>
+                      <Link href={`/${locale}/productos`} variant="header" className="text-sm">
+                        {messages.nav.products}
+                      </Link>
+                      <Link href={`/${locale}/buscar`} variant="header" className="text-sm">
+                        {messages.search.title}
+                      </Link>
+                      <Link href={`/${locale}/comparar`} variant="header" className="text-sm">
+                        {messages.compare.title}
+                      </Link>
+                      <Link href={`/${locale}/asesor`} variant="header" className="text-sm">
+                        {messages.nav.asesor}
+                      </Link>
+                    </Stack>
+                  </nav>
+                  <nav aria-label={messages.footer.helpTitle}>
+                    <Stack gap="sm">
+                      <Text
+                        variant="small"
+                        as="p"
+                        tone="headerMuted"
+                        className="font-mono text-xs font-medium uppercase tracking-widest"
+                      >
+                        {messages.footer.helpTitle}
+                      </Text>
+                      <Link href={`/${locale}/soporte`} variant="header" className="text-sm">
+                        {messages.support.navLabel}
+                      </Link>
+                      <Link href={`/${locale}/carrito`} variant="header" className="text-sm">
+                        {messages.nav.cart}
+                      </Link>
+                      <Link href={`/${locale}/cuenta/ordenes`} variant="header" className="text-sm">
+                        {messages.account.ordersTitle}
+                      </Link>
+                    </Stack>
+                  </nav>
+                  <nav aria-label={messages.footer.companyTitle}>
+                    <Stack gap="sm">
+                      <Text
+                        variant="small"
+                        as="p"
+                        tone="headerMuted"
+                        className="font-mono text-xs font-medium uppercase tracking-widest"
+                      >
+                        {messages.footer.companyTitle}
+                      </Text>
+                      <Link href={`/${locale}/ingresar`} variant="header" className="text-sm">
+                        {messages.auth.loginLink}
+                      </Link>
+                      <Link href={`/${locale}/registro`} variant="header" className="text-sm">
+                        {messages.auth.registerLink}
+                      </Link>
+                      <Link href={`/${locale}/cuenta`} variant="header" className="text-sm">
+                        {messages.footer.myAccount}
+                      </Link>
+                    </Stack>
+                  </nav>
+                </div>
+                <div className="border-t border-border py-5">
+                  <Text variant="small" tone="headerMuted">
+                    © {new Date().getFullYear()} {messages.common.techAdvisor}.{' '}
+                    {messages.footer.rights}
+                  </Text>
+                </div>
               </Container>
             </footer>
           </ThemeProvider>

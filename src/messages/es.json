@@ -494,9 +494,15 @@
   },
   "footer": {
     "shopTitle": "Tienda",
+    "productsTitle": "Productos",
+    "helpTitle": "Ayuda",
+    "companyTitle": "Empresa",
     "accountTitle": "Cuenta",
     "myAccount": "Mi cuenta",
-    "note": "Tienda de tecnología con asesor de compras."
+    "note": "Tienda de tecnología con asesor de compras.",
+    "newsletter": "Suscribirme al boletín",
+    "socialLabel": "Síguenos",
+    "rights": "Todos los derechos reservados."
   },
   "admin": {
     "title": "Administración",

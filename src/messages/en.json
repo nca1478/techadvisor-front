@@ -494,9 +494,15 @@
   },
   "footer": {
     "shopTitle": "Shop",
+    "productsTitle": "Products",
+    "helpTitle": "Help",
+    "companyTitle": "Company",
     "accountTitle": "Account",
     "myAccount": "My account",
-    "note": "Tech store with a shopping advisor."
+    "note": "Tech store with a shopping advisor.",
+    "newsletter": "Subscribe to newsletter",
+    "socialLabel": "Follow us",
+    "rights": "All rights reserved."
   },
   "admin": {
     "title": "Administration",

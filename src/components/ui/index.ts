@@ -8,6 +8,15 @@ export { Heading, type HeadingLevel, type HeadingProps } from './heading';
 export { Input, type InputProps } from './input';
 export { Link, type LinkProps } from './link';
 export { MediaFrame, type MediaFrameProps } from './media-frame';
+export {
+  DiscordIcon,
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  TikTokIcon,
+  VoltBoltIcon,
+  YouTubeIcon,
+} from './social-icons';
 export { Section, type SectionProps, type SectionSpacing } from './section';
 export { Select, type SelectProps } from './select';
 export { Stack, type StackProps } from './stack';
