@@ -1,6 +1,10 @@
 import type { AdminCategory, CreateCategoryRequest, UpdateCategoryRequest } from '@/lib/api/admin';
 import { asOptionalId } from '@/lib/api/admin';
-import { slugField } from '@/features/admin/lib/admin-schemas';
+import { isHttpsUrl, slugField } from '@/features/admin/lib/admin-schemas';
+
+function asNullableString(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
+}
 
 export interface CategoryFormState {
   name: string;
@@ -10,15 +14,21 @@ export interface CategoryFormState {
   /** Empty = no translation. */
   translationLocale: string;
   translationName: string;
+  /** Single cover image URL (empty = no image), same https rule as products. */
+  imageUrl: string;
+  imageAlt: string;
+  /** Home "shop by category" visibility. */
+  showInHome: boolean;
 }
 
 export type CategoryFormErrors = Partial<
-  Record<'name' | 'slug' | 'parentId' | 'translation', string>
+  Record<'name' | 'slug' | 'parentId' | 'translation' | 'imageUrl' | 'imageAlt', string>
 >;
 
 export interface CategoryValidationTexts {
   required: string;
   slugInvalid: string;
+  urlInvalid: string;
 }
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -29,7 +39,8 @@ export function isUuid(value: string): boolean {
 
 /**
  * Shared create/edit validation: required name, slug shape, parent either
- * empty or UUID, and translation name required whenever a locale is
+ * empty or UUID, single https cover image (empty = none, like products),
+ * alt max 200, and translation name required whenever a locale is
  * picked. Returns inline errors keyed by field; the container builds the
  * request body only when `errors` is empty.
  */
@@ -45,6 +56,10 @@ export function validateCategoryForm(
   if (values.translationLocale.trim() !== '' && values.translationName.trim() === '') {
     errors['translation'] = texts.required;
   }
+  if (values.imageUrl.trim() !== '' && !isHttpsUrl(values.imageUrl.trim())) {
+    errors['imageUrl'] = texts.urlInvalid;
+  }
+  if (values.imageAlt.trim().length > 200) errors['imageAlt'] = texts.required;
   return errors;
 }
 
@@ -56,10 +71,15 @@ function collectCategoryTranslations(values: CategoryFormState) {
 }
 
 export function buildCreateCategoryRequest(values: CategoryFormState): CreateCategoryRequest {
+  const imageUrl = values.imageUrl.trim();
+  const imageAlt = values.imageAlt.trim();
   return {
     name: values.name.trim(),
     slug: values.slug.trim(),
     ...(values.parentId.trim() === '' ? {} : { parentId: values.parentId.trim() }),
+    ...(imageUrl === '' ? {} : { imageUrl }),
+    ...(imageAlt === '' ? {} : { imageAlt }),
+    showInHome: values.showInHome,
     translations: collectCategoryTranslations(values),
   };
 }
@@ -68,7 +88,7 @@ export function buildCreateCategoryRequest(values: CategoryFormState): CreateCat
  * Edit request: only changed fields are sent (the backend treats every
  * field as optional). `parentId` sends `null` when the category is moved
  * back to root level; translations replace the whole set, so an empty
- * translation list clears them.
+ * translation list clears them. `imageUrl: null` clears the cover image.
  */
 export function buildUpdateCategoryRequest(
   values: CategoryFormState,
@@ -78,6 +98,9 @@ export function buildUpdateCategoryRequest(
     parentId: string | null;
     translationLocale: string;
     translationName: string;
+    imageUrl: string | null;
+    imageAlt: string | null;
+    showInHome: boolean;
   },
 ): UpdateCategoryRequest {
   const body: UpdateCategoryRequest = {};
@@ -87,6 +110,11 @@ export function buildUpdateCategoryRequest(
   if (slug !== initial.slug) body.slug = slug;
   const parentId = values.parentId.trim() === '' ? null : values.parentId.trim();
   if (parentId !== initial.parentId) body.parentId = parentId;
+  const imageUrl = values.imageUrl.trim() === '' ? null : values.imageUrl.trim();
+  if (imageUrl !== initial.imageUrl) body.imageUrl = imageUrl;
+  const imageAlt = values.imageAlt.trim() === '' ? null : values.imageAlt.trim();
+  if (imageAlt !== initial.imageAlt) body.imageAlt = imageAlt;
+  if (values.showInHome !== initial.showInHome) body.showInHome = values.showInHome;
   const nextTranslations = collectCategoryTranslations(values);
   const initialTranslations =
     initial.translationLocale === '' || initial.translationName === ''
@@ -96,6 +124,33 @@ export function buildUpdateCategoryRequest(
     body.translations = nextTranslations;
   }
   return body;
+}
+
+export interface CategoryFormInitial {
+  name: string;
+  slug: string;
+  parentId: string | null;
+  translationLocale: string;
+  translationName: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  showInHome: boolean;
+}
+
+/** Builds form state + diff baseline from a server row (tolerates pre-contract rows). */
+export function categoryFormInitial(category: AdminCategory): CategoryFormInitial {
+  const translation = category.translations.length > 0 ? category.translations[0] : undefined;
+  const raw = category as unknown as Record<string, unknown>;
+  return {
+    name: category.name,
+    slug: category.slug,
+    parentId: asOptionalId(category.parentId),
+    translationLocale: translation?.locale ?? '',
+    translationName: translation?.name ?? '',
+    imageUrl: asNullableString(raw['imageUrl']),
+    imageAlt: asNullableString(raw['imageAlt']),
+    showInHome: typeof raw['showInHome'] === 'boolean' ? raw['showInHome'] : true,
+  };
 }
 
 export interface CategoryTreeRow {

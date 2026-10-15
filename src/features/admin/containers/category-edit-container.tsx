@@ -9,12 +9,13 @@ import { CategoryForm } from '@/features/admin/components/category-form';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   buildUpdateCategoryRequest,
+  categoryFormInitial,
   validateCategoryForm,
   type CategoryFormErrors,
   type CategoryFormState,
   type CategoryValidationTexts,
 } from '@/features/admin/lib/category-submit';
-import { asOptionalId, type AdminCategory } from '@/lib/api/admin';
+import type { AdminCategory } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
 /**
@@ -38,21 +39,16 @@ export function CategoryEditContainer({
 }) {
   const router = useRouter();
   const form = messages.admin.categoryForm;
-  const initialTranslation =
-    category.translations.length > 0 ? category.translations[0] : undefined;
-  const initial = {
-    name: category.name,
-    slug: category.slug,
-    parentId: asOptionalId(category.parentId),
-    translationLocale: initialTranslation?.locale ?? '',
-    translationName: initialTranslation?.name ?? '',
-  };
+  const initial = categoryFormInitial(category);
   const [values, setValues] = useState<CategoryFormState>({
     name: initial.name,
     slug: initial.slug,
     parentId: initial.parentId ?? '',
     translationLocale: initial.translationLocale,
     translationName: initial.translationName,
+    imageUrl: initial.imageUrl ?? '',
+    imageAlt: initial.imageAlt ?? '',
+    showInHome: initial.showInHome,
   });
   const [errors, setErrors] = useState<CategoryFormErrors>({});
   const [pending, setPending] = useState(false);
@@ -61,6 +57,7 @@ export function CategoryEditContainer({
   const texts: CategoryValidationTexts = {
     required: messages.admin.required,
     slugInvalid: form.slugInvalid,
+    urlInvalid: form.urlInvalid,
   };
   const parents = categories
     .filter((candidate) => candidate.id !== category.id)

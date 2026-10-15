@@ -1,5 +1,5 @@
 /**
- * Generated from the backend OpenAPI contract (http://localhost:3002/api/v1/docs-json).
+ * Generated from the backend OpenAPI contract (http://localhost:3001/api/v1/docs-json).
  * Do not edit by hand - run `npm run api:types` instead.
  */
 export interface paths {
@@ -1475,6 +1475,21 @@ export interface components {
       slug: string;
       /** @example null */
       parentId: Record<string, never> | null;
+      /**
+       * @description Single cover image (home "shop by category" card background).
+       * @example https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=800&auto=format&fit=crop
+       */
+      imageUrl: Record<string, never> | null;
+      /**
+       * @description Cover image alt when set; otherwise clients fall back to the category name.
+       * @example Laptops
+       */
+      imageAlt: Record<string, never> | null;
+      /**
+       * @description Whether the category shows in the home section.
+       * @example true
+       */
+      showInHome: boolean;
       translations: components['schemas']['AdminCategoryTranslationDto'][];
     };
     AdminBrandDto: {
@@ -2080,6 +2095,21 @@ export interface components {
       slug: string;
       /** @example null */
       parentSlug: Record<string, never> | null;
+      /**
+       * @description Single cover image (home "shop by category" card background).
+       * @example https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=800&auto=format&fit=crop
+       */
+      imageUrl: Record<string, never> | null;
+      /**
+       * @description Cover image alt when set; otherwise clients fall back to the category name.
+       * @example Laptops
+       */
+      imageAlt: Record<string, never> | null;
+      /**
+       * @description Whether the category shows in the home section.
+       * @example true
+       */
+      showInHome: boolean;
       /** @description Specs field definitions for this category. */
       specsSchema: components['schemas']['SpecFieldDto'][];
       /**

@@ -9,7 +9,7 @@ import {
 } from '@/features/admin/lib/category-submit';
 import type { AdminCategory } from '@/lib/api/admin';
 
-const TEXTS = { required: 'required', slugInvalid: 'bad slug' };
+const TEXTS = { required: 'required', slugInvalid: 'bad slug', urlInvalid: 'bad url' };
 
 const BASE: CategoryFormState = {
   name: 'Laptops',
@@ -17,6 +17,9 @@ const BASE: CategoryFormState = {
   parentId: '',
   translationLocale: '',
   translationName: '',
+  imageUrl: '',
+  imageAlt: '',
+  showInHome: true,
 };
 
 describe('isUuid', () => {
@@ -50,6 +53,16 @@ describe('validateCategoryForm', () => {
     );
     expect(errors['translation']).toBe('required');
   });
+
+  it('rejects non-https cover images but allows empty (no image)', () => {
+    expect(validateCategoryForm(BASE, TEXTS)).toEqual({});
+    expect(
+      validateCategoryForm({ ...BASE, imageUrl: 'http://example.com/a.jpg' }, TEXTS)['imageUrl'],
+    ).toBe('bad url');
+    expect(
+      validateCategoryForm({ ...BASE, imageUrl: 'https://images.unsplash.com/photo-123' }, TEXTS),
+    ).toEqual({});
+  });
 });
 
 describe('buildCreateCategoryRequest', () => {
@@ -63,7 +76,26 @@ describe('buildCreateCategoryRequest', () => {
     ).toEqual({
       name: 'Laptops',
       slug: 'laptops',
+      showInHome: true,
       translations: [{ locale: 'es', name: 'Portátiles' }],
+    });
+  });
+
+  it('sends the cover image and visibility flag', () => {
+    expect(
+      buildCreateCategoryRequest({
+        ...BASE,
+        imageUrl: 'https://images.unsplash.com/photo-123',
+        imageAlt: 'Laptops',
+        showInHome: false,
+      }),
+    ).toEqual({
+      name: 'Laptops',
+      slug: 'laptops',
+      imageUrl: 'https://images.unsplash.com/photo-123',
+      imageAlt: 'Laptops',
+      showInHome: false,
+      translations: [],
     });
   });
 
@@ -80,12 +112,24 @@ describe('buildUpdateCategoryRequest', () => {
     parentId: null as string | null,
     translationLocale: '',
     translationName: '',
+    imageUrl: null as string | null,
+    imageAlt: null as string | null,
+    showInHome: true,
   };
 
   it('sends only changed fields', () => {
     expect(buildUpdateCategoryRequest({ ...BASE, name: 'Notebooks' }, initial)).toEqual({
       name: 'Notebooks',
     });
+  });
+
+  it('clears the cover image with null and toggles home visibility', () => {
+    expect(
+      buildUpdateCategoryRequest(
+        { ...BASE, imageUrl: '', imageAlt: '', showInHome: false },
+        { ...initial, imageUrl: 'https://images.unsplash.com/photo-123', imageAlt: 'Laptops' },
+      ),
+    ).toEqual({ imageUrl: null, imageAlt: null, showInHome: false });
   });
 
   it('sends parentId null when moving back to root', () => {
@@ -108,6 +152,9 @@ describe('orderCategoriesForDisplay', () => {
     name,
     slug: name.toLowerCase(),
     parentId: parentId as unknown as AdminCategory['parentId'],
+    imageUrl: null,
+    imageAlt: null,
+    showInHome: true,
     translations: [],
   });
 

@@ -178,6 +178,9 @@ const state = {
       name: 'Mock Root',
       slug: 'mock-root',
       parentId: null,
+      imageUrl: null,
+      imageAlt: null,
+      showInHome: true,
       translations: [],
     },
   ],
@@ -437,6 +440,9 @@ async function handler(req, res) {
         name: 'Laptops',
         slug: 'laptops',
         parentSlug: null,
+        imageUrl: null,
+        imageAlt: null,
+        showInHome: true,
         specsSchema: [],
         locale,
       },
@@ -535,6 +541,9 @@ async function handler(req, res) {
       name,
       slug,
       parentId: typeof body.parentId === 'string' && body.parentId ? body.parentId : null,
+      imageUrl: typeof body.imageUrl === 'string' ? body.imageUrl : null,
+      imageAlt: typeof body.imageAlt === 'string' ? body.imageAlt : null,
+      showInHome: typeof body.showInHome === 'boolean' ? body.showInHome : true,
       translations: Array.isArray(body.translations) ? body.translations : [],
     };
     state.adminCategories.push(created);
@@ -609,6 +618,15 @@ async function handler(req, res) {
     }
     if (body.translations !== undefined) {
       category.translations = Array.isArray(body.translations) ? body.translations : [];
+    }
+    if (body.imageUrl !== undefined) {
+      category.imageUrl = typeof body.imageUrl === 'string' ? body.imageUrl : null;
+    }
+    if (body.imageAlt !== undefined) {
+      category.imageAlt = typeof body.imageAlt === 'string' ? body.imageAlt : null;
+    }
+    if (body.showInHome !== undefined) {
+      category.showInHome = body.showInHome === false ? false : true;
     }
     send(res, 200, category);
     return;

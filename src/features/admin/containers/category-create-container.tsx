@@ -43,6 +43,9 @@ export function CategoryCreateContainer({
     parentId: '',
     translationLocale: '',
     translationName: '',
+    imageUrl: '',
+    imageAlt: '',
+    showInHome: true,
   });
   const [errors, setErrors] = useState<CategoryFormErrors>({});
   const [pending, setPending] = useState(false);
@@ -51,6 +54,7 @@ export function CategoryCreateContainer({
   const texts: CategoryValidationTexts = {
     required: messages.admin.required,
     slugInvalid: form.slugInvalid,
+    urlInvalid: form.urlInvalid,
   };
   const parents = categories.map((category) => ({ value: category.id, label: category.name }));
 

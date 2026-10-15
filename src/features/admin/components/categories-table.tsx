@@ -1,26 +1,54 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
+import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Link } from '@/components/ui/link';
 import type { CategoryTreeRow } from '@/features/admin/lib/category-submit';
 import { asOptionalId } from '@/lib/api/admin';
+import { nullableString } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
+
+const VALUE_TONES: readonly BadgeTone[] = ['primary', 'success', 'warning'];
+
+/**
+ * Deterministic badge tone per value (same value → same color, like the
+ * orders table maps each status to its tone). Empty values stay neutral.
+ */
+function toneForValue(value: string): BadgeTone {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+  return VALUE_TONES[hash % VALUE_TONES.length] ?? 'primary';
+}
 
 /**
  * Presentational category table. Rows arrive pre-ordered (roots first,
  * children nested with `depth`) from `orderCategoriesForDisplay`;
- * deletion is delegated to the container via `onDelete`.
+ * deletion is delegated to the container via `onDelete`, and the home
+ * visibility switch via `onToggleHome` (the container PATCHes
+ * `showInHome` with an optimistic override while the request is in
+ * flight, so `homeOverrides` wins over the server row).
  */
 export function CategoriesTable({
   rows,
   locale,
   messages,
+  homeOverrides,
+  pendingHomeId,
+  startIndex = 0,
   onDelete,
+  onToggleHome,
 }: {
   rows: CategoryTreeRow[];
   locale: string;
   messages: Dictionary['admin']['categories'];
+  homeOverrides: Record<string, boolean>;
+  pendingHomeId: string | null;
+  /** Global offset of the first row (client-side paging keeps numbering continuous). */
+  startIndex?: number;
   onDelete: (categoryId: string, categoryName: string) => void;
+  onToggleHome: (categoryId: string, showInHome: boolean) => void;
 }) {
   const parentNameOf = (parentId: string | null): string | null => {
     if (parentId === null) return null;
@@ -46,6 +74,12 @@ export function CategoriesTable({
                 {messages.tableSlug}
               </th>
               <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                {messages.tableImage}
+              </th>
+              <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                {messages.tableHome}
+              </th>
+              <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                 {messages.tableParent}
               </th>
               <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
@@ -62,9 +96,9 @@ export function CategoriesTable({
               const parentId = asOptionalId(category.parentId);
               const parentName = parentNameOf(parentId);
               return (
-                <tr key={category.id} className="border-b border-border align-top last:border-0">
+                <tr key={category.id} className="border-b border-border align-middle last:border-0">
                   <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                    {index + 1}
+                    {startIndex + index + 1}
                   </td>
                   <th scope="row" className="px-4 py-3 font-normal">
                     <span
@@ -80,13 +114,72 @@ export function CategoriesTable({
                     </span>
                   </th>
                   <td className="px-4 py-3 font-mono text-xs">{category.slug}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {parentName ?? messages.rootParent}
+                  <td className="px-4 py-3">
+                    {nullableString(
+                      (category as unknown as Record<string, unknown>)['imageUrl'],
+                    ) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={(category as unknown as Record<string, unknown>)['imageUrl'] as string}
+                        alt=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        className="h-10 w-10 rounded-md border border-border object-cover"
+                      />
+                    ) : (
+                      <span className="text-muted-foreground">{messages.noImage}</span>
+                    )}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {category.translations.length === 0
-                      ? messages.noTranslations
-                      : category.translations.map((translation) => translation.locale).join(', ')}
+                  <td className="px-4 py-3">
+                    {(() => {
+                      const raw = category as unknown as Record<string, unknown>;
+                      const checked = homeOverrides[category.id] ?? raw['showInHome'] !== false;
+                      const pending = pendingHomeId === category.id;
+                      return (
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={checked}
+                          aria-label={messages.switchLabel.replace('{name}', category.name)}
+                          disabled={pending}
+                          onClick={() => {
+                            onToggleHome(category.id, !checked);
+                          }}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-wait disabled:opacity-60 ${
+                            checked
+                              ? 'justify-end border-primary bg-primary'
+                              : 'justify-start border-border-strong bg-surface'
+                          }`}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`mx-0.5 inline-block h-3.5 w-3.5 rounded-full transition-colors ${
+                              checked ? 'bg-primary-foreground' : 'bg-muted-foreground'
+                            }`}
+                          />
+                        </button>
+                      );
+                    })()}
+                  </td>
+                  <td className="px-4 py-3">
+                    {parentName === null ? (
+                      <Badge tone="neutral">{messages.rootParent}</Badge>
+                    ) : (
+                      <Badge tone={toneForValue(parentName)}>{parentName}</Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {category.translations.length === 0 ? (
+                      <Badge tone="neutral">{messages.noTranslations}</Badge>
+                    ) : (
+                      <span className="inline-flex flex-wrap items-center gap-1.5">
+                        {category.translations.map((translation) => (
+                          <Badge key={translation.locale} tone={toneForValue(translation.locale)}>
+                            {translation.locale}
+                          </Badge>
+                        ))}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-3">

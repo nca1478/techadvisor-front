@@ -160,6 +160,11 @@ export interface CreateCategoryRequest {
   name: string;
   slug: string;
   parentId?: string;
+  /** Single cover image (https URL, same rule as product images). Omitted = no image. */
+  imageUrl?: string | null;
+  imageAlt?: string | null;
+  /** Home "shop by category" visibility. Defaults to true server-side. */
+  showInHome?: boolean;
   translations?: Array<{ locale: string; name: string }>;
 }
 
@@ -167,6 +172,10 @@ export type UpdateCategoryRequest = Partial<
   Pick<CreateCategoryRequest, 'name' | 'slug' | 'translations'> & {
     /** Nullable: `null` detaches the category back to root level. */
     parentId?: string | null;
+    /** `null` clears the cover image. */
+    imageUrl?: string | null;
+    imageAlt?: string | null;
+    showInHome?: boolean;
   }
 >;
 
