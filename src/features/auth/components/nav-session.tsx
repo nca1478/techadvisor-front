@@ -85,7 +85,7 @@ export function NavSession({
           onClick={() => void handleLogout()}
           aria-label={logoutLabel}
           title={logoutLabel}
-          className="inline-flex rounded-sm p-1 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="inline-flex cursor-pointer rounded-sm p-1 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <LogoutIcon className="size-6" />
         </button>

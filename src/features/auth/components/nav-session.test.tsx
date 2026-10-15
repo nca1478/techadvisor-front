@@ -36,6 +36,11 @@ beforeEach(() => {
 });
 
 describe('NavSession logout', () => {
+  it('shows a pointer cursor on the logout button', () => {
+    render(<NavSession {...labels} />);
+    expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toHaveClass('cursor-pointer');
+  });
+
   it('refreshes server components after logout on a public page', async () => {
     render(<NavSession {...labels} />);
     fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
