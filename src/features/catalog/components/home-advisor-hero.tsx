@@ -55,8 +55,8 @@ export function HomeAdvisorHero({
         className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0e13] to-transparent"
       />
 
-      <Container className="relative flex flex-col items-start py-20 md:py-32">
-        <div className="animate-rise-in flex items-center gap-3">
+      <Container className="relative flex flex-col items-center py-20 text-center md:items-start md:py-32 md:text-left">
+        <div className="animate-rise-in flex items-center justify-center gap-3 md:justify-start">
           <span
             aria-hidden="true"
             className="inline-block size-2 animate-pulse rounded-full bg-primary shadow-[0_0_12px_rgb(201_242_75/0.9)]"
@@ -65,7 +65,7 @@ export function HomeAdvisorHero({
         </div>
         <Heading
           level={1}
-          className="animate-rise-in mt-6 max-w-3xl uppercase text-header-foreground [animation-delay:80ms]"
+          className="animate-rise-in mt-6 max-w-3xl text-center uppercase text-header-foreground [animation-delay:80ms] md:text-left"
         >
           {messages.title}
         </Heading>
@@ -73,11 +73,11 @@ export function HomeAdvisorHero({
           variant="lead"
           tone="headerMuted"
           as="p"
-          className="animate-rise-in mt-5 max-w-xl [animation-delay:160ms]"
+          className="animate-rise-in mt-5 max-w-xl text-center [animation-delay:160ms] md:text-left"
         >
           {messages.subtitle}
         </Text>
-        <div className="animate-rise-in mt-10 flex flex-wrap items-center gap-4 [animation-delay:240ms]">
+        <div className="animate-rise-in mt-10 flex flex-wrap items-center justify-center gap-4 [animation-delay:240ms] md:justify-start">
           <Button href={catalogHref} size="lg">
             {messages.cta}
           </Button>
