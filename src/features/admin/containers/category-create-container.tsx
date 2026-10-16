@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { CategoryForm } from '@/features/admin/components/category-form';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   buildCreateCategoryRequest,
+  categoryErrorsForStep,
   validateCategoryForm,
   type CategoryFormErrors,
   type CategoryFormState,
@@ -58,6 +58,12 @@ export function CategoryCreateContainer({
   };
   const parents = categories.map((category) => ({ value: category.id, label: category.name }));
 
+  function handleValidateStep(step: number): CategoryFormErrors {
+    const nextErrors = validateCategoryForm(values, texts);
+    setErrors(nextErrors);
+    return categoryErrorsForStep(nextErrors, step);
+  }
+
   async function handleSubmit() {
     const nextErrors = validateCategoryForm(values, texts);
     setErrors(nextErrors);
@@ -90,18 +96,20 @@ export function CategoryCreateContainer({
         onChange={(patch) => {
           setValues((prev) => ({ ...prev, ...patch }));
         }}
+        onValidateStep={handleValidateStep}
+        onSubmit={() => void handleSubmit()}
+        pending={pending}
+        submitLabel={form.create}
+        submitPendingLabel={form.creating}
+        footerNote={
+          serverError ? (
+            <Text role="alert" className="text-destructive">
+              {serverError}
+            </Text>
+          ) : null
+        }
         formMessages={form}
       />
-      {serverError ? (
-        <Text role="alert" className="text-destructive">
-          {serverError}
-        </Text>
-      ) : null}
-      <Stack direction="horizontal" gap="md">
-        <Button onClick={() => void handleSubmit()} loading={pending}>
-          {pending ? form.creating : form.create}
-        </Button>
-      </Stack>
     </Stack>
   );
 }

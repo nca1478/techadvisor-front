@@ -66,6 +66,8 @@ async function createCategory(
     if (editUrl.test(page.url())) {
       return;
     }
+    // Wizard: fill step 1, advance through the (optional) image step,
+    // then submit from the translation step.
     for (let attempt = 0; ; attempt += 1) {
       await fillField(page, 'Name (default language)', opts.name);
       await fillField(page, 'Slug', opts.slug);
@@ -85,6 +87,8 @@ async function createCategory(
         throw new Error('category form values did not stick before submit');
       }
     }
+    await page.getByRole('button', { name: 'Next' }).click();
+    await page.getByRole('button', { name: 'Next' }).click();
     // The button disables while a previous POST is still in flight: wait
     // it out instead of forcing a second submit on top of the first.
     const createButton = page.getByRole('button', { name: 'Create category' });
@@ -166,11 +170,19 @@ test('admin creates, edits, cannot delete a parent, then deletes', async ({ page
   // 3. Edit: rename + add the Spanish translation → saved inline.
   // ("Language" needs exact + main scope: substring matching would also
   // hit "Name (default language)" and the header language switcher.)
+  // Wizard: name lives on step 1, translation on step 3.
   const main = page.getByRole('main');
+  await fillField(page, 'Name (default language)', editedName);
+  await main.getByRole('button', { name: 'Next' }).click();
+  await main.getByRole('button', { name: 'Next' }).click();
   const languageSelect = main.getByLabel('Language', { exact: true });
   const translatedNameBox = main.getByLabel('Translated name');
   for (let attempt = 0; ; attempt += 1) {
+    // Back to step 1 (edit pills are unrestricted), then forward again.
+    await main.getByRole('button', { name: '1. Basic info' }).click();
     await fillField(page, 'Name (default language)', editedName);
+    await main.getByRole('button', { name: 'Next' }).click();
+    await main.getByRole('button', { name: 'Next' }).click();
     await languageSelect.selectOption('es');
     await fillField(page, 'Translated name', 'Artilugios E2E');
     if (

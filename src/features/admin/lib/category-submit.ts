@@ -63,6 +63,38 @@ export function validateCategoryForm(
   return errors;
 }
 
+/**
+ * Error keys belonging to each wizard step: 0 = identity
+ * (name/slug/parent), 1 = cover image, 2 = translation (optional, never
+ * blocks — the final save validates everything).
+ */
+export function categoryStepErrorKeys(step: number): string[] {
+  switch (step) {
+    case 0:
+      return ['name', 'slug', 'parentId'];
+    case 1:
+      return ['imageUrl', 'imageAlt'];
+    default:
+      return [];
+  }
+}
+
+/** Filters a full `validateCategoryForm` error map down to one wizard step. */
+export function categoryErrorsForStep(
+  errors: CategoryFormErrors,
+  step: number,
+): CategoryFormErrors {
+  if (step !== 0 && step !== 1) return {};
+  const keys = categoryStepErrorKeys(step);
+  const scoped: CategoryFormErrors = {};
+  for (const [key, message] of Object.entries(errors)) {
+    if (keys.includes(key)) {
+      scoped[key as keyof CategoryFormErrors] = message;
+    }
+  }
+  return scoped;
+}
+
 function collectCategoryTranslations(values: CategoryFormState) {
   if (values.translationLocale.trim() === '' || values.translationName.trim() === '') {
     return [];

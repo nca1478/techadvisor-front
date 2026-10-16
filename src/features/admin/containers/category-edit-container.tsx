@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { CategoryForm } from '@/features/admin/components/category-form';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   buildUpdateCategoryRequest,
+  categoryErrorsForStep,
   categoryFormInitial,
   validateCategoryForm,
   type CategoryFormErrors,
@@ -63,6 +63,12 @@ export function CategoryEditContainer({
     .filter((candidate) => candidate.id !== category.id)
     .map((candidate) => ({ value: candidate.id, label: candidate.name }));
 
+  function handleValidateStep(step: number): CategoryFormErrors {
+    const nextErrors = validateCategoryForm(values, texts);
+    setErrors(nextErrors);
+    return categoryErrorsForStep(nextErrors, step);
+  }
+
   async function handleSubmit() {
     const nextErrors = validateCategoryForm(values, texts);
     setErrors(nextErrors);
@@ -95,21 +101,24 @@ export function CategoryEditContainer({
         onChange={(patch) => {
           setValues((prev) => ({ ...prev, ...patch }));
         }}
+        onValidateStep={handleValidateStep}
+        onSubmit={() => void handleSubmit()}
+        pending={pending}
+        submitLabel={messages.admin.save}
+        submitPendingLabel={messages.admin.saving}
+        footerNote={
+          feedback ? (
+            <Text
+              role={feedback.ok ? 'status' : 'alert'}
+              className={feedback.ok ? undefined : 'text-destructive'}
+            >
+              {feedback.text}
+            </Text>
+          ) : null
+        }
+        freeNavigation
         formMessages={form}
       />
-      {feedback ? (
-        <Text
-          role={feedback.ok ? 'status' : 'alert'}
-          className={feedback.ok ? undefined : 'text-destructive'}
-        >
-          {feedback.text}
-        </Text>
-      ) : null}
-      <Stack direction="horizontal" gap="md">
-        <Button onClick={() => void handleSubmit()} loading={pending}>
-          {pending ? messages.admin.saving : messages.admin.save}
-        </Button>
-      </Stack>
     </Stack>
   );
 }
