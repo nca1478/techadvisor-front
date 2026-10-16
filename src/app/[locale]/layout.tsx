@@ -177,10 +177,10 @@ export default async function LocaleLayout({
                         categories={categories}
                         allLabel={messages.nav.allProducts}
                         navLabel={messages.nav.categories}
+                        scrollPrevLabel={messages.nav.scrollPrev}
+                        scrollNextLabel={messages.nav.scrollNext}
                         listHref={`/${locale}/productos`}
-                        hrefFor={(slug) =>
-                          `/${locale}/productos?category=${encodeURIComponent(slug)}`
-                        }
+                        categoryHrefTemplate={`/${locale}/productos?category={slug}`}
                       />
                     </div>
                   </Container>

@@ -25,8 +25,10 @@ describe('CategoryNav', () => {
         categories={[category(), category({ id: 'c2', name: 'GPUs', slug: 'gpus' })]}
         allLabel="All"
         navLabel="Categories"
+        scrollPrevLabel="Scroll back"
+        scrollNextLabel="Scroll forward"
         listHref="/en/productos"
-        hrefFor={(slug) => `/en/productos?category=${slug}`}
+        categoryHrefTemplate="/en/productos?category={slug}"
       />,
     );
 
@@ -41,8 +43,10 @@ describe('CategoryNav', () => {
         categories={[]}
         allLabel="All"
         navLabel="Categories"
+        scrollPrevLabel="Scroll back"
+        scrollNextLabel="Scroll forward"
         listHref="/en/productos"
-        hrefFor={(slug) => `/en/productos?category=${slug}`}
+        categoryHrefTemplate="/en/productos?category={slug}"
       />,
     );
     expect(container).toBeEmptyDOMElement();
