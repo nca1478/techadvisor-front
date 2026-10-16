@@ -132,6 +132,15 @@ export function AdminCategoriesView({
             }}
           />
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setDraft('');
+            setPage(1);
+          }}
+        >
+          {messages.catalog.clearFilters}
+        </Button>
       </AdminFiltersCard>
       {feedback ? (
         <Text

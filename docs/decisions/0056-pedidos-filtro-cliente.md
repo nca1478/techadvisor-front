@@ -10,8 +10,13 @@ por el nombre del usuario que hizo el pedido.
 ## Decisión
 
 - Buscador de texto en la tarjeta de filtros (mismo patrón que el `q`
-  de productos/documentos: borrador local + Enter para aplicar, va en
-  la URL y el servidor re-fetch). Limpia junto con el resto de filtros.
+  de productos/documentos: borrador local, va en la URL y el servidor
+  re-fetch). Limpia junto con el resto de filtros.
+- Como el filtro por nombre de categorías: aplica **mientras se
+  escribe**, sin Enter. Los pedidos son paginados en servidor (a
+  diferencia de la lista completa de categorías, filtrada en cliente),
+  así que las teclas se agrupan con un debounce de 400 ms en una sola
+  navegación; Enter aplica de inmediato.
 - Envía `q` al backend (ADR backend 0058: coincide nombre o correo).
 - Claves i18n `admin.orders.customerFilter` (etiqueta) y
   `admin.orders.customerSearchPlaceholder`; sin duplicar textos.

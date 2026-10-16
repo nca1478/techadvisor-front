@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -54,6 +54,18 @@ export function AdminOrdersView({
   const router = useRouter();
   const orders = messages.admin.orders;
   const [draft, setDraft] = useState(query.q);
+  // Last search sent to the server (guards duplicate navigations from the
+  // debounce timer racing an Enter press or the clear button).
+  const appliedRef = useRef(query.q);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Drop any pending search when the view unmounts.
+  useEffect(
+    () => () => {
+      if (debounceRef.current !== null) clearTimeout(debounceRef.current);
+    },
+    [],
+  );
 
   function navigate(next: Partial<AdminOrdersQuery>) {
     const merged: AdminOrdersQuery = { ...query, ...next };
@@ -63,6 +75,33 @@ export function AdminOrdersView({
       page: merged.page,
     });
     router.push(`/${locale}/admin/ordenes${search}`);
+  }
+
+  /**
+   * Customer search, like the categories name filter: it applies while
+   * typing. Orders are server-paginated (unlike the client-side categories
+   * list), so keystrokes are debounced into a single URL navigation.
+   */
+  function applySearch(value: string) {
+    const trimmed = value.trim();
+    if (trimmed === appliedRef.current) return;
+    appliedRef.current = trimmed;
+    navigate({ q: trimmed, page: 1 });
+  }
+
+  function handleDraftChange(value: string) {
+    setDraft(value);
+    if (debounceRef.current !== null) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      applySearch(value);
+    }, 400);
+  }
+
+  function clearDraftTimer() {
+    if (debounceRef.current !== null) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
   }
 
   return (
@@ -76,10 +115,13 @@ export function AdminOrdersView({
             value={draft}
             placeholder={orders.customerSearchPlaceholder}
             onChange={(event) => {
-              setDraft(event.target.value);
+              handleDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+              if (event.key === 'Enter') {
+                clearDraftTimer();
+                applySearch(draft);
+              }
             }}
           />
         </div>
@@ -105,6 +147,8 @@ export function AdminOrdersView({
         <Button
           variant="secondary"
           onClick={() => {
+            clearDraftTimer();
+            appliedRef.current = '';
             setDraft('');
             navigate({ status: '', q: '', page: 1 });
           }}

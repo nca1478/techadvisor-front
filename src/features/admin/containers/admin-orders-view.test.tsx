@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminOrdersView } from '@/features/admin/containers/admin-orders-view';
 import type { AdminOrderList } from '@/lib/api/admin';
 import { getDictionarySync } from '@/lib/i18n/index';
@@ -9,6 +9,11 @@ const push = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, refresh: vi.fn() }),
 }));
+
+beforeEach(() => {
+  push.mockClear();
+  vi.useRealTimers();
+});
 
 const messages = getDictionarySync('es');
 
@@ -117,15 +122,30 @@ describe('AdminOrdersView pagination', () => {
     expect(screen.getByText('cd5b8c19…')).toBeDefined();
   });
 
-  it('applies the customer search on Enter and clears it with the filters', () => {
+  it('applies the customer search while typing (debounced) and clears it', () => {
+    vi.useFakeTimers();
+    renderView();
+
+    const search = screen.getByLabelText('Cliente');
+    fireEvent.change(search, { target: { value: 'pepe' } });
+    // Like the categories name filter: no Enter needed, but the
+    // server navigation waits for the typing pause.
+    expect(push).not.toHaveBeenCalled();
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+    expect(push).toHaveBeenCalledWith(expect.stringContaining('q=pepe'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpiar filtros' }));
+    expect(push).toHaveBeenCalledWith(`/es/admin/ordenes?page=1`);
+  });
+
+  it('applies the customer search immediately on Enter', () => {
     renderView();
 
     const search = screen.getByLabelText('Cliente');
     fireEvent.change(search, { target: { value: 'pepe' } });
     fireEvent.keyDown(search, { key: 'Enter' });
     expect(push).toHaveBeenCalledWith(expect.stringContaining('q=pepe'));
-
-    fireEvent.click(screen.getByRole('button', { name: 'Limpiar filtros' }));
-    expect(push).toHaveBeenCalledWith(`/es/admin/ordenes?page=1`);
   });
 });
