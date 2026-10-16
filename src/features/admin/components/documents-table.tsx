@@ -62,7 +62,7 @@ export function DocumentsTable({
   }
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse bg-surface text-left text-sm">
+      <table className="w-full min-w-[44rem] border-collapse bg-surface text-left text-sm">
         <thead>
           <tr className="border-b border-border text-left">
             <th
@@ -105,7 +105,9 @@ export function DocumentsTable({
                 </td>
                 <td className="px-4 py-2">
                   <Stack gap="sm">
-                    <Text className="font-medium">{document.title}</Text>
+                    <span title={document.title} className="block max-w-44 truncate sm:max-w-64">
+                      <Text className="truncate font-medium">{document.title}</Text>
+                    </span>
                     <Text tone="muted" className="text-xs">
                       {document.locale}
                       {` · ${document.source}`}
@@ -147,6 +149,7 @@ export function DocumentsTable({
                       variant="secondary"
                       size="sm"
                       disabled={busy}
+                      className="whitespace-nowrap"
                       onClick={() => {
                         onReingest(document.id);
                       }}
@@ -157,6 +160,7 @@ export function DocumentsTable({
                       variant="ghost"
                       size="sm"
                       disabled={busy}
+                      className="whitespace-nowrap"
                       onClick={() => {
                         onDelete(document.id);
                       }}
