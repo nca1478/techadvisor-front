@@ -20,10 +20,16 @@ import {
   type ChatHistory,
   type ChatSession,
   type ChatSessionHistoryEntry,
+  type FeedbackValue,
   type RecommendProduct,
 } from '@/lib/api/advisor';
 import type { Dictionary } from '@/lib/i18n/index';
-import { ChatWindow, type ChatBubble, type ChatHistoryOption } from '../components/chat-window';
+import {
+  ChatWindow,
+  type ChatBubble,
+  type ChatBubbleFeedback,
+  type ChatHistoryOption,
+} from '../components/chat-window';
 
 export interface AdvisorChatProps {
   locale: string;
@@ -214,6 +220,9 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
   const [startingNewChat, setStartingNewChat] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingSession, setDeletingSession] = useState(false);
+  const [feedbackById, setFeedbackById] = useState<Record<string, ChatBubbleFeedback | undefined>>(
+    {},
+  );
   const lastSentRef = useRef('');
   const idRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
@@ -357,6 +366,7 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       abortRef.current?.abort();
       lastSentRef.current = '';
       setBubbles([]);
+      setFeedbackById({});
       setSessions([]);
       setSessionId(null);
       setInput('');
@@ -740,6 +750,42 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
     [addItem],
   );
 
+  const handleFeedback = useCallback(
+    (bubbleId: string, value: FeedbackValue) => {
+      if (feedbackById[bubbleId]?.sent) return;
+      setFeedbackById((prev) => ({ ...prev, [bubbleId]: { value, sent: false } }));
+      const bubble = bubbles.find((candidate) => candidate.id === bubbleId);
+      if (bubble === undefined || bubble.role !== 'assistant') return;
+      const position = bubbles.indexOf(bubble);
+      const previous = position > 0 ? bubbles[position - 1] : undefined;
+      const question =
+        previous !== undefined && previous.role === 'user' ? previous.text : lastSentRef.current;
+      if (question.trim().length === 0 || bubble.text.trim().length === 0) return;
+      // Chat has no explicit abstained flag: no cards/citations means the
+      // no-candidates relax hint (recorded as UnansweredQuery server-side).
+      const abstained =
+        (bubble.products?.length ?? 0) === 0 && (bubble.citations?.length ?? 0) === 0;
+      // Fire-and-forget: el voto alimenta el panel admin del asesor.
+      void fetch('/api/advisor/feedback', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          question: question.trim().slice(0, 1000),
+          answer: bubble.text.slice(0, 20000),
+          abstained,
+          value,
+          sessionId: sessionId ?? undefined,
+        }),
+      })
+        .catch(() => null)
+        .finally(() => {
+          setFeedbackById((prev) => ({ ...prev, [bubbleId]: { value, sent: true } }));
+        });
+    },
+    [bubbles, feedbackById, sessionId],
+  );
+
   const showStarters = bubbles.length === 0 && !sending && streamingText === null;
   const chips = showStarters ? chat.starters : pendingClarification ? chat.quickReplies : [];
   const chipsLabel = showStarters ? chat.startersLabel : chat.quickRepliesLabel;
@@ -801,6 +847,8 @@ export function AdvisorChat({ locale, messages }: AdvisorChatProps) {
       locale={locale}
       productHrefFor={(slug) => `/${locale}/productos/${encodeURIComponent(slug)}`}
       onAddToCart={handleAddToCart}
+      feedbackById={feedbackById}
+      onFeedback={handleFeedback}
       messages={messages}
     />
   );

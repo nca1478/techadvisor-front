@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import type { SupportResponse } from '@/lib/api/advisor';
+import type { FeedbackValue, SupportResponse } from '@/lib/api/advisor';
 import type { Dictionary } from '@/lib/i18n/index';
 import { SupportView, type SupportStatus } from '../components/support-view';
 
@@ -78,6 +78,8 @@ export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
   const [status, setStatus] = useState<SupportStatus>('idle');
   const [result, setResult] = useState<SupportResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackValue | null>(null);
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const answerRef = useRef(0);
 
   const ask = useCallback(
@@ -90,6 +92,8 @@ export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
       const stale = () => answerRef.current !== callId;
       setStatus('loading');
       setErrorMessage(null);
+      setFeedback(null);
+      setFeedbackSent(false);
       try {
         const reply = await postSupport({
           question: trimmed,
@@ -124,6 +128,30 @@ export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
     void ask(question, orderId);
   }, [ask, orderId, question]);
 
+  const handleFeedback = useCallback(
+    (value: FeedbackValue) => {
+      if (result === null || feedbackSent) return;
+      setFeedback(value);
+      // Fire-and-forget: el voto alimenta el panel admin del asesor.
+      void fetch('/api/advisor/feedback', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          question: question.trim(),
+          answer: result.answer,
+          abstained: result.abstained,
+          value,
+        }),
+      })
+        .catch(() => null)
+        .finally(() => {
+          setFeedbackSent(true);
+        });
+    },
+    [feedbackSent, question, result],
+  );
+
   return (
     <section aria-labelledby="support-heading">
       <span id="support-heading" className="sr-only">
@@ -141,6 +169,9 @@ export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
         onRetry={() => {
           void ask(question, orderId);
         }}
+        feedback={feedback}
+        feedbackSent={feedbackSent}
+        onFeedback={handleFeedback}
         locale={locale}
         messages={messages}
       />

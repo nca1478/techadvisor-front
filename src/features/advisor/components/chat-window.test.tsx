@@ -202,4 +202,22 @@ describe('ChatWindow', () => {
     fireEvent.click(screen.getByRole('button', { name: messages.chat.newChat }));
     expect(onNewChat).toHaveBeenCalled();
   });
+
+  it('votes per assistant bubble when onFeedback is provided', () => {
+    const onFeedback = vi.fn();
+    render(
+      <ChatWindow
+        {...baseProps({
+          bubbles: [
+            { id: 'u1', role: 'user', text: 'Portátil para estudiar' },
+            { id: 'a1', role: 'assistant', text: 'Esta opción encaja.' },
+          ],
+          onFeedback,
+        })}
+      />,
+    );
+    expect(screen.getByText(messages.chat.feedbackLabel)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: messages.chat.feedbackUp }));
+    expect(onFeedback).toHaveBeenCalledWith('a1', 'up');
+  });
 });

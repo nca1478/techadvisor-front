@@ -205,6 +205,10 @@
     "sourceLabel": "Sources",
     "showSnippet": "Show excerpt",
     "hideSnippet": "Hide",
+    "feedbackLabel": "Was this helpful?",
+    "feedbackThanks": "Thanks for your feedback.",
+    "feedbackUp": "Helpful",
+    "feedbackDown": "Not helpful",
     "disclaimer": "Guidance only: the assistant quotes the policies but never promises refunds, deadlines or exceptions. Only the human team can confirm those.",
     "privacyNote": "Do not include personal details like your email or address. An order number is enough for order questions.",
     "policiesTitle": "Full policies",
@@ -345,7 +349,11 @@
     "deleteConfirmButton": "Yes, delete",
     "deleteCancel": "Cancel",
     "deleting": "Deleting…",
-    "deleteError": "The conversation could not be deleted. Please try again."
+    "deleteError": "The conversation could not be deleted. Please try again.",
+    "feedbackLabel": "Was this helpful?",
+    "feedbackThanks": "Thanks for your feedback.",
+    "feedbackUp": "Helpful",
+    "feedbackDown": "Not helpful"
   },
   "cart": {
     "title": "Cart",

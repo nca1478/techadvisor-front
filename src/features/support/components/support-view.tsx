@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdvisorAnswer } from '@/features/advisor';
-import type { SupportResponse } from '@/lib/api/advisor';
+import { AdvisorFeedback } from '@/features/advisor/components/advisor-feedback';
+import type { FeedbackValue, SupportResponse } from '@/lib/api/advisor';
 import type { Dictionary } from '@/lib/i18n/index';
 
 export type SupportStatus = 'idle' | 'loading' | 'answered' | 'abstained' | 'error';
@@ -23,6 +24,9 @@ export interface SupportViewProps {
   result: SupportResponse | null;
   errorMessage: string | null;
   onRetry: () => void;
+  feedback: FeedbackValue | null;
+  feedbackSent: boolean;
+  onFeedback: (value: FeedbackValue) => void;
   locale: string;
   messages: Dictionary['support'];
 }
@@ -43,6 +47,9 @@ export function SupportView({
   result,
   errorMessage,
   onRetry,
+  feedback,
+  feedbackSent,
+  onFeedback,
   locale,
   messages,
 }: SupportViewProps) {
@@ -136,6 +143,12 @@ export function SupportView({
                 hideSnippetLabel={messages.hideSnippet}
               />
             )}
+            <AdvisorFeedback
+              feedback={feedback}
+              feedbackSent={feedbackSent}
+              onFeedback={onFeedback}
+              messages={messages}
+            />
           </div>
         )}
 

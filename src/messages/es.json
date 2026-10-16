@@ -205,6 +205,10 @@
     "sourceLabel": "Fuentes",
     "showSnippet": "Ver fragmento",
     "hideSnippet": "Ocultar",
+    "feedbackLabel": "¿Te sirvió esta respuesta?",
+    "feedbackThanks": "Gracias por tu opinión.",
+    "feedbackUp": "Útil",
+    "feedbackDown": "No útil",
     "disclaimer": "Solo orientativo: el asistente cita las políticas, pero nunca promete reembolsos, plazos ni excepciones. Eso solo puede confirmarlo el equipo humano.",
     "privacyNote": "No incluyas datos personales como tu correo o dirección. Para preguntas sobre un pedido basta su número.",
     "policiesTitle": "Políticas completas",
@@ -345,7 +349,11 @@
     "deleteConfirmButton": "Sí, eliminar",
     "deleteCancel": "Cancelar",
     "deleting": "Eliminando…",
-    "deleteError": "No se pudo eliminar la conversación. Inténtalo de nuevo."
+    "deleteError": "No se pudo eliminar la conversación. Inténtalo de nuevo.",
+    "feedbackLabel": "¿Te sirvió esta respuesta?",
+    "feedbackThanks": "Gracias por tu opinión.",
+    "feedbackUp": "Útil",
+    "feedbackDown": "No útil"
   },
   "cart": {
     "title": "Carrito",

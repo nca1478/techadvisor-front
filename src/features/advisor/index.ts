@@ -7,8 +7,14 @@ export {
   type AdvisorStatus,
 } from './components/advisor-view';
 export { AdvisorAnswer, type AdvisorAnswerProps } from './components/advisor-answer';
+export { AdvisorFeedback, type AdvisorFeedbackTexts } from './components/advisor-feedback';
 export { AdvisorFab, type AdvisorFabProps } from './components/advisor-fab';
-export { ChatWindow, type ChatWindowProps, type ChatBubble } from './components/chat-window';
+export {
+  ChatWindow,
+  type ChatWindowProps,
+  type ChatBubble,
+  type ChatBubbleFeedback,
+} from './components/chat-window';
 export {
   ProductCard,
   type ProductCardProps,

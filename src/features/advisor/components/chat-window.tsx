@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
-import type { AdvisorCitation, RecommendProduct } from '@/lib/api/advisor';
+import type { AdvisorCitation, FeedbackValue, RecommendProduct } from '@/lib/api/advisor';
 import type { Dictionary } from '@/lib/i18n/index';
 import { AdvisorAnswer } from './advisor-answer';
+import { AdvisorFeedback } from './advisor-feedback';
 import { ProductCard } from './product-card';
 
 export interface ChatBubble {
@@ -20,6 +21,11 @@ export interface ChatBubble {
   products?: RecommendProduct[];
   /** True when the backend asked a follow-up instead of recommending. */
   clarifying?: boolean;
+}
+
+export interface ChatBubbleFeedback {
+  value: FeedbackValue | null;
+  sent: boolean;
 }
 
 export interface ChatHistoryOption {
@@ -57,6 +63,8 @@ export interface ChatWindowProps {
   locale: string;
   productHrefFor: (slug: string) => string;
   onAddToCart: (productId: string) => Promise<{ ok: true } | { ok: false }>;
+  feedbackById?: Record<string, ChatBubbleFeedback | undefined>;
+  onFeedback?: (bubbleId: string, value: FeedbackValue) => void;
   messages: Dictionary;
 }
 
@@ -92,6 +100,8 @@ export function ChatWindow({
   locale,
   productHrefFor,
   onAddToCart,
+  feedbackById,
+  onFeedback,
   messages,
 }: ChatWindowProps) {
   const chat = messages.chat;
@@ -277,6 +287,16 @@ export function ChatWindow({
                     ))}
                   </ul>
                 ) : null}
+                {onFeedback && (
+                  <AdvisorFeedback
+                    feedback={feedbackById?.[bubble.id]?.value ?? null}
+                    feedbackSent={feedbackById?.[bubble.id]?.sent ?? false}
+                    onFeedback={(value) => {
+                      onFeedback(bubble.id, value);
+                    }}
+                    messages={chat}
+                  />
+                )}
               </div>
             </div>
           ),

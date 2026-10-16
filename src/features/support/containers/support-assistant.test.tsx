@@ -130,4 +130,22 @@ describe('SupportAssistant', () => {
     });
     expect(screen.getByRole('button', { name: messages.retry })).toBeVisible();
   });
+
+  it('sends a vote without productId after an answer', async () => {
+    const calls = mockFetch((url) => {
+      if (url === '/api/advisor/support') return jsonResponse(200, citedAnswer());
+      if (url === '/api/advisor/feedback') return jsonResponse(200, { ok: true });
+      return null;
+    });
+    renderAssistant();
+    askQuestion('¿Cuánto dura la garantía de un portátil?');
+
+    await screen.findByText(messages.feedbackLabel);
+    fireEvent.click(screen.getByRole('button', { name: messages.feedbackUp }));
+    await screen.findByText(messages.feedbackThanks);
+    expect(calls.some((call) => call.url === '/api/advisor/feedback')).toBe(true);
+    const vote = calls.find((call) => call.url === '/api/advisor/feedback');
+    expect(vote?.body).toMatchObject({ value: 'up', abstained: false });
+    expect(vote?.body).not.toHaveProperty('productId');
+  });
 });
