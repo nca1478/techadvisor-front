@@ -44,7 +44,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               aria-pressed={index === active}
               aria-label={`${productImageAlt(image, productName)} (${String(index + 1)})`}
               className={cn(
-                'w-20 shrink-0 overflow-hidden rounded-md border transition-shadow duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                'w-20 shrink-0 cursor-pointer overflow-hidden rounded-md border transition-shadow duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 index === active
                   ? 'border-primary shadow-[0_0_12px_rgb(201_242_75/0.35)]'
