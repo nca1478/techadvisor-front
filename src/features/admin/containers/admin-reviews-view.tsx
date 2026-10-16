@@ -111,6 +111,14 @@ export function AdminReviewsView({
             }}
           />
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            navigate({ status: '', page: 1 });
+          }}
+        >
+          {messages.catalog.clearFilters}
+        </Button>
       </AdminFiltersCard>
       {notice !== null && (
         <Text

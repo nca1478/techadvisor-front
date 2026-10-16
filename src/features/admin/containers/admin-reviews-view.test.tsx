@@ -155,7 +155,10 @@ describe('AdminReviewsView', () => {
       />,
     );
     expect(screen.getByText(messages.admin.reviews.emptyFiltered)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: messages.catalog.clearFilters }));
+    // Clear action both in the filters bar and in the empty state.
+    const clearButtons = screen.getAllByRole('button', { name: messages.catalog.clearFilters });
+    expect(clearButtons).toHaveLength(2);
+    fireEvent.click(clearButtons[0]);
     expect(pushMock).toHaveBeenCalledWith('/es/admin/resenas');
   });
 });
