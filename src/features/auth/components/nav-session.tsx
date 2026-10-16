@@ -113,8 +113,8 @@ export function NavSession({
           title={logoutLabel}
           className={
             showLabel
-              ? 'inline-flex w-full cursor-pointer items-center gap-3 px-1 py-1.5 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-              : 'inline-flex cursor-pointer rounded-sm p-1 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+              ? 'inline-flex w-full cursor-pointer items-center gap-3 px-1 py-1.5 text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+              : 'inline-flex cursor-pointer rounded-sm p-1 text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
           }
         >
           <LogoutIcon className="size-6" />

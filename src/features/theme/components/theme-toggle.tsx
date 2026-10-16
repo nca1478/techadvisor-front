@@ -34,8 +34,8 @@ export function ThemeToggle({
       title={label}
       className={
         showLabel
-          ? 'inline-flex w-full cursor-pointer items-center gap-3 px-1 py-1.5 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-          : 'inline-flex cursor-pointer items-center p-1 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+          ? 'inline-flex w-full cursor-pointer items-center gap-3 px-1 py-1.5 text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+          : 'inline-flex cursor-pointer items-center p-1 text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
       }
     >
       {toLight ? <SunIcon className="size-6" /> : <MoonIcon className="size-6" />}

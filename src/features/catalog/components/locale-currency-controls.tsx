@@ -75,7 +75,7 @@ export function LocaleCurrencyControls({
           onClick={() => {
             setOpen((prev) => !prev);
           }}
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm p-1 text-header-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-sm p-1 text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           {/* Fila interior de 24 px (h-6): con el p-1 el botón mide 32 px,
               igual que los iconos vecinos (size-6 + p-1). */}

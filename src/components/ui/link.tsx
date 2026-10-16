@@ -5,9 +5,10 @@ import { cn } from './cn';
 const VARIANTS = {
   default: 'text-link underline-offset-4 hover:text-link-hover hover:underline',
   muted: 'text-muted-foreground underline-offset-4 hover:text-foreground hover:underline',
-  header: 'text-header-foreground underline-offset-4 hover:underline',
+  header:
+    'text-header-foreground no-underline transition-colors duration-150 hover:text-primary hover:no-underline',
   /** Brand wordmark: header color, never underlined (not a text link). */
-  brand: 'text-header-foreground no-underline',
+  brand: 'text-header-foreground no-underline transition-colors duration-150 hover:text-primary',
 } as const;
 
 export interface LinkProps {
