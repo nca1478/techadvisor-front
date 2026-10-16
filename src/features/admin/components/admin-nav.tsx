@@ -28,9 +28,9 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
   const items: Array<{ section: AdminSection; href: string; label: string }> = [
     { section: 'dashboard', href: `/${locale}/admin`, label: messages.navDashboard },
     { section: 'products', href: `/${locale}/admin/productos`, label: messages.navProducts },
+    { section: 'inventory', href: `/${locale}/admin/inventario`, label: messages.navInventory },
     { section: 'categories', href: `/${locale}/admin/categorias`, label: messages.navCategories },
     { section: 'orders', href: `/${locale}/admin/ordenes`, label: messages.navOrders },
-    { section: 'inventory', href: `/${locale}/admin/inventario`, label: messages.navInventory },
     { section: 'documents', href: `/${locale}/admin/documentos`, label: messages.navDocuments },
     { section: 'asesor', href: `/${locale}/admin/asesor`, label: messages.navAsesor },
     { section: 'reviews', href: `/${locale}/admin/resenas`, label: messages.navReviews },
