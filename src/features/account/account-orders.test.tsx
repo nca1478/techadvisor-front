@@ -119,6 +119,13 @@ describe('OrderTimeline', () => {
     expect(items).toHaveLength(6);
     expect(screen.getByText('Cancelado')).toBeDefined();
     expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
+    // Separator between the "Entregado" step and the X node so the row
+    // does not stick together (same connector tokens as the steps).
+    const cancelled = items[5];
+    const hidden = cancelled.querySelectorAll('[aria-hidden="true"]');
+    const separator = Array.from(hidden).find((el) => el.className.includes('w-8'));
+    expect(separator).toBeDefined();
+    expect(separator?.className).toContain('bg-border-strong');
   });
 
   it('shows the timeline title inside the customer order detail', () => {
