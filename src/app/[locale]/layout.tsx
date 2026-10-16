@@ -90,13 +90,14 @@ export default async function LocaleLayout({
             <header className="bg-header text-header-foreground">
               <Container>
                 {/* Primera línea (referencia): marca, buscador, iconos. */}
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-3 py-3">
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-5 py-4 md:gap-y-3 md:py-3">
                   <Link
                     href={`/${locale}`}
                     variant="brand"
-                    className="shrink-0 text-xl font-semibold leading-relaxed"
+                    className="inline-flex shrink-0 items-center gap-2 text-xl font-semibold leading-relaxed"
                     ariaLabel={messages.nav.home}
                   >
+                    <VoltBoltIcon className="size-6 text-primary" />
                     {messages.common.techAdvisor}
                   </Link>
                   <div className="order-last min-w-0 w-full flex-1 basis-full md:order-none md:ml-auto md:w-64 md:flex-none md:basis-auto lg:w-80">
@@ -169,9 +170,9 @@ export default async function LocaleLayout({
               </Container>
               {/* Segunda línea: categorías, con divisora a todo el ancho. */}
               {categories.length > 0 ? (
-                <div className="border-t border-header-sub">
+                <div className="border-t border-header-sub mt-2 md:mt-0">
                   <Container>
-                    <div className="py-2">
+                    <div className="py-3 md:py-2">
                       <CategoryNav
                         categories={categories}
                         allLabel={messages.nav.allProducts}
