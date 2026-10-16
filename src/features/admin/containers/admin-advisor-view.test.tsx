@@ -106,7 +106,7 @@ describe('AdminAdvisorView', () => {
     const docLink = screen.getAllByRole('link', { name: 'Crear documento' })[0];
     expect(docLink).toHaveAttribute(
       'href',
-      `/es/admin/documentos?title=${encodeURIComponent('¿Cuánto dura la batería?')}`,
+      `/es/admin/documentos/nuevo?title=${encodeURIComponent('¿Cuánto dura la batería?')}`,
     );
   });
 

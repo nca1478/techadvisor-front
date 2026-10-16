@@ -169,7 +169,7 @@ export function AdminAdvisorView({
   }
 
   function documentHref(sample: string): string {
-    return `/${locale}/admin/documentos?title=${encodeURIComponent(sample.slice(0, 120))}`;
+    return `/${locale}/admin/documentos/nuevo?title=${encodeURIComponent(sample.slice(0, 120))}`;
   }
 
   const showTriage = query.status !== 'RESOLVED';

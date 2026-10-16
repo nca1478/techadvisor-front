@@ -4,22 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
-import { Tabs } from '@/components/ui/tabs';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { DocumentsTable } from '@/features/admin/components/documents-table';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
-import {
-  isHttpUrl,
-  isOptionalUuid,
-  validateUploadFile,
-  type UploadFileError,
-} from '@/features/admin/lib/document-upload';
 import { pollDocumentsUntilSettled } from '@/features/admin/lib/document-polling';
 import type {
   AdminDocument,
@@ -33,28 +25,24 @@ import type { Dictionary } from '@/lib/i18n/index';
 export interface AdminDocumentsQuery {
   status: AdminDocumentStatus | '';
   type: AdminDocumentType | '';
+  q: string;
   page: number;
 }
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 15;
 
-const FILE_ERROR_KEYS: Record<UploadFileError, 'fileRequired' | 'fileTooLarge' | 'fileTypeHint'> = {
-  required: 'fileRequired',
-  'too-large': 'fileTooLarge',
-  type: 'fileTypeHint',
-};
-
 function formatPage(template: string, page: number, totalPages: number): string {
   return template.replace('{page}', String(page)).replace('{totalPages}', String(totalPages));
 }
 
 /**
- * Documents container: upload (file or URL), bounded polling for transient
- * ingestion states, re-ingest and soft delete. The list itself is
- * server-fetched (URL-driven status filter + pagination); this component
- * keeps a local copy of the rows so polling and mutations update in place
- * without a full navigation.
+ * Documents list: ingestion now lives in the `documentos/nuevo` wizard
+ * (single "Subir" button above), so this view only renders filters, the
+ * table with bounded polling for transient ingestion states, re-ingest
+ * and soft delete. The rows are server-fetched (URL-driven status filter
+ * + pagination); this component keeps a local copy so polling and
+ * mutations update in place without a full navigation.
  */
 export function AdminDocumentsView({
   data,
@@ -62,39 +50,22 @@ export function AdminDocumentsView({
   query,
   locale,
   messages,
-  initialTitle = '',
 }: {
   data: AdminDocumentList | null;
   loadError: boolean;
   query: AdminDocumentsQuery;
   locale: string;
   messages: Dictionary;
-  /** Prefills the upload title (e.g. from the advisor panel "create document" shortcut). */
-  initialTitle?: string;
 }) {
   const router = useRouter();
   const docs = messages.admin.documents;
   const [rows, setRows] = useState<AdminDocument[]>(data?.data ?? []);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadTitle, setUploadTitle] = useState(initialTitle);
-  const [uploadType, setUploadType] = useState<AdminDocumentType>('MANUAL');
-  const [uploadLocale, setUploadLocale] = useState('en');
-  const [uploadProductId, setUploadProductId] = useState('');
-  const [uploadCategoryId, setUploadCategoryId] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [uploadFeedback, setUploadFeedback] = useState<{ ok: boolean; text: string } | null>(null);
-  const [urlTitle, setUrlTitle] = useState('');
-  const [urlType, setUrlType] = useState<AdminDocumentType>('MANUAL');
-  const [urlLocale, setUrlLocale] = useState('en');
-  const [sourceUrl, setSourceUrl] = useState('');
-  const [registering, setRegistering] = useState(false);
-  const [urlFeedback, setUrlFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+  const [draft, setDraft] = useState(query.q);
   const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(new Set());
   const [stoppedIds, setStoppedIds] = useState<ReadonlySet<string>>(new Set());
   const [confirmReingestId, setConfirmReingestId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState<{ ok: boolean; text: string } | null>(null);
-  const [fileResetKey, setFileResetKey] = useState(0);
 
   const transientKey = useMemo(
     () =>
@@ -159,6 +130,7 @@ export function AdminDocumentsView({
     const search = toAdminQuery({
       ...(merged.status === '' ? {} : { status: merged.status }),
       ...(merged.type === '' ? {} : { type: merged.type }),
+      ...(merged.q === '' ? {} : { q: merged.q }),
       page: merged.page,
     });
     // Sin scroll al principio: los filtros y la paginación viven junto a la
@@ -186,73 +158,6 @@ export function AdminDocumentsView({
       }
       return next;
     });
-  }
-
-  async function handleUpload() {
-    const fileError = validateUploadFile(file);
-    if (fileError !== null) {
-      setUploadFeedback({ ok: false, text: docs[FILE_ERROR_KEYS[fileError]] });
-      return;
-    }
-    if (!isOptionalUuid(uploadProductId) || !isOptionalUuid(uploadCategoryId)) {
-      setUploadFeedback({ ok: false, text: messages.admin.required });
-      return;
-    }
-    setUploading(true);
-    setUploadFeedback(null);
-    try {
-      const form = new FormData();
-      form.set('file', file as File);
-      if (uploadTitle.trim() !== '') {
-        form.set('title', uploadTitle.trim());
-      }
-      form.set('type', uploadType);
-      form.set('locale', uploadLocale);
-      if (uploadProductId.trim() !== '') {
-        form.set('productId', uploadProductId.trim());
-      }
-      if (uploadCategoryId.trim() !== '') {
-        form.set('categoryId', uploadCategoryId.trim());
-      }
-      const created = await adminHttp.postForm<AdminDocument>('/documents/upload', form);
-      upsertRow(created);
-      setFile(null);
-      setUploadTitle('');
-      setFileResetKey((key) => key + 1);
-      setUploadFeedback({ ok: true, text: docs.uploaded });
-    } catch (error) {
-      setUploadFeedback({ ok: false, text: adminErrorMessage(error, docs.uploadError) });
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  async function handleRegisterUrl() {
-    if (urlTitle.trim() === '' || !isHttpUrl(sourceUrl)) {
-      setUrlFeedback({
-        ok: false,
-        text: urlTitle.trim() === '' ? messages.admin.required : docs.urlInvalid,
-      });
-      return;
-    }
-    setRegistering(true);
-    setUrlFeedback(null);
-    try {
-      const created = await adminHttp.post<AdminDocument>('/documents', {
-        title: urlTitle.trim(),
-        type: urlType,
-        locale: urlLocale,
-        sourceUrl: sourceUrl.trim(),
-      });
-      upsertRow(created);
-      setUrlTitle('');
-      setSourceUrl('');
-      setUrlFeedback({ ok: true, text: docs.registered });
-    } catch (error) {
-      setUrlFeedback({ ok: false, text: adminErrorMessage(error, docs.registerError) });
-    } finally {
-      setRegistering(false);
-    }
   }
 
   async function handleReingest(id: string) {
@@ -306,199 +211,25 @@ export function AdminDocumentsView({
 
   return (
     <Stack gap="md">
-      <AdminHeaderCard title={docs.title} subtitle={docs.subtitle} />
-
-      <Tabs
-        label={docs.ingestTabsLabel}
-        items={[
-          {
-            id: 'upload',
-            label: docs.uploadTitle,
-            content: (
-              <Card>
-                <Stack gap="md">
-                  <Heading level={2}>{docs.uploadTitle}</Heading>
-                  <Input
-                    key={fileResetKey}
-                    label={docs.fileLabel}
-                    name="file"
-                    type="file"
-                    accept=".pdf,.html,.htm,.md,.markdown,.txt"
-                    hint={docs.fileHint}
-                    disabled={uploading}
-                    onChange={(event) => {
-                      setFile(event.target.files?.[0] ?? null);
-                    }}
-                  />
-                  <Input
-                    label={docs.titleLabel}
-                    name="uploadTitle"
-                    value={uploadTitle}
-                    disabled={uploading}
-                    onChange={(event) => {
-                      setUploadTitle(event.target.value);
-                    }}
-                  />
-                  <Stack direction="horizontal" gap="md" wrap>
-                    <div className="min-w-44 flex-1">
-                      <Select
-                        label={docs.typeLabel}
-                        name="uploadType"
-                        value={uploadType}
-                        options={typeOptions}
-                        disabled={uploading}
-                        onChange={(event) => {
-                          setUploadType(event.target.value as AdminDocumentType);
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-44 flex-1">
-                      <Select
-                        label={docs.localeLabel}
-                        name="uploadLocale"
-                        value={uploadLocale}
-                        options={[
-                          { value: 'en', label: 'en' },
-                          { value: 'es', label: 'es' },
-                        ]}
-                        disabled={uploading}
-                        onChange={(event) => {
-                          setUploadLocale(event.target.value);
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                  <Stack direction="horizontal" gap="md" wrap>
-                    <div className="min-w-44 flex-1">
-                      <Input
-                        label={docs.productLabel}
-                        name="uploadProductId"
-                        value={uploadProductId}
-                        disabled={uploading}
-                        onChange={(event) => {
-                          setUploadProductId(event.target.value);
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-44 flex-1">
-                      <Input
-                        label={docs.categoryLabel}
-                        name="uploadCategoryId"
-                        value={uploadCategoryId}
-                        disabled={uploading}
-                        onChange={(event) => {
-                          setUploadCategoryId(event.target.value);
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                  <div>
-                    <Button
-                      variant="primary"
-                      disabled={uploading}
-                      onClick={() => {
-                        void handleUpload();
-                      }}
-                    >
-                      {uploading ? docs.uploading : docs.uploadSubmit}
-                    </Button>
-                  </div>
-                  {uploadFeedback ? (
-                    <Text
-                      role={uploadFeedback.ok ? 'status' : 'alert'}
-                      className={uploadFeedback.ok ? undefined : 'text-destructive'}
-                    >
-                      {uploadFeedback.text}
-                    </Text>
-                  ) : null}
-                </Stack>
-              </Card>
-            ),
-          },
-          {
-            id: 'register-url',
-            label: docs.urlTitle,
-            content: (
-              <Card>
-                <Stack gap="md">
-                  <Heading level={2}>{docs.urlTitle}</Heading>
-                  <Input
-                    label={docs.titleLabel}
-                    name="urlTitle"
-                    value={urlTitle}
-                    disabled={registering}
-                    onChange={(event) => {
-                      setUrlTitle(event.target.value);
-                    }}
-                  />
-                  <Input
-                    label={docs.urlLabel}
-                    name="sourceUrl"
-                    value={sourceUrl}
-                    placeholder="https://…"
-                    disabled={registering}
-                    onChange={(event) => {
-                      setSourceUrl(event.target.value);
-                    }}
-                  />
-                  <Stack direction="horizontal" gap="md" wrap>
-                    <div className="min-w-44 flex-1">
-                      <Select
-                        label={docs.typeLabel}
-                        name="urlType"
-                        value={urlType}
-                        options={typeOptions}
-                        disabled={registering}
-                        onChange={(event) => {
-                          setUrlType(event.target.value as AdminDocumentType);
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-44 flex-1">
-                      <Select
-                        label={docs.localeLabel}
-                        name="urlLocale"
-                        value={urlLocale}
-                        options={[
-                          { value: 'en', label: 'en' },
-                          { value: 'es', label: 'es' },
-                        ]}
-                        disabled={registering}
-                        onChange={(event) => {
-                          setUrlLocale(event.target.value);
-                        }}
-                      />
-                    </div>
-                  </Stack>
-                  <div>
-                    <Button
-                      variant="secondary"
-                      disabled={registering}
-                      onClick={() => {
-                        void handleRegisterUrl();
-                      }}
-                    >
-                      {registering ? docs.registering : docs.urlSubmit}
-                    </Button>
-                  </div>
-                  {urlFeedback ? (
-                    <Text
-                      role={urlFeedback.ok ? 'status' : 'alert'}
-                      className={urlFeedback.ok ? undefined : 'text-destructive'}
-                    >
-                      {urlFeedback.text}
-                    </Text>
-                  ) : null}
-                </Stack>
-              </Card>
-            ),
-          },
-        ]}
+      <AdminHeaderCard
+        title={docs.title}
+        subtitle={docs.subtitle}
+        actions={<Button href={`/${locale}/admin/documentos/nuevo`}>{docs.uploadAction}</Button>}
       />
 
       <AdminFiltersCard>
-        <div className="w-full">
-          <Heading level={2}>{docs.listTitle}</Heading>
+        <div className="min-w-56">
+          <Input
+            label={docs.searchPlaceholder}
+            name="q"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+            }}
+          />
         </div>
         <div className="min-w-44">
           <Select
@@ -522,6 +253,15 @@ export function AdminDocumentsView({
             }}
           />
         </div>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setDraft('');
+            navigate({ status: '', type: '', q: '', page: 1 });
+          }}
+        >
+          {messages.catalog.clearFilters}
+        </Button>
       </AdminFiltersCard>
 
       {loadError ? (
@@ -537,7 +277,7 @@ export function AdminDocumentsView({
             pendingIds={pendingIds}
             stoppedIds={stoppedIds}
             rowOffset={data ? (data.page - 1) * data.limit : 0}
-            filtered={query.status !== '' || query.type !== ''}
+            filtered={query.status !== '' || query.type !== '' || query.q !== ''}
             clearFiltersLabel={messages.catalog.clearFilters}
             onReingest={(id) => {
               setConfirmReingestId(id);
@@ -546,7 +286,8 @@ export function AdminDocumentsView({
               setConfirmDeleteId(id);
             }}
             onClearFilters={() => {
-              navigate({ status: '', type: '', page: 1 });
+              setDraft('');
+              navigate({ status: '', type: '', q: '', page: 1 });
             }}
           />
         </Card>

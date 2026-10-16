@@ -248,6 +248,7 @@ export interface AdminOrderListQuery {
 export interface AdminDocumentListQuery {
   status?: AdminDocumentStatus;
   type?: AdminDocumentType;
+  q?: string;
   page?: number;
   limit?: number;
 }

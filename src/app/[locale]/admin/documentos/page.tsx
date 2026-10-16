@@ -59,6 +59,7 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
     ? (rawType as AdminDocumentType)
     : '';
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
+  const q = firstParam(queryParams, 'q').slice(0, 100);
 
   const store = await cookies();
   const cookieHeader = store
@@ -68,6 +69,7 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
   const search = toAdminQuery({
     ...(status === '' ? {} : { status }),
     ...(type === '' ? {} : { type }),
+    ...(q === '' ? {} : { q }),
     page,
     limit: 10,
   });
@@ -76,13 +78,12 @@ export default async function AdminDocumentsPage({ params, searchParams }: Docum
 
   return (
     <AdminDocumentsView
-      key={`${status}-${type}-${String(page)}`}
+      key={`${status}-${type}-${q}-${String(page)}`}
       data={data}
       loadError={data === null}
-      query={{ status, type, page }}
+      query={{ status, type, q, page }}
       locale={locale}
       messages={messages}
-      initialTitle={firstParam(queryParams, 'title').slice(0, 200)}
     />
   );
 }
