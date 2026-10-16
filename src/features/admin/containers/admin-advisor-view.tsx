@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
+import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -114,7 +115,7 @@ export function AdminAdvisorView({
     setGroupNotice(null);
     try {
       for (const id of group.ids) {
-        // Sequential triage moves; the backend rejects non-forward moves, so a
+        // Sequential triage moves; the backend rejects backward moves, so a
         // mixed-status bucket surfaces its first conflict as an error below.
         await adminHttp.patch(`/advisor/unanswered/${id}`, { status });
       }
@@ -179,56 +180,93 @@ export function AdminAdvisorView({
           .replace('{up}', String(metrics.feedbackUp))
           .replace('{down}', String(metrics.feedbackDown))
           .replace('{total}', String(metrics.feedbackTotal));
+  const statusLabels: Record<string, string> = {
+    NEW: advisor.status_NEW,
+    IN_REVIEW: advisor.status_IN_REVIEW,
+    RESOLVED: advisor.status_RESOLVED,
+  };
+  const reasonLabels: Record<string, string> = {
+    no_evidence: advisor.reason_no_evidence,
+    below_threshold: advisor.reason_below_threshold,
+    no_candidates: advisor.reason_no_candidates,
+    unknown_category: advisor.reason_unknown_category,
+  };
+  const statusHint =
+    metrics === null
+      ? null
+      : metrics.unansweredByStatus
+          .map((entry) => `${statusLabels[entry.key] ?? entry.key}: ${String(entry.count)}`)
+          .join(' · ') || null;
+  const satisfactionHint =
+    metrics === null || metricsText === null
+      ? null
+      : metrics.feedbackTotal === 0
+        ? advisor.satisfactionNoVotes
+        : metricsText;
+  const viewAll = messages.admin.dashboard.viewAll;
 
   return (
     <Stack gap="md">
       <AdminHeaderCard title={advisor.title} subtitle={advisor.subtitle} />
 
-      <Card>
-        <Stack gap="sm">
-          <Heading level={2}>{advisor.metricsTitle}</Heading>
-          {metricsError || metrics === null ? (
-            <Text role="alert" className="text-destructive">
-              {messages.admin.loadError}
-            </Text>
-          ) : (
-            <Stack gap="sm">
-              <Stack direction="horizontal" gap="sm" wrap>
-                <Badge tone="warning">
-                  {advisor.openUnanswered}: {metrics.openUnanswered}
-                </Badge>
-                <Badge tone="primary">
-                  {advisor.satisfaction}:{' '}
-                  {formatRate(metrics.satisfactionRate, locale, advisor.satisfactionNoVotes)}
-                </Badge>
-                {metrics.unansweredByReason.map((entry) => (
-                  <Badge key={entry.key} tone="neutral">
-                    {entry.key}: {entry.count}
-                  </Badge>
-                ))}
+      {metricsError || metrics === null ? (
+        <Text role="alert" className="text-destructive">
+          {messages.admin.loadError}
+        </Text>
+      ) : (
+        <Stack gap="md">
+          <div className="flex flex-col gap-3 lg:flex-row">
+            <Card className="lg:flex-1" tone={metrics.openUnanswered > 0 ? 'warning' : 'success'}>
+              <Stack gap="sm">
+                <Text variant="caption" tone="muted" as="div">
+                  {advisor.openUnanswered}
+                </Text>
+                <Text variant="price" as="div">
+                  {metrics.openUnanswered}
+                </Text>
+                {statusHint !== null && (
+                  <Text variant="caption" tone="muted" as="div">
+                    {statusHint}
+                  </Text>
+                )}
+                <Link href="#advisor-groups">{viewAll}</Link>
               </Stack>
-              {metricsText !== null && <Text tone="muted">{metricsText}</Text>}
-              {metrics.topQueries.length > 0 && (
+            </Card>
+            <Card className="lg:flex-1" tone="primary">
+              <Stack gap="sm">
+                <Text variant="caption" tone="muted" as="div">
+                  {advisor.satisfaction}
+                </Text>
+                <Text variant="price" as="div">
+                  {formatRate(metrics.satisfactionRate, locale, '—')}
+                </Text>
+                {satisfactionHint !== null && (
+                  <Text variant="caption" tone="muted" as="div">
+                    {satisfactionHint}
+                  </Text>
+                )}
+                <Link href="#advisor-feedback">{viewAll}</Link>
+              </Stack>
+            </Card>
+            {metrics.unansweredByReason.map((entry) => (
+              <Card key={entry.key} className="lg:flex-1" tone="warning">
                 <Stack gap="sm">
-                  <Heading level={3}>{advisor.topQueriesTitle}</Heading>
-                  <ul>
-                    {metrics.topQueries.map((entry) => (
-                      <li key={entry.key}>
-                        <Text>
-                          {advisor.timesLabel.replace('{count}', String(entry.count))} —{' '}
-                          {entry.sample}
-                        </Text>
-                      </li>
-                    ))}
-                  </ul>
+                  <Text variant="caption" tone="muted" as="div">
+                    {reasonLabels[entry.key] ?? entry.key}
+                  </Text>
+                  <Text variant="price" as="div">
+                    {entry.count}
+                  </Text>
+                  <Link href="#advisor-groups">{viewAll}</Link>
                 </Stack>
-              )}
-            </Stack>
-          )}
+              </Card>
+            ))}
+          </div>
         </Stack>
-      </Card>
-
-      <AdminHeaderCard title={advisor.groupsTitle} subtitle={advisor.createDocumentHint} />
+      )}
+      <div id="advisor-groups">
+        <AdminHeaderCard title={advisor.groupsTitle} subtitle={advisor.createDocumentHint} />
+      </div>
       <AdminFiltersCard>
         <div className="min-w-44">
           <Select
@@ -341,7 +379,9 @@ export function AdminAdvisorView({
         </Stack>
       )}
 
-      <AdminHeaderCard title={advisor.feedbackTitle} subtitle={advisor.conversationNote} />
+      <div id="advisor-feedback">
+        <AdminHeaderCard title={advisor.feedbackTitle} subtitle={advisor.conversationNote} />
+      </div>
       <AdminFiltersCard>
         <div className="min-w-44">
           <Select
@@ -372,16 +412,28 @@ export function AdminAdvisorView({
               <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="whitespace-nowrap px-4 py-3 text-sm font-bold text-muted-foreground"
+                    >
                       {advisor.tableVote}
                     </th>
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="w-full px-4 py-3 text-sm font-bold text-muted-foreground"
+                    >
                       {advisor.tableExcerpt}
                     </th>
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="whitespace-nowrap px-4 py-3 text-sm font-bold text-muted-foreground"
+                    >
                       {advisor.tableDate}
                     </th>
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                    <th
+                      scope="col"
+                      className="whitespace-nowrap px-4 py-3 text-sm font-bold text-muted-foreground"
+                    >
                       {advisor.tableActions}
                     </th>
                   </tr>
@@ -393,14 +445,17 @@ export function AdminAdvisorView({
                     const expanded = openFeedbackId === row.id;
                     return (
                       <tr key={row.id} className="border-b border-border last:border-0">
-                        <td className="px-4 py-3">
-                          <Badge tone={row.value === 'up' ? 'success' : 'destructive'}>
+                        <td className="whitespace-nowrap px-4 py-3 align-top">
+                          <Badge
+                            tone={row.value === 'up' ? 'success' : 'destructive'}
+                            className="whitespace-nowrap"
+                          >
                             {row.value === 'up' ? advisor.value_up : advisor.value_down}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 align-top">
                           <Stack gap="sm">
-                            <Text>{row.queryExcerpt}</Text>
+                            {!expanded && <Text>{row.queryExcerpt}</Text>}
                             {expanded && (
                               <Stack gap="sm">
                                 {detail === undefined || detail.loading ? (
@@ -434,9 +489,11 @@ export function AdminAdvisorView({
                             )}
                           </Stack>
                         </td>
-                        <td className="px-4 py-3">{formatDate(row.createdAt, locale)}</td>
-                        <td className="px-4 py-3">
-                          <Stack direction="horizontal" gap="sm" wrap>
+                        <td className="whitespace-nowrap px-4 py-3 align-top">
+                          {formatDate(row.createdAt, locale)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 align-top">
+                          <Stack direction="horizontal" gap="sm">
                             <Button
                               variant="secondary"
                               size="sm"
