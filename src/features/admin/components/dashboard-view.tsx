@@ -1,5 +1,4 @@
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
@@ -7,7 +6,6 @@ import { Text } from '@/components/ui/text';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import type { AdminOrder } from '@/lib/api/admin';
 import type { DashboardRange, SalesBucket } from '@/features/admin/lib/dashboard-stats';
-import { DASHBOARD_RANGES } from '@/features/admin/lib/dashboard-stats';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 
@@ -126,24 +124,10 @@ export function DashboardView(props: DashboardSummary) {
 
   return (
     <Stack gap="md">
-      <nav aria-label={dashboard.rangeLabel}>
-        <Stack direction="horizontal" gap="sm" wrap>
-          {DASHBOARD_RANGES.map((item) => (
-            <Button
-              key={item}
-              href={`/${locale}/admin?range=${item}`}
-              variant={item === range ? 'primary' : 'secondary'}
-              size="sm"
-            >
-              {rangeLabels[item]}
-            </Button>
-          ))}
-        </Stack>
-      </nav>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
+        <Card tone="success">
           <Stack gap="sm">
-            <Text variant="caption" tone="muted" as="div">
+            <Text variant="small" tone="muted" as="div" className="font-bold">
               {dashboard.kpiRevenue}
             </Text>
             <Text variant="price" as="div">

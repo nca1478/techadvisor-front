@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { DashboardRangeSelect } from '@/features/admin/components/dashboard-range-select';
 import type { Dictionary } from '@/lib/i18n/index';
 
 export type AdminSection =
@@ -38,6 +39,13 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
   const listRef = useRef<HTMLDivElement>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  // The range dropdown shares this row but only on the dashboard section.
+  const isDashboard = pathname === `/${locale}/admin`;
+  const rangeLabels = {
+    today: messages.dashboard.rangeToday,
+    '7d': messages.dashboard.range7d,
+    '30d': messages.dashboard.range30d,
+  } as const;
 
   const updateArrows = useCallback(() => {
     const list = listRef.current;
@@ -78,75 +86,84 @@ export function AdminNav({ locale, messages }: { locale: string; messages: Dicti
 
   return (
     <nav aria-label={messages.title}>
-      <div className="relative">
-        <div
-          ref={listRef}
-          onScroll={updateArrows}
-          className="flex flex-nowrap items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:overflow-visible lg:py-0"
-        >
-          {items.map((item) => {
-            const active =
-              item.section === 'dashboard'
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
-            return (
-              <Button
-                key={item.section}
-                href={item.href}
-                variant={active ? 'primary' : 'secondary'}
-                size="sm"
-                className="shrink-0"
+      <div className="flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <div
+            ref={listRef}
+            onScroll={updateArrows}
+            className="flex flex-nowrap items-center gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:overflow-visible lg:py-0"
+          >
+            {items.map((item) => {
+              const active =
+                item.section === 'dashboard'
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+              return (
+                <Button
+                  key={item.section}
+                  href={item.href}
+                  variant={active ? 'primary' : 'secondary'}
+                  size="sm"
+                  className="shrink-0"
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </div>
+          {canScrollPrev ? (
+            <button
+              type="button"
+              aria-label={messages.navScrollPrev}
+              onClick={() => {
+                scrollNav(-1);
+              }}
+              className="absolute top-1/2 left-0 size-8 -translate-y-1/2 cursor-pointer rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mx-auto size-4"
               >
-                {item.label}
-              </Button>
-            );
-          })}
+                <path d="M10 3 5 8l5 5" />
+              </svg>
+            </button>
+          ) : null}
+          {canScrollNext ? (
+            <button
+              type="button"
+              aria-label={messages.navScrollNext}
+              onClick={() => {
+                scrollNav(1);
+              }}
+              className="absolute top-1/2 right-0 size-8 -translate-y-1/2 cursor-pointer rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mx-auto size-4"
+              >
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </button>
+          ) : null}
         </div>
-        {canScrollPrev ? (
-          <button
-            type="button"
-            aria-label={messages.navScrollPrev}
-            onClick={() => {
-              scrollNav(-1);
-            }}
-            className="absolute top-1/2 left-0 size-8 -translate-y-1/2 cursor-pointer rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
-          >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mx-auto size-4"
-            >
-              <path d="M10 3 5 8l5 5" />
-            </svg>
-          </button>
-        ) : null}
-        {canScrollNext ? (
-          <button
-            type="button"
-            aria-label={messages.navScrollNext}
-            onClick={() => {
-              scrollNav(1);
-            }}
-            className="absolute top-1/2 right-0 size-8 -translate-y-1/2 cursor-pointer rounded-full bg-primary text-primary-foreground shadow-md transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
-          >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mx-auto size-4"
-            >
-              <path d="M6 3l5 5-5 5" />
-            </svg>
-          </button>
+        {isDashboard ? (
+          <DashboardRangeSelect
+            locale={locale}
+            label={messages.dashboard.rangeLabel}
+            labels={rangeLabels}
+          />
         ) : null}
       </div>
     </nav>

@@ -109,16 +109,6 @@ describe('DashboardView', () => {
     expect(screen.getByText('Sin pendientes. Todo al día.')).toBeInTheDocument();
   });
 
-  it('renders the range selector with links that keep the range in the URL', () => {
-    render(<DashboardView {...baseProps()} />);
-
-    const nav = screen.getByRole('navigation', { name: 'Rango' });
-    expect(nav).toBeInTheDocument();
-    expect(nav).toHaveTextContent('7 días');
-    const todayLink = screen.getByRole('link', { name: 'Hoy' });
-    expect(todayLink.getAttribute('href')).toBe('/es/admin?range=today');
-  });
-
   it('renders exact sales as labelled bars', () => {
     render(<DashboardView {...baseProps()} />);
 
