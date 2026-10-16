@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { InventoryView } from '@/features/admin/containers/inventory-view';
-import type { AdminProductList } from '@/lib/api/admin';
+import type { AdminProductList, AdminProductMetrics } from '@/lib/api/admin';
 import { getDictionarySync } from '@/lib/i18n/index';
 
 const pushMock = vi.fn();
@@ -35,11 +35,23 @@ const data = {
   totalPages: 1,
 } as unknown as AdminProductList;
 
+const metricsFixture: AdminProductMetrics = {
+  total: 2,
+  active: 2,
+  lowStock: 1,
+  outOfStock: 1,
+  inStock: 1,
+  reserved: 1,
+  lowStockThreshold: 5,
+};
+
 function renderView(stock: 'out_of_stock' | 'low_stock' | 'reserved' | null = null, q = '') {
   return render(
     <InventoryView
       data={data}
       loadError={false}
+      metrics={metricsFixture}
+      metricsError={false}
       page={1}
       stock={stock}
       q={q}
@@ -91,6 +103,8 @@ describe('InventoryView stock filter', () => {
       <InventoryView
         data={data}
         loadError={false}
+        metrics={metricsFixture}
+        metricsError={false}
         page={1}
         stock={null}
         q=""
@@ -121,6 +135,8 @@ describe('InventoryView stock filter', () => {
       <InventoryView
         data={{ ...data, page: 2, totalPages: 3 }}
         loadError={false}
+        metrics={metricsFixture}
+        metricsError={false}
         page={2}
         stock="low_stock"
         q=""
@@ -143,12 +159,13 @@ describe('InventoryView stock filter', () => {
     );
   });
 
-  it('still shows exact stock levels per product', () => {
+  it('shows metric cards and exact stock levels without the available column', () => {
     renderView(null);
 
     expect(screen.getByText('Asus ROG Maximus Z890')).toBeInTheDocument();
-    // available = stock - reserved = 6 for the first row.
-    expect(screen.getByText('6')).toBeInTheDocument();
+    expect(screen.getByText(messages.admin.inventory.metricsTotal)).toBeInTheDocument();
+    expect(screen.getByText(messages.admin.inventory.metricsReserved)).toBeInTheDocument();
+    expect(screen.queryByText(messages.admin.inventory.tableAvailable)).not.toBeInTheDocument();
   });
 
   it('links each product name to its admin product detail page', () => {

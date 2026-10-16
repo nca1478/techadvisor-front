@@ -70,6 +70,36 @@ export interface AdminReviewListQuery {
 export type AdminUnansweredStatus = 'NEW' | 'IN_REVIEW' | 'RESOLVED';
 export type AdminFeedbackValue = 'up' | 'down';
 
+/**
+ * Catalog counters (`GET /admin/products/metrics`, backend
+ * `AdminProductMetricsDto`). Local shape until `npm run api:types` regenerates
+ * the contract — mirrors the backend 1:1.
+ */
+// mantener en sync con backend (`modules/admin/dto/admin.dto.ts`).
+export interface AdminProductMetrics {
+  total: number;
+  active: number;
+  lowStock: number;
+  outOfStock: number;
+  inStock: number;
+  reserved: number;
+  lowStockThreshold: number;
+}
+
+/** Narrows an unknown backend body into product metrics (counts only). */
+export function isAdminProductMetrics(value: unknown): value is AdminProductMetrics {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    typeof (value as { total?: unknown }).total === 'number' &&
+    typeof (value as { active?: unknown }).active === 'number' &&
+    typeof (value as { lowStock?: unknown }).lowStock === 'number' &&
+    typeof (value as { outOfStock?: unknown }).outOfStock === 'number' &&
+    typeof (value as { inStock?: unknown }).inStock === 'number' &&
+    typeof (value as { reserved?: unknown }).reserved === 'number'
+  );
+}
+
 /** Normalizes a generated nullable-id field to `string | null`. */
 export function asOptionalId(value: unknown): string | null {
   return typeof value === 'string' ? value : null;

@@ -10,9 +10,15 @@ import type {
   AdminInventoryMovement,
   AdminProduct,
   AdminProductList,
+  AdminProductMetrics,
   AdminStockFilter,
 } from '@/lib/api/admin';
-import { isAdminStockFilter, LOW_STOCK_THRESHOLD, toAdminQuery } from '@/lib/api/admin';
+import {
+  isAdminProductMetrics,
+  isAdminStockFilter,
+  LOW_STOCK_THRESHOLD,
+  toAdminQuery,
+} from '@/lib/api/admin';
 import { isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
 
@@ -47,6 +53,10 @@ function isInventory(value: unknown): value is AdminInventory {
 
 function isMovementList(value: unknown): value is AdminInventoryMovement[] {
   return Array.isArray(value);
+}
+
+function isProductMetrics(value: unknown): value is AdminProductMetrics {
+  return isAdminProductMetrics(value);
 }
 
 /** Inventory: exact levels per product + adjust form and history for the selected product. */
@@ -85,6 +95,14 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
     },
   );
   const data = listResult.status === 200 && isProductList(listResult.body) ? listResult.body : null;
+  const metricsResult = await backendFetch('/admin/products/metrics', {
+    method: 'GET',
+    cookieHeader,
+  });
+  const metrics =
+    metricsResult.status === 200 && isProductMetrics(metricsResult.body)
+      ? metricsResult.body
+      : null;
 
   const selected: AdminProduct | null =
     selectedProductId && data
@@ -120,6 +138,8 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
     <InventoryView
       data={data}
       loadError={data === null}
+      metrics={metrics}
+      metricsError={metrics === null}
       page={page}
       stock={stock}
       q={q}

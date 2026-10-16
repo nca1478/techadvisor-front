@@ -78,8 +78,8 @@ describe('DashboardView', () => {
   it('links the stock queue rows to the pre-filtered inventory', () => {
     render(<DashboardView {...baseProps()} />);
 
-    const outItem = screen.getByText('Sin stock').closest('li');
-    const lowItem = screen.getByText('Poco stock').closest('li');
+    const outItem = screen.getByText('Sin stock (0 disp)').closest('li');
+    const lowItem = screen.getByText('Poco stock (<=5 disp)').closest('li');
     expect(outItem).not.toBeNull();
     expect(lowItem).not.toBeNull();
     expect(within(outItem as HTMLElement).getByRole('link', { name: 'Ver todo' })).toHaveAttribute(

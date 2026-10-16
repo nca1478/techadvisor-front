@@ -12,7 +12,7 @@ import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ProductStatusContainer } from '@/features/admin/containers/product-status-container';
-import type { AdminProductList, AdminProductStatus } from '@/lib/api/admin';
+import type { AdminProductList, AdminProductMetrics, AdminProductStatus } from '@/lib/api/admin';
 import { availableUnits, toAdminQuery } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
@@ -35,12 +35,16 @@ function formatPage(template: string, page: number, totalPages: number): string 
 export function AdminProductsView({
   data,
   loadError,
+  metrics,
+  metricsError,
   query,
   locale,
   messages,
 }: {
   data: AdminProductList | null;
   loadError: boolean;
+  metrics: AdminProductMetrics | null;
+  metricsError: boolean;
   query: AdminProductsQuery;
   locale: string;
   messages: Dictionary;
@@ -68,6 +72,64 @@ export function AdminProductsView({
         subtitle={products.subtitle}
         actions={<Button href={`/${locale}/admin/productos/nuevo`}>{products.newProduct}</Button>}
       />
+      {metricsError || metrics === null ? (
+        <Text role="alert" className="text-destructive">
+          {messages.admin.loadError}
+        </Text>
+      ) : (
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <Card className="lg:flex-1" tone="primary">
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {products.metricsTotal}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.total}
+              </Text>
+              <Link href={`/${locale}/admin/productos`}>{messages.admin.dashboard.viewAll}</Link>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone="success">
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {products.metricsActive}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.active}
+              </Text>
+              <Link href={`/${locale}/admin/productos?status=ACTIVE`}>
+                {messages.admin.dashboard.viewAll}
+              </Link>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone={metrics.lowStock > 0 ? 'warning' : 'success'}>
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {products.metricsLowStock}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.lowStock}
+              </Text>
+              <Link href={`/${locale}/admin/inventario?stock=low_stock`}>
+                {messages.admin.dashboard.viewAll}
+              </Link>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone={metrics.outOfStock > 0 ? 'destructive' : 'success'}>
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {products.metricsOutOfStock}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.outOfStock}
+              </Text>
+              <Link href={`/${locale}/admin/inventario?stock=out_of_stock`}>
+                {messages.admin.dashboard.viewAll}
+              </Link>
+            </Stack>
+          </Card>
+        </div>
+      )}
       <AdminFiltersCard>
         <div className="min-w-56">
           <Input

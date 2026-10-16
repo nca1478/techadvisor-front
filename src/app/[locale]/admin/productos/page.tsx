@@ -7,6 +7,7 @@ import {
 } from '@/features/admin/containers/admin-products-view';
 import { backendFetch } from '@/lib/api/backend';
 import type { AdminProductList, AdminProductStatus } from '@/lib/api/admin';
+import { isAdminProductMetrics } from '@/lib/api/admin';
 import { toAdminQuery } from '@/lib/api/admin';
 import { isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
@@ -68,11 +69,21 @@ export default async function AdminProductsPage({ params, searchParams }: Produc
   });
   const result = await backendFetch(`/admin/products${search}`, { method: 'GET', cookieHeader });
   const data = result.status === 200 && isProductList(result.body) ? result.body : null;
+  const metricsResult = await backendFetch('/admin/products/metrics', {
+    method: 'GET',
+    cookieHeader,
+  });
+  const metrics =
+    metricsResult.status === 200 && isAdminProductMetrics(metricsResult.body)
+      ? metricsResult.body
+      : null;
 
   return (
     <AdminProductsView
       data={data}
       loadError={data === null}
+      metrics={metrics}
+      metricsError={metrics === null}
       query={{ status, q, page }}
       locale={locale}
       messages={messages}

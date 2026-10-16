@@ -11,8 +11,7 @@ import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
 import { Pagination } from '@/features/catalog/components/pagination';
-import type { AdminProductList, AdminStockFilter } from '@/lib/api/admin';
-import { availableUnits } from '@/lib/api/admin';
+import type { AdminProductList, AdminProductMetrics, AdminStockFilter } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
 function formatPage(template: string, page: number, totalPages: number): string {
@@ -28,6 +27,8 @@ function formatPage(template: string, page: number, totalPages: number): string 
 export function InventoryView({
   data,
   loadError,
+  metrics,
+  metricsError,
   page,
   stock,
   q,
@@ -38,6 +39,8 @@ export function InventoryView({
 }: {
   data: AdminProductList | null;
   loadError: boolean;
+  metrics: AdminProductMetrics | null;
+  metricsError: boolean;
   page: number;
   stock: AdminStockFilter | null;
   q: string;
@@ -75,6 +78,64 @@ export function InventoryView({
   return (
     <Stack gap="md">
       <AdminHeaderCard title={inventory.title} subtitle={inventory.subtitle} />
+      {metricsError || metrics === null ? (
+        <Text role="alert" className="text-destructive">
+          {messages.admin.loadError}
+        </Text>
+      ) : (
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <Card className="lg:flex-1" tone="primary">
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {inventory.metricsTotal}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.total}
+              </Text>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone="success">
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {inventory.metricsInStock}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.inStock}
+              </Text>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone={metrics.lowStock > 0 ? 'warning' : 'success'}>
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {inventory.metricsLowStock}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.lowStock}
+              </Text>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone={metrics.outOfStock > 0 ? 'destructive' : 'success'}>
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {inventory.metricsOutOfStock}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.outOfStock}
+              </Text>
+            </Stack>
+          </Card>
+          <Card className="lg:flex-1" tone={metrics.reserved > 0 ? 'primary' : 'success'}>
+            <Stack gap="sm">
+              <Text variant="small" tone="muted" as="div" className="font-bold">
+                {inventory.metricsReserved}
+              </Text>
+              <Text variant="price" as="div">
+                {metrics.reserved}
+              </Text>
+            </Stack>
+          </Card>
+        </div>
+      )}
       <AdminFiltersCard>
         <div className="min-w-56">
           <Input
@@ -152,12 +213,6 @@ export function InventoryView({
                     >
                       {inventory.tableReserved}
                     </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
-                    >
-                      {inventory.tableAvailable}
-                    </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       <span className="sr-only">{inventory.tableActions}</span>
                     </th>
@@ -183,9 +238,6 @@ export function InventoryView({
                         </th>
                         <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
-                        <td className="price px-4 py-3 text-right font-semibold">
-                          {availableUnits(product)}
-                        </td>
                         <td className="px-4 py-3">
                           <Stack direction="horizontal" gap="md" align="center">
                             <Button
