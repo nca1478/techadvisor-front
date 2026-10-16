@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
+import { OrderTimeline } from '@/features/account/components/order-timeline';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import type { AdminOrder } from '@/lib/api/admin';
@@ -122,6 +123,12 @@ export function AdminOrderDetailContainer({
           </Text>
         </Stack>
       </Stack>
+      <Text variant="lead" as="div">
+        {messages.account.timelineTitle}
+      </Text>
+      <Card>
+        <OrderTimeline status={order.status} messages={messages.account} />
+      </Card>
       <Text variant="lead" as="div">
         {orders.tableCustomer}
       </Text>

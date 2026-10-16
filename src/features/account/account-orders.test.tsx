@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Order } from '@/lib/api/orders';
 import { getDictionarySync } from '@/lib/i18n/index';
 import { OrderDetail } from './components/orders-table';
+import { OrderTimeline } from './components/order-timeline';
 import { AccountOrdersView } from './containers/account-orders-view';
 
 const messages = getDictionarySync('es').account;
@@ -91,6 +92,41 @@ describe('AccountOrdersView pagination', () => {
   });
 });
 
+describe('OrderTimeline', () => {
+  it('marks the current step with aria-current and keeps later steps muted', () => {
+    render(<OrderTimeline status="PROCESSING" messages={messages} />);
+    const list = screen.getByRole('list', { name: 'Progreso del pedido' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(5);
+    expect(items[2]).toHaveAttribute('aria-current', 'step');
+    expect(items[2].textContent).toContain('En preparación');
+    expect(items[0].textContent).toContain('✓');
+    expect(items[4].textContent).toContain('Entregado');
+  });
+
+  it('renders every verified state label in the linear flow', () => {
+    render(<OrderTimeline status="PAID" messages={messages} />);
+    for (const label of ['Pago pendiente', 'Pagado', 'En preparación', 'Enviado', 'Entregado']) {
+      expect(screen.getByText(label)).toBeDefined();
+    }
+  });
+
+  it('renders a terminal cancelled node with an explanatory note', () => {
+    render(<OrderTimeline status="CANCELLED" messages={messages} />);
+    const list = screen.getByRole('list', { name: 'Progreso del pedido' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(6);
+    expect(screen.getByText('Cancelado')).toBeDefined();
+    expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
+  });
+
+  it('shows the timeline title inside the customer order detail', () => {
+    const order = { ...makeOrder(0), status: 'SHIPPED' as const, items: [] };
+    render(<OrderDetail order={order} locale="es" messages={messages} />);
+    expect(screen.getByText('Estado del pedido')).toBeDefined();
+    expect(screen.getByRole('list', { name: 'Progreso del pedido' })).toBeDefined();
+  });
+});
 describe('OrderDetail product links', () => {
   it('links each item name to its product detail page', () => {
     const order = {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AdminOrderDetailContainer } from '@/features/admin/containers/admin-order-detail-container';
 import type { AdminOrder } from '@/lib/api/admin';
@@ -107,5 +107,38 @@ describe('AdminOrderDetailContainer customer card', () => {
 
     const link = screen.getByRole('link', { name: 'Samsung 990 PRO 1TB NVMe (7450MB/s)' });
     expect(link.getAttribute('href')).toBe('/es/admin/productos/prod-1');
+  });
+
+  it('shows the shared order timeline with the current state marked', () => {
+    render(
+      <AdminOrderDetailContainer
+        initialOrder={orderWith({ status: 'SHIPPED' })}
+        locale="es"
+        messages={messages}
+      />,
+    );
+
+    expect(screen.getByText('Estado del pedido')).toBeDefined();
+    const list = screen.getByRole('list', { name: 'Progreso del pedido' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(5);
+    expect(items[3]).toHaveAttribute('aria-current', 'step');
+    expect(items[3].textContent).toContain('Enviado');
+  });
+
+  it('renders the terminal cancelled node for cancelled orders', () => {
+    render(
+      <AdminOrderDetailContainer
+        initialOrder={orderWith({ status: 'CANCELLED' })}
+        locale="es"
+        messages={messages}
+      />,
+    );
+
+    const list = screen.getByRole('list', { name: 'Progreso del pedido' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(6);
+    expect(items[5].textContent).toContain('Cancelado');
+    expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
   });
 });

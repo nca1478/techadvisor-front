@@ -6,6 +6,7 @@ import type { Order } from '@/lib/api/orders';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 import { OrderStatusBadge } from './order-status-badge';
+import { OrderTimeline } from './order-timeline';
 
 /** Shared order-date formatting (list uses relative context; detail reuses it in the header). */
 export function formatOrderDate(iso: string, locale: string): string {
@@ -114,6 +115,12 @@ export function OrderDetail({
     .join(' · ');
   return (
     <Stack gap="md">
+      <Text variant="lead" as="div">
+        {messages.timelineTitle}
+      </Text>
+      <Card>
+        <OrderTimeline status={order.status} messages={messages} />
+      </Card>
       <Text variant="lead" as="div">
         {messages.itemsTitle}
       </Text>

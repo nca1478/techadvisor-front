@@ -501,6 +501,9 @@
     "status_SHIPPED": "Shipped",
     "status_DELIVERED": "Delivered",
     "status_CANCELLED": "Cancelled",
+    "timelineTitle": "Order progress",
+    "timelineLabel": "Order progress",
+    "timelineCancelledNote": "This order was cancelled and will not move forward.",
     "resolving": "Resolving order…"
   },
   "footer": {
