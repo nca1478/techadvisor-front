@@ -10,7 +10,7 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
-import { OrderTimeline } from '@/features/account/components/order-timeline';
+import { OrderTimeline, lastStatusChangeAt } from '@/features/account/components/order-timeline';
 import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import type { AdminOrder } from '@/lib/api/admin';
@@ -120,7 +120,7 @@ export function AdminOrderDetailContainer({
         <Stack direction="horizontal" gap="md" align="center">
           <OrderStatusBadge status={order.status} messages={messages.account} />
           <Text variant="small" tone="muted">
-            {formatDate(order.createdAt, locale)}
+            {formatDate(lastStatusChangeAt(order.statusHistory) ?? order.updatedAt, locale)}
           </Text>
         </Stack>
       </Stack>
@@ -128,7 +128,17 @@ export function AdminOrderDetailContainer({
         {messages.account.timelineTitle}
       </Text>
       <Card>
-        <OrderTimeline status={order.status} messages={messages.account} />
+        <OrderTimeline
+          status={order.status}
+          messages={messages.account}
+          locale={locale}
+          history={order.statusHistory}
+          fallbackAt={(step) => {
+            if (step === 'PENDING_PAYMENT') return order.createdAt;
+            if (step === order.status) return order.updatedAt;
+            return null;
+          }}
+        />
       </Card>
       <Grid columns="two" gap="md">
         <Stack gap="md">

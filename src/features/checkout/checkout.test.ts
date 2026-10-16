@@ -12,6 +12,7 @@ function orderWith(status: Order['status']): Order {
     itemCount: 1,
     shipping: { fullName: 'Ada', line1: 'Calle 1', city: 'Madrid', country: 'ES' },
     items: [],
+    statusHistory: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

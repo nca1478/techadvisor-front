@@ -21,8 +21,42 @@ export const ORDER_TIMELINE_FLOW = [
 
 export type OrderTimelineStatus = (typeof ORDER_TIMELINE_FLOW)[number] | 'CANCELLED';
 
+/** One recorded status change as served by the API (`statusHistory`, oldest first). */
+export interface OrderStatusHistoryEntry {
+  from: string | null;
+  to: string;
+  /** ISO 8601 UTC date/time when the order entered `to`. */
+  at: string;
+}
+
 function statusLabel(status: string, messages: AccountMessages): string {
   return (messages as Record<string, string>)[`status_${status}`] ?? status.replaceAll('_', ' ');
+}
+
+/** Latest recorded entry into `status`, or null when unrecorded. */
+export function statusReachedAt(
+  history: OrderStatusHistoryEntry[] | undefined,
+  status: string,
+): string | null {
+  if (history === undefined) return null;
+  let reached: string | null = null;
+  for (const entry of history) {
+    if (entry.to === status) reached = entry.at;
+  }
+  return reached;
+}
+
+/** Date/time of the most recent recorded status change, or null. */
+export function lastStatusChangeAt(history: OrderStatusHistoryEntry[] | undefined): string | null {
+  if (history === undefined || history.length === 0) return null;
+  return history[history.length - 1].at;
+}
+
+/** Formats an ISO date/time like the order headers (medium date, short time). */
+export function formatTimelineDate(iso: string, locale: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
 /**
@@ -32,11 +66,29 @@ function statusLabel(status: string, messages: AccountMessages): string {
  * `CANCELLED` renders the linear flow muted plus a terminal destructive
  * node, because without per-state history the cancellation origin is
  * unknown. Labels reuse `account.status_*`; no fetch inside.
+ * Each reached step shows its recorded date/time when `history` knows it
+ * (pre-history orders fall back to `createdAt`/`updatedAt` via `fallbackAt`).
  */
-export function OrderTimeline({ status, messages }: { status: string; messages: AccountMessages }) {
+export function OrderTimeline({
+  status,
+  messages,
+  locale,
+  history,
+  fallbackAt,
+}: {
+  status: string;
+  messages: AccountMessages;
+  locale: string;
+  history?: OrderStatusHistoryEntry[];
+  /** Fallback ISO date/time per step (e.g. order `createdAt`/`updatedAt`). */
+  fallbackAt?: (step: string) => string | null;
+}) {
   const label = messages.timelineLabel;
   const isCancelled = status === 'CANCELLED';
   const currentIndex = (ORDER_TIMELINE_FLOW as readonly string[]).indexOf(status);
+  const cancelledAt =
+    statusReachedAt(history, 'CANCELLED') ??
+    (isCancelled ? (fallbackAt?.('CANCELLED') ?? null) : null);
 
   return (
     <div>
@@ -48,6 +100,12 @@ export function OrderTimeline({ status, messages }: { status: string; messages: 
           const isDone = !isCancelled && currentIndex !== -1 && index < currentIndex;
           const isCurrent = !isCancelled && index === currentIndex;
           const isLast = index === ORDER_TIMELINE_FLOW.length - 1;
+          const reached = isDone || isCurrent;
+          // Recorded date first; pre-history orders fall back to the
+          // caller-provided date (creation for the first step, last
+          // update for the current one) instead of inventing times.
+          const reachedAt =
+            statusReachedAt(history, step) ?? (reached ? (fallbackAt?.(step) ?? null) : null);
           return (
             <li
               key={step}
@@ -79,19 +137,26 @@ export function OrderTimeline({ status, messages }: { status: string; messages: 
                   />
                 )}
               </span>
-              <span
-                className={cn(
-                  'pb-4 pt-1 text-sm sm:pb-0 sm:pt-0',
-                  isCancelled
-                    ? 'text-muted-foreground'
-                    : isCurrent
-                      ? 'font-semibold text-foreground'
-                      : isDone
-                        ? 'text-foreground'
-                        : 'text-muted-foreground',
-                )}
-              >
-                {statusLabel(step, messages)}
+              <span className="flex flex-col pb-4 sm:pb-0">
+                <span
+                  className={cn(
+                    'pt-1 text-sm sm:pt-0',
+                    isCancelled
+                      ? 'text-muted-foreground'
+                      : isCurrent
+                        ? 'font-semibold text-foreground'
+                        : isDone
+                          ? 'text-foreground'
+                          : 'text-muted-foreground',
+                  )}
+                >
+                  {statusLabel(step, messages)}
+                </span>
+                {reachedAt !== null ? (
+                  <time dateTime={reachedAt} className="font-mono text-xs text-muted-foreground">
+                    {formatTimelineDate(reachedAt, locale)}
+                  </time>
+                ) : null}
               </span>
               {!isLast && (
                 <span
@@ -112,11 +177,18 @@ export function OrderTimeline({ status, messages }: { status: string; messages: 
                 {'×'}
               </span>
             </span>
-            <span
-              aria-current="step"
-              className="pb-0 pt-1 text-sm font-semibold text-destructive sm:pt-0"
-            >
-              {statusLabel('CANCELLED', messages)}
+            <span className="flex flex-col">
+              <span
+                aria-current="step"
+                className="pt-1 text-sm font-semibold text-destructive sm:pt-0"
+              >
+                {statusLabel('CANCELLED', messages)}
+              </span>
+              {cancelledAt !== null ? (
+                <time dateTime={cancelledAt} className="font-mono text-xs text-muted-foreground">
+                  {formatTimelineDate(cancelledAt, locale)}
+                </time>
+              ) : null}
             </span>
           </li>
         )}

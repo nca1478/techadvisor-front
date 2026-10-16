@@ -8,6 +8,7 @@ import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { OrderDetail, formatOrderDate } from '@/features/account/components/orders-table';
+import { lastStatusChangeAt } from '@/features/account/components/order-timeline';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import { backendFetch } from '@/lib/api/backend';
 import type { Order } from '@/lib/api/orders';
@@ -87,7 +88,10 @@ export default async function AccountOrderDetailPage({ params }: OrderDetailPage
                 <Stack direction="horizontal" gap="md" align="center">
                   <OrderStatusBadge status={order.status} messages={messages.account} />
                   <Text variant="small" tone="muted">
-                    {formatOrderDate(order.createdAt, locale)}
+                    {formatOrderDate(
+                      lastStatusChangeAt(order.statusHistory) ?? order.updatedAt,
+                      locale,
+                    )}
                   </Text>
                 </Stack>
               </Stack>

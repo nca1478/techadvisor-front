@@ -17,6 +17,7 @@ function makeOrder(index: number): Order {
     itemCount: 1,
     shipping: { fullName: 'Ada Lovelace', line1: 'Calle Mayor 1', city: 'Madrid', country: 'ES' },
     items: [],
+    statusHistory: [],
     createdAt: '2026-10-08T04:12:00.000Z',
     updatedAt: '2026-10-08T04:12:00.000Z',
   };
@@ -94,7 +95,7 @@ describe('AccountOrdersView pagination', () => {
 
 describe('OrderTimeline', () => {
   it('marks the current step with aria-current and keeps later steps muted', () => {
-    render(<OrderTimeline status="PROCESSING" messages={messages} />);
+    render(<OrderTimeline status="PROCESSING" messages={messages} locale="es" />);
     const list = screen.getByRole('list', { name: 'Progreso del pedido' });
     const items = within(list).getAllByRole('listitem');
     expect(items).toHaveLength(5);
@@ -105,14 +106,14 @@ describe('OrderTimeline', () => {
   });
 
   it('renders every verified state label in the linear flow', () => {
-    render(<OrderTimeline status="PAID" messages={messages} />);
+    render(<OrderTimeline status="PAID" messages={messages} locale="es" />);
     for (const label of ['Pago pendiente', 'Pagado', 'En preparación', 'Enviado', 'Entregado']) {
       expect(screen.getByText(label)).toBeDefined();
     }
   });
 
   it('renders a terminal cancelled node with an explanatory note', () => {
-    render(<OrderTimeline status="CANCELLED" messages={messages} />);
+    render(<OrderTimeline status="CANCELLED" messages={messages} locale="es" />);
     const list = screen.getByRole('list', { name: 'Progreso del pedido' });
     const items = within(list).getAllByRole('listitem');
     expect(items).toHaveLength(6);
@@ -125,6 +126,77 @@ describe('OrderTimeline', () => {
     render(<OrderDetail order={order} locale="es" messages={messages} />);
     expect(screen.getByText('Estado del pedido')).toBeDefined();
     expect(screen.getByRole('list', { name: 'Progreso del pedido' })).toBeDefined();
+  });
+
+  it('shows the recorded date/time under each reached step', () => {
+    render(
+      <OrderTimeline
+        status="SHIPPED"
+        messages={messages}
+        locale="es"
+        history={[
+          { from: null, to: 'PENDING_PAYMENT', at: '2026-10-14T10:45:00.000Z' },
+          { from: 'PENDING_PAYMENT', to: 'PAID', at: '2026-10-14T11:02:00.000Z' },
+          { from: 'PAID', to: 'PROCESSING', at: '2026-10-14T12:00:00.000Z' },
+          { from: 'PROCESSING', to: 'SHIPPED', at: '2026-10-15T09:30:00.000Z' },
+        ]}
+      />,
+    );
+    const times = screen.getAllByText(/oct 2026/i);
+    expect(times).toHaveLength(4);
+    for (const time of times) {
+      expect(time.tagName).toBe('TIME');
+      expect(time.getAttribute('datetime')).toMatch(/2026-10-1[45]/);
+    }
+  });
+
+  it('falls back to creation/update dates for pre-history orders', () => {
+    render(
+      <OrderTimeline
+        status="PAID"
+        messages={messages}
+        locale="es"
+        history={[]}
+        fallbackAt={(step) => {
+          if (step === 'PENDING_PAYMENT') return '2026-10-08T04:12:00.000Z';
+          if (step === 'PAID') return '2026-10-09T06:00:00.000Z';
+          return null;
+        }}
+      />,
+    );
+    expect(screen.getAllByText(/oct 2026/i)).toHaveLength(2);
+  });
+
+  it('dates the terminal cancelled node from history', () => {
+    render(
+      <OrderTimeline
+        status="CANCELLED"
+        messages={messages}
+        locale="es"
+        history={[
+          { from: null, to: 'PENDING_PAYMENT', at: '2026-10-14T10:45:00.000Z' },
+          { from: 'PENDING_PAYMENT', to: 'CANCELLED', at: '2026-10-14T10:50:00.000Z' },
+        ]}
+      />,
+    );
+    const list = screen.getByRole('list', { name: 'Progreso del pedido' });
+    const cancelled = within(list).getAllByRole('listitem')[5];
+    expect(cancelled.textContent).toContain('Cancelado');
+    expect(within(cancelled).getByText(/oct 2026/i).tagName).toBe('TIME');
+  });
+
+  it('shows recorded step dates inside the customer order detail', () => {
+    const order = {
+      ...makeOrder(0),
+      status: 'SHIPPED' as const,
+      items: [],
+      createdAt: '2026-10-08T04:12:00.000Z',
+      updatedAt: '2026-10-15T09:30:00.000Z',
+      statusHistory: [{ from: 'PROCESSING', to: 'SHIPPED', at: '2026-10-15T09:30:00.000Z' }],
+    };
+    render(<OrderDetail order={order} locale="es" messages={messages} />);
+    expect(screen.getByRole('list', { name: 'Progreso del pedido' })).toBeDefined();
+    expect(screen.getAllByText(/15 oct 2026/i).length).toBeGreaterThan(0);
   });
 });
 describe('OrderDetail product links', () => {

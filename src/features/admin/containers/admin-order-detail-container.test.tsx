@@ -33,6 +33,7 @@ function orderWith(overrides: Record<string, unknown> = {}): AdminOrder {
       postalCode: '5003',
       country: 'VE',
     },
+    statusHistory: [],
     createdAt: '2026-10-12T19:29:00.000Z',
     updatedAt: '2026-10-12T19:29:00.000Z',
     ...overrides,
@@ -154,5 +155,28 @@ describe('AdminOrderDetailContainer customer card', () => {
     expect(items).toHaveLength(6);
     expect(items[5].textContent).toContain('Cancelado');
     expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
+  });
+
+  it('shows the last status-change date in the header instead of the creation date', () => {
+    render(
+      <AdminOrderDetailContainer
+        initialOrder={orderWith({
+          status: 'SHIPPED',
+          createdAt: '2026-10-12T19:29:00.000Z',
+          updatedAt: '2026-10-15T09:30:00.000Z',
+          statusHistory: [
+            { from: null, to: 'PENDING_PAYMENT', at: '2026-10-12T19:29:00.000Z' },
+            { from: 'PROCESSING', to: 'SHIPPED', at: '2026-10-15T09:30:00.000Z' },
+          ],
+        })}
+        locale="es"
+        messages={messages}
+      />,
+    );
+
+    // Last change (15 oct) appears twice: header + SHIPPED step. The
+    // creation date (12 oct) only survives under the first timeline step.
+    expect(screen.getAllByText(/15 oct 2026/i)).toHaveLength(2);
+    expect(screen.getAllByText(/12 oct 2026/i)).toHaveLength(1);
   });
 });

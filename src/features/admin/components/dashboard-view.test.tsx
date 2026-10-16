@@ -18,6 +18,7 @@ function baseProps(overrides: Partial<DashboardSummary> = {}): DashboardSummary 
         totalAmount: 45000,
         items: [],
         shipping: { fullName: 'Ada', line1: 'Calle 1', city: 'Madrid', country: 'ES' },
+        statusHistory: [],
         createdAt: '2026-10-12T19:29:00.000Z',
         updatedAt: '2026-10-12T19:29:00.000Z',
       },

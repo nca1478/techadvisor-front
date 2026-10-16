@@ -7,7 +7,6 @@ import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 import { OrderStatusBadge } from './order-status-badge';
 import { OrderTimeline } from './order-timeline';
-
 /** Shared order-date formatting (list uses relative context; detail reuses it in the header). */
 export function formatOrderDate(iso: string, locale: string): string {
   const date = new Date(iso);
@@ -119,7 +118,17 @@ export function OrderDetail({
         {messages.timelineTitle}
       </Text>
       <Card>
-        <OrderTimeline status={order.status} messages={messages} />
+        <OrderTimeline
+          status={order.status}
+          messages={messages}
+          locale={locale}
+          history={order.statusHistory}
+          fallbackAt={(step) => {
+            if (step === 'PENDING_PAYMENT') return order.createdAt;
+            if (step === order.status) return order.updatedAt;
+            return null;
+          }}
+        />
       </Card>
       <Text variant="lead" as="div">
         {messages.itemsTitle}

@@ -158,6 +158,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/products/metrics': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Catalog counters: totals plus stock health for the products header */
+    get: operations['AdminController_productMetrics'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/products/{id}': {
     parameters: {
       query?: never;
@@ -393,7 +410,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List corpus documents (soft-deleted excluded) with status and type filters */
+    /** List corpus documents (soft-deleted excluded) with status, type and title search filters */
     get: operations['AdminDocumentsController_listDocuments'];
     put?: never;
     /** Register a document by URL (fetched + ingested server-side) */
@@ -503,7 +520,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Move an abstention forward in triage (NEW → IN_REVIEW → RESOLVED) */
+    /** Move an abstention forward in triage (NEW → IN_REVIEW → RESOLVED; same-state is a no-op) */
     patch: operations['AdminAdvisorController_updateUnansweredStatus'];
     trace?: never;
   };
@@ -1460,6 +1477,43 @@ export interface components {
       /** @example 3 */
       totalPages: number;
     };
+    AdminProductMetricsDto: {
+      /**
+       * @description Products in every status.
+       * @example 248
+       */
+      total: number;
+      /**
+       * @description Products with status ACTIVE.
+       * @example 211
+       */
+      active: number;
+      /**
+       * @description Available units at or below the threshold (includes out of stock).
+       * @example 23
+       */
+      lowStock: number;
+      /**
+       * @description Zero available units.
+       * @example 14
+       */
+      outOfStock: number;
+      /**
+       * @description More than zero available units.
+       * @example 230
+       */
+      inStock: number;
+      /**
+       * @description Products with held units (reserved > 0).
+       * @example 7
+       */
+      reserved: number;
+      /**
+       * @description Threshold applied to lowStock.
+       * @example 5
+       */
+      lowStockThreshold: number;
+    };
     AdminCategoryTranslationDto: {
       /** @example es */
       locale: string;
@@ -1651,6 +1705,21 @@ export interface components {
       /** @example +34 600 123 456 */
       phone?: string;
     };
+    OrderStatusHistoryDto: {
+      /**
+       * @description Status before the change; null for the initial entry at creation.
+       * @example PAID
+       */
+      from: string | null;
+      /** @example PROCESSING */
+      to: string;
+      /**
+       * Format: date-time
+       * @description UTC date/time when the order entered `to`.
+       * @example 2026-10-06T12:00:00.000Z
+       */
+      at: string;
+    };
     AdminOrderDto: {
       /** @example 3fa85f64-5717-4562-b3fc-2c963f66afa6 */
       id: string;
@@ -1668,6 +1737,8 @@ export interface components {
       totalAmount: number;
       items: components['schemas']['AdminOrderItemDto'][];
       shipping: components['schemas']['ShippingAddressDto'];
+      /** @description Recorded status changes, oldest first. Empty for pre-history orders. */
+      statusHistory: components['schemas']['OrderStatusHistoryDto'][];
       /**
        * Format: date-time
        * @example 2026-10-06T12:00:00.000Z
@@ -2050,6 +2121,8 @@ export interface components {
       itemCount: number;
       shipping: components['schemas']['ShippingAddressDto'];
       items: components['schemas']['OrderItemDto'][];
+      /** @description Recorded status changes, oldest first. Empty for pre-history orders. */
+      statusHistory: components['schemas']['OrderStatusHistoryDto'][];
       /**
        * Format: date-time
        * @example 2026-10-06T12:00:00.000Z
@@ -3487,6 +3560,52 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminProductDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminController_productMetrics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminProductMetricsDto'];
         };
       };
       /** @description Bad request. */
