@@ -157,9 +157,9 @@ export function DashboardView(props: DashboardSummary) {
             <Link href={`/${locale}/admin/ordenes`}>{dashboard.viewAll}</Link>
           </Stack>
         </Card>
-        <Card>
+        <Card tone="primary">
           <Stack gap="sm">
-            <Text variant="caption" tone="muted" as="div">
+            <Text variant="small" tone="muted" as="div" className="font-bold">
               {dashboard.kpiOrders}
             </Text>
             <Text variant="price" as="div">
@@ -171,9 +171,9 @@ export function DashboardView(props: DashboardSummary) {
             <Link href={`/${locale}/admin/ordenes`}>{dashboard.viewAll}</Link>
           </Stack>
         </Card>
-        <Card>
+        <Card tone="neutral">
           <Stack gap="sm">
-            <Text variant="caption" tone="muted" as="div">
+            <Text variant="small" tone="muted" as="div" className="font-bold">
               {dashboard.kpiTicket}
             </Text>
             <Text variant="price" as="div">
@@ -185,9 +185,9 @@ export function DashboardView(props: DashboardSummary) {
             <Link href={`/${locale}/admin/ordenes`}>{dashboard.viewAll}</Link>
           </Stack>
         </Card>
-        <Card>
+        <Card tone={attention > 0 ? 'warning' : 'success'}>
           <Stack gap="sm">
-            <Text variant="caption" tone="muted" as="div">
+            <Text variant="small" tone="muted" as="div" className="font-bold">
               {dashboard.kpiAttention}
             </Text>
             <Text variant="price" as="div">
