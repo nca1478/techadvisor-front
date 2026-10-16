@@ -6,7 +6,8 @@ import type { NextConfig } from 'next';
  * seed placeholder host so the catalog works without configuration.
  */
 function remotePatterns(): { protocol: 'https'; hostname: string }[] {
-  const raw = process.env['IMAGE_REMOTE_HOSTS'] ?? 'placehold.co,images.unsplash.com';
+  const raw =
+    process.env['IMAGE_REMOTE_HOSTS'] ?? 'placehold.co,images.unsplash.com,plus.unsplash.com';
   const hosts = raw
     .split(',')
     .map((host) => host.trim())
