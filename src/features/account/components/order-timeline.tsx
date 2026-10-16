@@ -158,7 +158,7 @@ export function OrderTimeline({
                   </time>
                 ) : null}
               </span>
-              {!isLast && (
+              {(!isLast || isCancelled) && (
                 <span
                   aria-hidden="true"
                   className={cn(
@@ -172,14 +172,6 @@ export function OrderTimeline({
         })}
         {isCancelled && (
           <li className="flex items-stretch gap-3 sm:items-center sm:gap-2">
-            {/* Separator from the "Entregado" step: without it the X node
-                sticks to the previous label and the row breaks. Mirrors the
-                step connectors (same tokens, horizontal on sm+, the mobile
-                vertical link comes from the step above). */}
-            <span
-              aria-hidden="true"
-              className="mx-2 hidden h-px w-8 self-center bg-border-strong sm:block"
-            />
             <span className="flex flex-col items-center" aria-hidden="true">
               <span className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive-subtle font-mono text-xs font-semibold text-destructive">
                 {'×'}
@@ -201,11 +193,6 @@ export function OrderTimeline({
           </li>
         )}
       </ol>
-      {isCancelled ? (
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {messages.timelineCancelledNote}
-        </p>
-      ) : null}
     </div>
   );
 }

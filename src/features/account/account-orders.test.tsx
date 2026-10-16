@@ -112,17 +112,18 @@ describe('OrderTimeline', () => {
     }
   });
 
-  it('renders a terminal cancelled node with an explanatory note', () => {
+  it('renders a terminal cancelled node without extra copy', () => {
     render(<OrderTimeline status="CANCELLED" messages={messages} locale="es" />);
     const list = screen.getByRole('list', { name: 'Progreso del pedido' });
     const items = within(list).getAllByRole('listitem');
     expect(items).toHaveLength(6);
     expect(screen.getByText('Cancelado')).toBeDefined();
-    expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
-    // Separator between the "Entregado" step and the X node so the row
-    // does not stick together (same connector tokens as the steps).
-    const cancelled = items[5];
-    const hidden = cancelled.querySelectorAll('[aria-hidden="true"]');
+    expect(screen.queryByText(/ya no avanzará/)).toBeNull();
+    // The "Entregado" step keeps its trailing connector in cancelled mode,
+    // rendered by the same code as every other line so it aligns with them.
+    const delivered = items[4];
+    expect(delivered.textContent).toContain('Entregado');
+    const hidden = delivered.querySelectorAll('[aria-hidden="true"]');
     const separator = Array.from(hidden).find((el) => el.className.includes('w-8'));
     expect(separator).toBeDefined();
     expect(separator?.className).toContain('bg-border-strong');

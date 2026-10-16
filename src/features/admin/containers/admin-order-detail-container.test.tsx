@@ -154,7 +154,7 @@ describe('AdminOrderDetailContainer customer card', () => {
     const items = within(list).getAllByRole('listitem');
     expect(items).toHaveLength(6);
     expect(items[5].textContent).toContain('Cancelado');
-    expect(screen.getByText('Este pedido fue cancelado y ya no avanzará.')).toBeDefined();
+    expect(screen.queryByText(/ya no avanzará/)).toBeNull();
   });
 
   it('shows the last status-change date in the header instead of the creation date', () => {

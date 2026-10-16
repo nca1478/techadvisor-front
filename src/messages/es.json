@@ -503,7 +503,6 @@
     "status_CANCELLED": "Cancelado",
     "timelineTitle": "Estado del pedido",
     "timelineLabel": "Progreso del pedido",
-    "timelineCancelledNote": "Este pedido fue cancelado y ya no avanzará.",
     "resolving": "Localizando pedido…"
   },
   "footer": {
