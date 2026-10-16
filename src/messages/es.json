@@ -935,6 +935,8 @@
       "tableOrder": "Pedido",
       "tableDate": "Fecha",
       "tableCustomer": "Cliente",
+      "customerFilter": "Cliente",
+      "customerSearchPlaceholder": "Busca por nombre o correo…",
       "customerName": "Nombre",
       "customerEmail": "Correo electrónico",
       "shippingTitle": "Dirección de envío",

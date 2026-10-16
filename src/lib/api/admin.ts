@@ -239,6 +239,8 @@ export interface AdminProductListQuery {
 export interface AdminOrderListQuery {
   status?: string;
   userId?: string;
+  /** Customer search (buyer name or email, backend ADR 0058). */
+  q?: string;
   from?: string;
   to?: string;
   page?: number;

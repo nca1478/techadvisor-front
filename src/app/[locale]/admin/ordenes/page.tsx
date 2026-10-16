@@ -57,6 +57,7 @@ export default async function AdminOrdersPage({ params, searchParams }: OrdersPa
 
   const rawStatus = firstParam(queryParams, 'status');
   const status: AdminOrdersQuery['status'] = ORDER_STATUSES.includes(rawStatus) ? rawStatus : '';
+  const q = firstParam(queryParams, 'q').trim().slice(0, 100);
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
 
   const store = await cookies();
@@ -66,6 +67,7 @@ export default async function AdminOrdersPage({ params, searchParams }: OrdersPa
     .join('; ');
   const search = toAdminQuery({
     ...(status === '' ? {} : { status }),
+    ...(q === '' ? {} : { q }),
     page,
     limit: 10,
   });
@@ -76,7 +78,7 @@ export default async function AdminOrdersPage({ params, searchParams }: OrdersPa
     <AdminOrdersView
       data={data}
       loadError={data === null}
-      query={{ status, page }}
+      query={{ status, q, page }}
       locale={locale}
       messages={messages}
     />

@@ -1,11 +1,13 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { AdminOrdersView } from '@/features/admin/containers/admin-orders-view';
 import type { AdminOrderList } from '@/lib/api/admin';
 import { getDictionarySync } from '@/lib/i18n/index';
 
+const push = vi.fn();
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push, refresh: vi.fn() }),
 }));
 
 const messages = getDictionarySync('es');
@@ -54,7 +56,7 @@ function renderView() {
     <AdminOrdersView
       data={singlePage}
       loadError={false}
-      query={{ status: '', page: 1 }}
+      query={{ status: '', q: '', page: 1 }}
       locale="es"
       messages={messages}
     />,
@@ -106,12 +108,24 @@ describe('AdminOrdersView pagination', () => {
       <AdminOrdersView
         data={withoutName}
         loadError={false}
-        query={{ status: '', page: 1 }}
+        query={{ status: '', q: '', page: 1 }}
         locale="es"
         messages={messages}
       />,
     );
 
     expect(screen.getByText('cd5b8c19…')).toBeDefined();
+  });
+
+  it('applies the customer search on Enter and clears it with the filters', () => {
+    renderView();
+
+    const search = screen.getByLabelText('Cliente');
+    fireEvent.change(search, { target: { value: 'pepe' } });
+    fireEvent.keyDown(search, { key: 'Enter' });
+    expect(push).toHaveBeenCalledWith(expect.stringContaining('q=pepe'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Limpiar filtros' }));
+    expect(push).toHaveBeenCalledWith(`/es/admin/ordenes?page=1`);
   });
 });

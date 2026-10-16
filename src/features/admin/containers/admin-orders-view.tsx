@@ -1,8 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
@@ -17,6 +19,7 @@ import { formatPrice } from '@/lib/money/format';
 
 export interface AdminOrdersQuery {
   status: string;
+  q: string;
   page: number;
 }
 
@@ -31,9 +34,9 @@ function formatDate(iso: string, locale: string): string {
 }
 
 /**
- * Orders container: URL-driven status filter + pagination (server
- * re-fetches on navigation). Status changes happen on the detail page,
- * where the allowed transitions and confirmation are shown.
+ * Orders container: URL-driven status + customer filters + pagination
+ * (server re-fetches on navigation). Status changes happen on the detail
+ * page, where the allowed transitions and confirmation are shown.
  */
 export function AdminOrdersView({
   data,
@@ -50,11 +53,13 @@ export function AdminOrdersView({
 }) {
   const router = useRouter();
   const orders = messages.admin.orders;
+  const [draft, setDraft] = useState(query.q);
 
   function navigate(next: Partial<AdminOrdersQuery>) {
     const merged: AdminOrdersQuery = { ...query, ...next };
     const search = toAdminQuery({
       ...(merged.status === '' ? {} : { status: merged.status }),
+      ...(merged.q === '' ? {} : { q: merged.q }),
       page: merged.page,
     });
     router.push(`/${locale}/admin/ordenes${search}`);
@@ -64,6 +69,20 @@ export function AdminOrdersView({
     <Stack gap="md">
       <AdminHeaderCard title={orders.title} subtitle={orders.subtitle} />
       <AdminFiltersCard>
+        <div className="min-w-56">
+          <Input
+            label={orders.customerFilter}
+            name="q"
+            value={draft}
+            placeholder={orders.customerSearchPlaceholder}
+            onChange={(event) => {
+              setDraft(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+            }}
+          />
+        </div>
         <div className="min-w-44">
           <Select
             label={orders.statusFilter}
@@ -86,7 +105,8 @@ export function AdminOrdersView({
         <Button
           variant="secondary"
           onClick={() => {
-            navigate({ status: '', page: 1 });
+            setDraft('');
+            navigate({ status: '', q: '', page: 1 });
           }}
         >
           {messages.catalog.clearFilters}

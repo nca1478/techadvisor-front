@@ -935,6 +935,8 @@
       "tableOrder": "Order",
       "tableDate": "Date",
       "tableCustomer": "Customer",
+      "customerFilter": "Customer",
+      "customerSearchPlaceholder": "Search by name or email…",
       "customerName": "Name",
       "customerEmail": "Email",
       "shippingTitle": "Shipping address",
