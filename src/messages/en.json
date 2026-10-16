@@ -23,7 +23,9 @@
     "cartWithCount": "Cart, {count} items",
     "allProducts": "All",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "scrollPrev": "Scroll categories back",
+    "scrollNext": "Scroll categories forward"
   },
   "catalog": {
     "title": "Products",
@@ -519,6 +521,8 @@
     "navDocuments": "Documents",
     "navAsesor": "Advisor",
     "navReviews": "Reviews",
+    "navScrollPrev": "Scroll sections back",
+    "navScrollNext": "Scroll sections forward",
     "viewStore": "View store",
     "previous": "Previous",
     "next": "Next",
@@ -667,7 +671,23 @@
       "createError": "The product could not be created.",
       "updated": "Product updated.",
       "updateError": "The product could not be updated.",
-      "backToProducts": "Back to products"
+      "backToProducts": "Back to products",
+      "step1Title": "Basic info",
+      "step1Desc": "Name, SKU, slug and description.",
+      "step2Title": "Catalog and price",
+      "step2Desc": "Brand, category, price and stock.",
+      "step3Title": "Specifications",
+      "step3Desc": "Technical details for the selected category.",
+      "step4Title": "Translation and review",
+      "step4Desc": "Optional second language, then save.",
+      "stepsLabel": "Product steps",
+      "stepsScrollPrev": "Scroll steps back",
+      "stepsScrollNext": "Scroll steps forward",
+      "stepOf": "Step {current} of {total}",
+      "next": "Next",
+      "back": "Back",
+      "save": "Save changes",
+      "saving": "Saving…"
     },
     "categoryForm": {
       "newTitle": "New category",

@@ -142,23 +142,33 @@ export default async function AdminEditProductPage({ params }: EditProductPagePr
           locales={config.supportedLocales}
           defaultLocale={config.defaultLocale}
           messages={messages}
-        />
-      </Card>
-      <Card>
-        <ImagesEditorContainer
-          productId={product.id}
-          initialImages={product.images}
-          messages={messages}
-        />
-      </Card>
-      <Card>
-        <InventoryPanelContainer
-          productId={product.id}
-          productName={product.name}
-          initialInventory={inventory}
-          initialMovements={movements}
-          locale={locale}
-          messages={messages}
+          extraSteps={[
+            {
+              title: messages.admin.images.title,
+              content: (
+                <ImagesEditorContainer
+                  key="images"
+                  productId={product.id}
+                  initialImages={product.images}
+                  messages={messages}
+                />
+              ),
+            },
+            {
+              title: messages.admin.inventory.title,
+              content: (
+                <InventoryPanelContainer
+                  key="inventory"
+                  productId={product.id}
+                  productName={product.name}
+                  initialInventory={inventory}
+                  initialMovements={movements}
+                  locale={locale}
+                  messages={messages}
+                />
+              ),
+            },
+          ]}
         />
       </Card>
     </Stack>

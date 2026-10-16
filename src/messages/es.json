@@ -23,7 +23,9 @@
     "cartWithCount": "Carrito, {count} artículos",
     "allProducts": "Todos",
     "admin": "Admin",
-    "menu": "Menú"
+    "menu": "Menú",
+    "scrollPrev": "Desplazar categorías atrás",
+    "scrollNext": "Desplazar categorías adelante"
   },
   "catalog": {
     "title": "Productos",
@@ -519,6 +521,8 @@
     "navDocuments": "Documentos",
     "navAsesor": "Asesor",
     "navReviews": "Reseñas",
+    "navScrollPrev": "Desplazar secciones atrás",
+    "navScrollNext": "Desplazar secciones adelante",
     "viewStore": "Ver tienda",
     "previous": "Anterior",
     "next": "Siguiente",
@@ -667,7 +671,23 @@
       "createError": "No se pudo crear el producto.",
       "updated": "Producto actualizado.",
       "updateError": "No se pudo actualizar el producto.",
-      "backToProducts": "Volver a productos"
+      "backToProducts": "Volver a productos",
+      "step1Title": "Información básica",
+      "step1Desc": "Nombre, SKU, slug y descripción.",
+      "step2Title": "Catálogo y precio",
+      "step2Desc": "Marca, categoría, precio y stock.",
+      "step3Title": "Especificaciones",
+      "step3Desc": "Detalles técnicos de la categoría elegida.",
+      "step4Title": "Traducción y revisión",
+      "step4Desc": "Segundo idioma opcional y guardar.",
+      "stepsLabel": "Pasos del producto",
+      "stepsScrollPrev": "Desplazar pasos atrás",
+      "stepsScrollNext": "Desplazar pasos adelante",
+      "stepOf": "Paso {current} de {total}",
+      "next": "Siguiente",
+      "back": "Atrás",
+      "save": "Guardar cambios",
+      "saving": "Guardando…"
     },
     "categoryForm": {
       "newTitle": "Nueva categoría",

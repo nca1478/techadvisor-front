@@ -89,14 +89,6 @@ export function ImagesEditor({
 }) {
   return (
     <Stack gap="md">
-      <Stack gap="sm">
-        <Text variant="lead" as="div">
-          {messages.title}
-        </Text>
-        <Text variant="small" tone="muted">
-          {messages.subtitle}
-        </Text>
-      </Stack>
       {images.length === 0 ? null : (
         <Stack gap="md">
           {images.map((image, index) => (
@@ -170,24 +162,23 @@ export function ImagesEditor({
         <Text variant="small" tone="muted">
           {messages.maxReached.replace('{max}', String(max))}
         </Text>
-      ) : (
-        <div>
-          <Button variant="secondary" onClick={onAdd}>
-            {messages.add}
-          </Button>
-        </div>
-      )}
+      ) : null}
       {serverError ? (
         <Text role="alert" className="text-destructive">
           {serverError}
         </Text>
       ) : null}
       {savedMessage ? <Text role="status">{savedMessage}</Text> : null}
-      <div>
+      <Stack direction="horizontal" gap="md" wrap>
+        {images.length >= max ? null : (
+          <Button variant="secondary" onClick={onAdd}>
+            {messages.add}
+          </Button>
+        )}
         <Button onClick={onSave} loading={pending}>
           {pending ? messages.saving : messages.save}
         </Button>
-      </div>
+      </Stack>
     </Stack>
   );
 }

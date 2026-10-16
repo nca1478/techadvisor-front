@@ -161,3 +161,51 @@ export function buildUpdateRequest(
 export function initialStockError(value: string, texts: ProductValidationTexts): string | null {
   return parseWholeUnits(value, 1_000_000) === null ? texts.initialStockInvalid : null;
 }
+
+export type ProductWizardStep = 0 | 1 | 2 | 3;
+
+/**
+ * Error keys belonging to each wizard step, mirroring the 4 screenshots:
+ * 0 = identity (sku/slug/name/description), 1 = catalog + price/stock,
+ * 2 = specs (`specs.*`), 3 = translation (optional, never blocks).
+ */
+export function stepErrorKeys(step: number, mode: 'create' | 'edit'): string[] {
+  switch (step) {
+    case 0:
+      return ['sku', 'slug', 'name', 'description'];
+    case 1:
+      return mode === 'create'
+        ? ['brandId', 'categoryId', 'priceMajor', 'currency', 'initialStock']
+        : ['brandId', 'categoryId', 'priceMajor', 'currency'];
+    case 2:
+      return ['specs'];
+    default:
+      return [];
+  }
+}
+
+/**
+ * Filters a full `validateProductForm` error map down to the keys of one
+ * wizard step. `specs.*` errors collapse under the `specs` prefix so step 2
+ * lights up on any spec error. Translation step is optional: always empty.
+ * Extra steps (images, inventory — edit mode only) have no form errors:
+ * always empty.
+ */
+export function errorsForStep(
+  errors: ProductFormErrors,
+  step: number,
+  mode: 'create' | 'edit',
+): Record<string, string> {
+  if (step === 3 || step > 3) return {};
+  const keys = stepErrorKeys(step, mode);
+  const scoped: Record<string, string> = {};
+  for (const [key, message] of Object.entries(errors)) {
+    if (message === undefined) continue;
+    if (keys.includes(key)) {
+      scoped[key] = message;
+    } else if (step === 2 && key.startsWith('specs.')) {
+      scoped[key] = message;
+    }
+  }
+  return scoped;
+}

@@ -51,9 +51,7 @@ export function InventoryPanel({
   return (
     <Stack gap="md">
       <Stack gap="sm">
-        <Text variant="lead" as="div">
-          {messages.title}
-        </Text>
+        <div className="text-sm font-medium text-foreground">{messages.title}</div>
         {inventory ? (
           <Stack direction="horizontal" gap="md" wrap>
             <Text variant="small" tone="muted">

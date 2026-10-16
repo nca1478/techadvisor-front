@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { ProductForm } from '@/features/admin/components/product-form';
@@ -9,12 +8,14 @@ import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import { formatMinorToMajor } from '@/features/admin/lib/admin-schemas';
 import {
   buildUpdateRequest,
+  errorsForStep,
   pickInitialTranslation,
   validateProductForm,
   type ProductFormErrors,
   type ProductFormState,
   type ProductValidationTexts,
 } from '@/features/admin/lib/product-submit';
+import type { ProductWizardExtraStep } from '@/features/admin/components/product-form';
 import type { AdminProduct } from '@/lib/api/admin';
 import type { CatalogBrand, CatalogCategory } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -45,6 +46,7 @@ export function ProductEditContainer({
   locales,
   defaultLocale,
   messages,
+  extraSteps = [],
 }: {
   product: AdminProduct;
   brands: CatalogBrand[];
@@ -53,6 +55,7 @@ export function ProductEditContainer({
   locales: string[];
   defaultLocale: string;
   messages: Dictionary;
+  extraSteps?: ProductWizardExtraStep[];
 }) {
   const initialTranslation = pickInitialTranslation(product.translations, defaultLocale);
   const [values, setValues] = useState<ProductFormState>(() => ({
@@ -93,6 +96,12 @@ export function ProductEditContainer({
     [categories, values.categoryId],
   );
 
+  function handleValidateStep(step: number): Record<string, string> {
+    const validated = validateProductForm(values, specsFields, texts);
+    setErrors(validated.errors);
+    return errorsForStep(validated.errors, step, 'edit');
+  }
+
   async function handleSubmit() {
     const validated = validateProductForm(values, specsFields, texts);
     setErrors(validated.errors);
@@ -129,22 +138,26 @@ export function ProductEditContainer({
         onChange={(patch) => {
           setValues((prev) => ({ ...prev, ...patch }));
         }}
+        onValidateStep={handleValidateStep}
+        onSubmit={() => void handleSubmit()}
+        pending={pending}
+        submitLabel={form.save}
+        submitPendingLabel={form.saving}
+        extraSteps={extraSteps}
+        freeNavigation
+        footerNote={
+          feedback ? (
+            <Text
+              role={feedback.ok ? 'status' : 'alert'}
+              className={feedback.ok ? undefined : 'text-destructive'}
+            >
+              {feedback.text}
+            </Text>
+          ) : null
+        }
         formMessages={form}
         statusLabels={messages.admin.products}
       />
-      {feedback ? (
-        <Text
-          role={feedback.ok ? 'status' : 'alert'}
-          className={feedback.ok ? undefined : 'text-destructive'}
-        >
-          {feedback.text}
-        </Text>
-      ) : null}
-      <div>
-        <Button onClick={() => void handleSubmit()} loading={pending}>
-          {pending ? messages.admin.saving : messages.admin.save}
-        </Button>
-      </div>
     </Stack>
   );
 }

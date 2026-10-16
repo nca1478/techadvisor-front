@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { ProductForm } from '@/features/admin/components/product-form';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   buildCreateRequest,
+  errorsForStep,
   initialStockError,
   validateProductForm,
   type ProductFormErrors,
@@ -85,13 +85,28 @@ export function ProductCreateContainer({
     [categories, values.categoryId],
   );
 
-  async function handleSubmit() {
+  function collectErrors(): {
+    all: ProductFormErrors;
+    specs: Record<string, unknown>;
+    priceAmount: number | null;
+  } {
     const validated = validateProductForm(values, specsFields, texts);
     const nextErrors: ProductFormErrors = { ...validated.errors };
     const stockError = initialStockError(values.initialStock, texts);
     if (stockError) nextErrors['initialStock'] = stockError;
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0 || validated.priceAmount === null) return;
+    return { all: nextErrors, specs: validated.specs, priceAmount: validated.priceAmount };
+  }
+
+  function handleValidateStep(step: number): Record<string, string> {
+    const { all } = collectErrors();
+    setErrors(all);
+    return errorsForStep(all, step, 'create');
+  }
+
+  async function handleSubmit() {
+    const { all, specs, priceAmount } = collectErrors();
+    setErrors(all);
+    if (Object.keys(all).length > 0 || priceAmount === null) return;
     const initialStock = parseWholeUnits(values.initialStock, 1_000_000) ?? 0;
 
     setPending(true);
@@ -99,7 +114,7 @@ export function ProductCreateContainer({
     try {
       const created = await adminHttp.post<AdminProduct>(
         '/products',
-        buildCreateRequest(values, validated.specs, validated.priceAmount, initialStock),
+        buildCreateRequest(values, specs, priceAmount, initialStock),
       );
       router.push(`/${locale}/admin/productos/${encodeURIComponent(created.id)}`);
       router.refresh();
@@ -125,19 +140,21 @@ export function ProductCreateContainer({
         onChange={(patch) => {
           setValues((prev) => ({ ...prev, ...patch }));
         }}
+        onValidateStep={handleValidateStep}
+        onSubmit={() => void handleSubmit()}
+        pending={pending}
+        submitLabel={form.create}
+        submitPendingLabel={form.creating}
+        footerNote={
+          serverError ? (
+            <Text role="alert" className="text-destructive">
+              {serverError}
+            </Text>
+          ) : null
+        }
         formMessages={form}
         statusLabels={messages.admin.products}
       />
-      {serverError ? (
-        <Text role="alert" className="text-destructive">
-          {serverError}
-        </Text>
-      ) : null}
-      <Stack direction="horizontal" gap="md">
-        <Button onClick={() => void handleSubmit()} loading={pending}>
-          {pending ? form.creating : form.create}
-        </Button>
-      </Stack>
     </Stack>
   );
 }

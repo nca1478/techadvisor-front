@@ -14,6 +14,7 @@ import {
   buildCreateRequest,
   buildUpdateRequest,
   collectTranslations,
+  errorsForStep,
   initialStockError,
   pickInitialTranslation,
   validateProductForm,
@@ -207,6 +208,26 @@ describe('validateProductForm', () => {
     expect(validated.errors['priceMajor']).toBe(TEXTS.priceInvalid);
     expect(validated.errors['brandId']).toBe(TEXTS.required);
     expect(validated.priceAmount).toBeNull();
+  });
+});
+
+describe('errorsForStep', () => {
+  it('scopes errors to identity, catalog, specs and leaves translation open', () => {
+    const all = {
+      sku: 'required',
+      priceMajor: 'bad price',
+      'specs.ram_gb': 'bad integer',
+    };
+    expect(errorsForStep(all, 0, 'create')).toEqual({ sku: 'required' });
+    expect(errorsForStep(all, 1, 'create')).toEqual({ priceMajor: 'bad price' });
+    expect(errorsForStep(all, 2, 'create')).toEqual({ 'specs.ram_gb': 'bad integer' });
+    expect(errorsForStep(all, 3, 'create')).toEqual({});
+  });
+
+  it('excludes create-only stock errors in edit mode', () => {
+    const all = { initialStock: 'bad stock' };
+    expect(errorsForStep(all, 1, 'create')).toEqual({ initialStock: 'bad stock' });
+    expect(errorsForStep(all, 1, 'edit')).toEqual({});
   });
 });
 
