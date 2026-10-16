@@ -8,6 +8,14 @@ const VARIANTS = {
   raise: 'border border-border bg-surface-raise shadow-md',
 } as const;
 
+const TONES = {
+  neutral: '',
+  primary: 'border-primary/40 bg-primary-subtle',
+  success: 'border-success/30 bg-success-subtle',
+  warning: 'border-warning/30 bg-warning-subtle',
+  destructive: 'border-destructive/30 bg-destructive-subtle',
+} as const;
+
 const PADDINGS = {
   none: 'p-0',
   sm: 'p-4',
@@ -16,6 +24,8 @@ const PADDINGS = {
 
 export interface CardProps {
   variant?: keyof typeof VARIANTS;
+  /** Light tint over the default surface (design tokens only). */
+  tone?: keyof typeof TONES;
   padding?: keyof typeof PADDINGS;
   className?: string;
   children: ReactNode;
@@ -23,11 +33,18 @@ export interface CardProps {
 
 /** Lab panel: single flat surface. Never nest Card inside Card — compose
  * sections with dividers and spacing instead (anti-pattern audit 0043). */
-export function Card({ variant = 'default', padding = 'sm', className, children }: CardProps) {
+export function Card({
+  variant = 'default',
+  tone = 'neutral',
+  padding = 'sm',
+  className,
+  children,
+}: CardProps) {
+  // A tone replaces the variant surface (same tokens, no conflicting
+  // backgrounds); neutral keeps the variant as-is.
+  const surface = tone === 'neutral' ? VARIANTS[variant] : cn('border shadow-md', TONES[tone]);
   return (
-    <div
-      className={cn('overflow-hidden rounded-xl', VARIANTS[variant], PADDINGS[padding], className)}
-    >
+    <div className={cn('overflow-hidden rounded-xl', surface, PADDINGS[padding], className)}>
       {children}
     </div>
   );

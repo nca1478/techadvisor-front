@@ -19,6 +19,12 @@ export interface TabsProps {
   className?: string;
   /** Extra classes for the tab-button row (the panel always stays full width). */
   tablistClassName?: string;
+  /** Controlled selected id (uncontrolled when omitted). */
+  selectedId?: string;
+  /** Fires on every selection, controlled or not. */
+  onSelect?: (id: string) => void;
+  /** Hides the built-in trigger row when triggers live elsewhere. */
+  hideTriggers?: boolean;
 }
 
 /**
@@ -28,14 +34,29 @@ export interface TabsProps {
  * Arrow keys move and select, Home/End jump to the ends (automatic
  * activation, roving tabindex).
  */
-export function Tabs({ items, label, defaultId, className, tablistClassName }: TabsProps) {
+export function Tabs({
+  items,
+  label,
+  defaultId,
+  className,
+  tablistClassName,
+  selectedId,
+  onSelect,
+  hideTriggers = false,
+}: TabsProps) {
   const baseId = useId();
-  const [selectedId, setSelectedId] = useState(defaultId ?? items.at(0)?.id ?? '');
-  const selected = items.find((item) => item.id === selectedId) ?? items.at(0);
+  const [internalId, setInternalId] = useState(defaultId ?? items.at(0)?.id ?? '');
+  const currentId = selectedId ?? internalId;
+  const selected = items.find((item) => item.id === currentId) ?? items.at(0);
+
+  const select = (id: string): void => {
+    setInternalId(id);
+    onSelect?.(id);
+  };
 
   const selectAt = (index: number): void => {
     const item = items.at((index + items.length) % items.length);
-    if (item) setSelectedId(item.id);
+    if (item) select(item.id);
   };
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number): void => {
@@ -68,35 +89,37 @@ export function Tabs({ items, label, defaultId, className, tablistClassName }: T
 
   return (
     <div className={className}>
-      <div
-        role="tablist"
-        aria-label={label}
-        className={cn('flex flex-wrap gap-2', tablistClassName)}
-      >
-        {items.map((item, index) => {
-          const active = item.id === selected?.id;
-          return (
-            <Button
-              key={item.id}
-              id={tabId(item.id)}
-              role="tab"
-              aria-selected={active}
-              aria-controls={panelId(item.id)}
-              tabIndex={active ? 0 : -1}
-              variant={active ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => {
-                setSelectedId(item.id);
-              }}
-              onKeyDown={(event) => {
-                onTabKeyDown(event, index);
-              }}
-            >
-              {item.label}
-            </Button>
-          );
-        })}
-      </div>
+      {hideTriggers ? null : (
+        <div
+          role="tablist"
+          aria-label={label}
+          className={cn('flex flex-wrap gap-2', tablistClassName)}
+        >
+          {items.map((item, index) => {
+            const active = item.id === selected?.id;
+            return (
+              <Button
+                key={item.id}
+                id={tabId(item.id)}
+                role="tab"
+                aria-selected={active}
+                aria-controls={panelId(item.id)}
+                tabIndex={active ? 0 : -1}
+                variant={active ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => {
+                  select(item.id);
+                }}
+                onKeyDown={(event) => {
+                  onTabKeyDown(event, index);
+                }}
+              >
+                {item.label}
+              </Button>
+            );
+          })}
+        </div>
+      )}
       {selected ? (
         <div
           key={selected.id}
