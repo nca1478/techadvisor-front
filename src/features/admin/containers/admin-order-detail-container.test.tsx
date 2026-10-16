@@ -100,6 +100,20 @@ describe('AdminOrderDetailContainer customer card', () => {
     expect(screen.queryByText('Dirección de envío')).toBeNull();
   });
 
+  it('places customer and shipping side by side in the same row', () => {
+    render(
+      <AdminOrderDetailContainer initialOrder={orderWith()} locale="es" messages={messages} />,
+    );
+
+    const customerTitle = screen.getByText('Cliente');
+    const row = customerTitle.closest('div.grid');
+    expect(row).not.toBeNull();
+    expect(row?.className).toContain('sm:grid-cols-2');
+    expect(within(row as HTMLElement).getByText('Dirección de envío')).toBeDefined();
+    expect(within(row as HTMLElement).getByText('Ada Lovelace')).toBeDefined();
+    expect(within(row as HTMLElement).getByText('Nelson Cadenas')).toBeDefined();
+  });
+
   it('links each item name to its admin product detail page', () => {
     render(
       <AdminOrderDetailContainer initialOrder={orderWith()} locale="es" messages={messages} />,

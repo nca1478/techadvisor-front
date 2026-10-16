@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Grid } from '@/components/ui/grid';
 import { Heading } from '@/components/ui/heading';
 import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
@@ -129,41 +130,94 @@ export function AdminOrderDetailContainer({
       <Card>
         <OrderTimeline status={order.status} messages={messages.account} />
       </Card>
-      <Text variant="lead" as="div">
-        {orders.tableCustomer}
-      </Text>
-      <Card>
-        <Stack gap="sm">
-          {customerName !== null || customerEmail !== null ? (
-            <>
-              {customerName !== null ? (
-                <div>
-                  <Text variant="caption" tone="muted">
-                    {orders.customerName}
-                  </Text>
-                  <Text variant="small" as="p" className="font-medium">
-                    {customerName}
-                  </Text>
-                </div>
-              ) : null}
-              {customerEmail !== null ? (
-                <div>
-                  <Text variant="caption" tone="muted">
-                    {orders.customerEmail}
-                  </Text>
-                  <Text variant="small" as="p">
-                    {customerEmail}
-                  </Text>
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <Text variant="small" as="p" className="font-mono">
-              {order.userId}
-            </Text>
-          )}
+      <Grid columns="two" gap="md">
+        <Stack gap="md">
+          <Text variant="lead" as="div">
+            {orders.tableCustomer}
+          </Text>
+          <Card className="h-full">
+            <Stack gap="sm">
+              {customerName !== null || customerEmail !== null ? (
+                <>
+                  {customerName !== null ? (
+                    <div>
+                      <Text variant="caption" tone="muted">
+                        {orders.customerName}
+                      </Text>
+                      <Text variant="small" as="p" className="font-medium">
+                        {customerName}
+                      </Text>
+                    </div>
+                  ) : null}
+                  {customerEmail !== null ? (
+                    <div>
+                      <Text variant="caption" tone="muted">
+                        {orders.customerEmail}
+                      </Text>
+                      <Text variant="small" as="p">
+                        {customerEmail}
+                      </Text>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <Text variant="small" as="p" className="font-mono">
+                  {order.userId}
+                </Text>
+              )}
+            </Stack>
+          </Card>
         </Stack>
-      </Card>
+        {hasShipping ? (
+          <Stack gap="md">
+            <Text variant="lead" as="div">
+              {orders.shippingTitle}
+            </Text>
+            <Card className="h-full">
+              <div className="grid grid-cols-[max-content_1fr] items-baseline gap-x-4 gap-y-3">
+                {shippingFullName !== null ? (
+                  <>
+                    <Text variant="small" tone="muted" className="font-bold">
+                      {orders.shippingFullName}:
+                    </Text>
+                    <Text variant="small" as="p" className="font-medium">
+                      {shippingFullName}
+                    </Text>
+                  </>
+                ) : null}
+                {shippingStreet !== null && shippingStreet.length > 0 ? (
+                  <>
+                    <Text variant="small" tone="muted" className="font-bold">
+                      {orders.shippingAddress}:
+                    </Text>
+                    <Text variant="small" tone="muted" as="p">
+                      {shippingStreet}
+                    </Text>
+                  </>
+                ) : null}
+                {locality !== null ? (
+                  <>
+                    <span aria-hidden="true" />
+                    <Text variant="small" tone="muted" as="p">
+                      {locality}
+                    </Text>
+                  </>
+                ) : null}
+                {shippingPhone !== null ? (
+                  <>
+                    <Text variant="small" tone="muted" className="font-bold">
+                      {orders.shippingPhone}:
+                    </Text>
+                    <Text variant="small" tone="muted" as="p">
+                      {shippingPhone}
+                    </Text>
+                  </>
+                ) : null}
+              </div>
+            </Card>
+          </Stack>
+        ) : null}
+      </Grid>
       <Text variant="lead" as="div">
         {messages.account.itemsTitle}
       </Text>
@@ -221,55 +275,6 @@ export function AdminOrderDetailContainer({
           </table>
         </div>
       </Card>
-      {hasShipping ? (
-        <>
-          <Text variant="lead" as="div">
-            {orders.shippingTitle}
-          </Text>
-          <Card>
-            <div className="grid grid-cols-[max-content_1fr] items-baseline gap-x-4 gap-y-3">
-              {shippingFullName !== null ? (
-                <>
-                  <Text variant="small" tone="muted" className="font-bold">
-                    {orders.shippingFullName}:
-                  </Text>
-                  <Text variant="small" as="p" className="font-medium">
-                    {shippingFullName}
-                  </Text>
-                </>
-              ) : null}
-              {shippingStreet !== null && shippingStreet.length > 0 ? (
-                <>
-                  <Text variant="small" tone="muted" className="font-bold">
-                    {orders.shippingAddress}:
-                  </Text>
-                  <Text variant="small" tone="muted" as="p">
-                    {shippingStreet}
-                  </Text>
-                </>
-              ) : null}
-              {locality !== null ? (
-                <>
-                  <span aria-hidden="true" />
-                  <Text variant="small" tone="muted" as="p">
-                    {locality}
-                  </Text>
-                </>
-              ) : null}
-              {shippingPhone !== null ? (
-                <>
-                  <Text variant="small" tone="muted" className="font-bold">
-                    {orders.shippingPhone}:
-                  </Text>
-                  <Text variant="small" tone="muted" as="p">
-                    {shippingPhone}
-                  </Text>
-                </>
-              ) : null}
-            </div>
-          </Card>
-        </>
-      ) : null}
       <Stack gap="sm">
         <Text variant="lead" as="div">
           {orders.changeStatus}
