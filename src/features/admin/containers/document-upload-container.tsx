@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { DocumentUploadWizard } from '@/features/admin/components/document-upload-wizard';
+import type { AssociationOption } from '@/features/admin/components/association-select';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   resolveDocumentSubmit,
@@ -25,11 +26,16 @@ export function DocumentUploadContainer({
   locale,
   messages,
   initialTitle = '',
+  productOptions = [],
+  categoryOptions = [],
 }: {
   locale: string;
   messages: Dictionary;
   /** Prefills the title (e.g. from the advisor panel "create document" shortcut). */
   initialTitle?: string;
+  /** Friendly-name options for the step-1 association selects (ids stored). */
+  productOptions?: readonly AssociationOption[];
+  categoryOptions?: readonly AssociationOption[];
 }) {
   const router = useRouter();
   const docs = messages.admin.documents;
@@ -115,6 +121,8 @@ export function DocumentUploadContainer({
         fileResetKey={fileResetKey}
         pending={pending}
         docs={docs}
+        productOptions={productOptions}
+        categoryOptions={categoryOptions}
         onFileChange={(file) => {
           setValues((prev) => ({ ...prev, file }));
           if (file === null) {

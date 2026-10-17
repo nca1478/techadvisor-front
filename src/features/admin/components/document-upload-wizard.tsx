@@ -7,6 +7,10 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/components/ui/cn';
+import {
+  AssociationSelect,
+  type AssociationOption,
+} from '@/features/admin/components/association-select';
 import type { DocumentWizardState } from '@/features/admin/lib/document-wizard';
 import { ADMIN_DOCUMENT_TYPES } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -24,6 +28,8 @@ export function DocumentUploadWizard({
   fileResetKey,
   pending,
   docs,
+  productOptions = [],
+  categoryOptions = [],
   onFileChange,
   onChange,
   onValidateStep,
@@ -34,6 +40,9 @@ export function DocumentUploadWizard({
   fileResetKey: number;
   pending: boolean;
   docs: Dictionary['admin']['documents'];
+  /** Friendly-name options; selection still stores the raw id in `values`. */
+  productOptions?: readonly AssociationOption[];
+  categoryOptions?: readonly AssociationOption[];
   onFileChange: (file: File | null) => void;
   onChange: (patch: Partial<DocumentWizardState>) => void;
   onValidateStep: (step: number) => Record<string, string>;
@@ -164,26 +173,42 @@ export function DocumentUploadWizard({
           </Stack>
           <Stack direction="horizontal" gap="md" wrap>
             <div className="min-w-44 flex-1">
-              <Input
+              <AssociationSelect
                 label={docs.productLabel}
                 name="productId"
                 value={values.productId}
+                options={productOptions}
+                placeholder={docs.productPlaceholder}
+                searchPlaceholder={docs.productSearchPlaceholder}
+                noResultsText={docs.associationNoResults}
+                changeLabel={docs.associationChange}
+                clearLabel={docs.associationClear}
+                noSelectionLabel={docs.associationNoSelection}
+                closeLabel={docs.associationClose}
                 error={errors['productId']}
                 disabled={pending}
-                onChange={(event) => {
-                  onChange({ productId: event.target.value });
+                onSelect={(productId) => {
+                  onChange({ productId });
                 }}
               />
             </div>
             <div className="min-w-44 flex-1">
-              <Input
+              <AssociationSelect
                 label={docs.categoryLabel}
                 name="categoryId"
                 value={values.categoryId}
+                options={categoryOptions}
+                placeholder={docs.categoryPlaceholder}
+                searchPlaceholder={docs.categorySearchPlaceholder}
+                noResultsText={docs.associationNoResults}
+                changeLabel={docs.associationChange}
+                clearLabel={docs.associationClear}
+                noSelectionLabel={docs.associationNoSelection}
+                closeLabel={docs.associationClose}
                 error={errors['categoryId']}
                 disabled={pending}
-                onChange={(event) => {
-                  onChange({ categoryId: event.target.value });
+                onSelect={(categoryId) => {
+                  onChange({ categoryId });
                 }}
               />
             </div>

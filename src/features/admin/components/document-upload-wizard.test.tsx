@@ -19,6 +19,7 @@ const BASE: DocumentWizardState = {
 function renderWizard(overrides: Partial<Parameters<typeof DocumentUploadWizard>[0]> = {}) {
   const onValidateStep = vi.fn((): Record<string, string> => ({}));
   const onSubmit = vi.fn();
+  const onChange = vi.fn();
   const utils = render(
     <DocumentUploadWizard
       values={BASE}
@@ -26,14 +27,18 @@ function renderWizard(overrides: Partial<Parameters<typeof DocumentUploadWizard>
       fileResetKey={0}
       pending={false}
       docs={docs}
+      productOptions={[
+        { id: '11111111-1111-4111-8111-111111111111', label: 'Laptop 13', hint: 'LAP-13' },
+      ]}
+      categoryOptions={[{ id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', label: 'Laptops' }]}
       onFileChange={() => {}}
-      onChange={() => {}}
+      onChange={onChange}
       onValidateStep={onValidateStep}
       onSubmit={onSubmit}
       {...overrides}
     />,
   );
-  return { onValidateStep, onSubmit, ...utils };
+  return { onValidateStep, onSubmit, onChange, ...utils };
 }
 
 describe('DocumentUploadWizard', () => {
@@ -68,5 +73,26 @@ describe('DocumentUploadWizard', () => {
     renderWizard({ values: { ...BASE, file } });
     fireEvent.click(screen.getByRole('button', { name: docs.next }));
     expect(screen.getByRole('status')).toHaveTextContent('manual.pdf');
+  });
+
+  it('selects a product by friendly name but stores its id', () => {
+    const { onChange } = renderWizard();
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(docs.productPlaceholder) }));
+    fireEvent.change(screen.getByPlaceholderText(docs.productSearchPlaceholder), {
+      target: { value: 'laptop' },
+    });
+    fireEvent.click(screen.getByRole('option', { name: /Laptop 13/ }));
+    expect(onChange).toHaveBeenCalledWith({
+      productId: '11111111-1111-4111-8111-111111111111',
+    });
+  });
+
+  it('selects a category by friendly name but stores its id', () => {
+    const { onChange } = renderWizard();
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(docs.categoryPlaceholder) }));
+    fireEvent.click(screen.getByRole('option', { name: /Laptops/ }));
+    expect(onChange).toHaveBeenCalledWith({
+      categoryId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    });
   });
 });
