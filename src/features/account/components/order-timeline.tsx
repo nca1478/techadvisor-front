@@ -101,11 +101,16 @@ export function OrderTimeline({
           const isCurrent = !isCancelled && index === currentIndex;
           const isLast = index === ORDER_TIMELINE_FLOW.length - 1;
           const reached = isDone || isCurrent;
+          // Tablet (`sm`–`lg`) wraps two steps per row, so the connectors
+          // after the odd steps (Paid, Shipped) dangle at the row end with
+          // nothing after them: hide them below `lg` (desktop is a single
+          // row and keeps every connector).
           // Recorded date first; pre-history orders fall back to the
           // caller-provided date (creation for the first step, last
           // update for the current one) instead of inventing times.
           const reachedAt =
             statusReachedAt(history, step) ?? (reached ? (fallbackAt?.(step) ?? null) : null);
+          const endsTabletRow = index % 2 === 1;
           return (
             <li
               key={step}
@@ -165,7 +170,8 @@ export function OrderTimeline({
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'mx-2 hidden h-px w-8 shrink-0 self-center sm:block lg:mx-1.5 lg:w-6 xl:mx-2 xl:w-8',
+                    'mx-2 hidden h-px w-8 shrink-0 self-center lg:mx-1.5 lg:w-6 xl:mx-2 xl:w-8',
+                    endsTabletRow ? 'lg:block' : 'sm:block',
                     isDone ? 'bg-primary/60' : 'bg-border-strong',
                   )}
                 />
