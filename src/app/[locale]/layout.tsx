@@ -314,8 +314,12 @@ export default async function LocaleLayout({
                         <Link href={`/${locale}/comparar`} variant="header" className="text-sm">
                           {messages.compare.title}
                         </Link>
-                        <Link href={`/${locale}/asesor`} variant="header" className="text-sm">
-                          {messages.nav.asesor}
+                        <Link
+                          href={`/${locale}/cuenta/ordenes`}
+                          variant="header"
+                          className="text-sm"
+                        >
+                          {messages.account.ordersTitle}
                         </Link>
                       </Stack>
                     </nav>
@@ -338,12 +342,8 @@ export default async function LocaleLayout({
                         <Link href={`/${locale}/carrito`} variant="header" className="text-sm">
                           {messages.nav.cart}
                         </Link>
-                        <Link
-                          href={`/${locale}/cuenta/ordenes`}
-                          variant="header"
-                          className="text-sm"
-                        >
-                          {messages.account.ordersTitle}
+                        <Link href={`/${locale}/asesor`} variant="header" className="text-sm">
+                          {messages.nav.asesor}
                         </Link>
                       </Stack>
                     </nav>
