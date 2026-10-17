@@ -64,9 +64,14 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
       <Container>
         <Section spacing="tight">
           <Stack gap="md">
-            <Stack gap="sm">
-              <Heading level={2}>{messages.catalog.homeFeaturedTitle}</Heading>
-              <Text tone="muted">{messages.catalog.homeFeaturedSubtitle}</Text>
+            <Stack direction="horizontal" justify="between" align="end" gap="md">
+              <Stack gap="sm">
+                <Heading level={2}>{messages.catalog.homeFeaturedTitle}</Heading>
+                <Text tone="muted">{messages.catalog.homeFeaturedSubtitle}</Text>
+              </Stack>
+              <Link href={listHref} className="shrink-0">
+                {messages.nav.viewAll}
+              </Link>
             </Stack>
             {products.length === 0 ? (
               <Text tone="muted">{messages.catalog.homeEmpty}</Text>
@@ -80,7 +85,6 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
                 columns="featured"
               />
             )}
-            <Link href={listHref}>{messages.nav.viewAll}</Link>
           </Stack>
         </Section>
       </Container>
