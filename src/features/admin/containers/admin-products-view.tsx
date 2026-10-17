@@ -12,13 +12,19 @@ import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/a
 import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ProductStatusContainer } from '@/features/admin/containers/product-status-container';
-import type { AdminProductList, AdminProductMetrics, AdminProductStatus } from '@/lib/api/admin';
+import type {
+  AdminCategory,
+  AdminProductList,
+  AdminProductMetrics,
+  AdminProductStatus,
+} from '@/lib/api/admin';
 import { availableUnits, toAdminQuery } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 
 export interface AdminProductsQuery {
   status: AdminProductStatus | '';
+  category: string;
   q: string;
   page: number;
 }
@@ -38,6 +44,7 @@ export function AdminProductsView({
   metrics,
   metricsError,
   query,
+  categories,
   locale,
   messages,
 }: {
@@ -46,6 +53,7 @@ export function AdminProductsView({
   metrics: AdminProductMetrics | null;
   metricsError: boolean;
   query: AdminProductsQuery;
+  categories: AdminCategory[];
   locale: string;
   messages: Dictionary;
 }) {
@@ -56,6 +64,7 @@ export function AdminProductsView({
     const merged: AdminProductsQuery = { ...query, ...next };
     const search = toAdminQuery({
       ...(merged.status === '' ? {} : { status: merged.status }),
+      ...(merged.category === '' ? {} : { category: merged.category }),
       ...(merged.q === '' ? {} : { q: merged.q }),
       page: merged.page,
     });
@@ -173,11 +182,25 @@ export function AdminProductsView({
             }}
           />
         </div>
+        <div className="min-w-44">
+          <Select
+            label={products.categoryFilter}
+            name="category"
+            value={query.category}
+            options={[
+              { value: '', label: products.allCategories },
+              ...categories.map((item) => ({ value: item.slug, label: item.name })),
+            ]}
+            onChange={(event) => {
+              navigate({ category: event.target.value, page: 1 });
+            }}
+          />
+        </div>
         <Button
           variant="secondary"
           onClick={() => {
             resetDraft();
-            navigate({ status: '', q: '', page: 1 });
+            navigate({ status: '', category: '', q: '', page: 1 });
           }}
         >
           {messages.catalog.clearFilters}

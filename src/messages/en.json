@@ -601,6 +601,8 @@
       "searchPlaceholder": "Search by name, SKU or slug…",
       "statusFilter": "Status",
       "allStatuses": "All statuses",
+      "categoryFilter": "Category",
+      "allCategories": "All categories",
       "status_DRAFT": "Draft",
       "status_ACTIVE": "Active",
       "status_ARCHIVED": "Archived",

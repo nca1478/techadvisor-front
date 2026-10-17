@@ -6,7 +6,7 @@ import {
   type AdminProductsQuery,
 } from '@/features/admin/containers/admin-products-view';
 import { backendFetch } from '@/lib/api/backend';
-import type { AdminProductList, AdminProductStatus } from '@/lib/api/admin';
+import type { AdminCategory, AdminProductList, AdminProductStatus } from '@/lib/api/admin';
 import { isAdminProductMetrics } from '@/lib/api/admin';
 import { toAdminQuery } from '@/lib/api/admin';
 import { isLocale } from '@/lib/i18n/config';
@@ -39,6 +39,10 @@ function isProductList(value: unknown): value is AdminProductList {
   );
 }
 
+function isCategoryList(value: unknown): value is AdminCategory[] {
+  return Array.isArray(value);
+}
+
 /** Products list: URL-driven status/search/pagination, server-fetched. */
 export default async function AdminProductsPage({ params, searchParams }: ProductsPageProps) {
   const resolved = (await params) as { locale?: unknown };
@@ -54,6 +58,7 @@ export default async function AdminProductsPage({ params, searchParams }: Produc
     ? (rawStatus as AdminProductStatus)
     : '';
   const q = firstParam(queryParams, 'q');
+  const category = firstParam(queryParams, 'category').trim().slice(0, 100);
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
 
   const store = await cookies();
@@ -63,12 +68,20 @@ export default async function AdminProductsPage({ params, searchParams }: Produc
     .join('; ');
   const search = toAdminQuery({
     ...(status === '' ? {} : { status }),
+    ...(category === '' ? {} : { category }),
     ...(q === '' ? {} : { q }),
     page,
     limit: 10,
   });
-  const result = await backendFetch(`/admin/products${search}`, { method: 'GET', cookieHeader });
+  const [result, categoriesResult] = await Promise.all([
+    backendFetch(`/admin/products${search}`, { method: 'GET', cookieHeader }),
+    backendFetch('/admin/categories', { method: 'GET', cookieHeader }),
+  ]);
   const data = result.status === 200 && isProductList(result.body) ? result.body : null;
+  const categories =
+    categoriesResult.status === 200 && isCategoryList(categoriesResult.body)
+      ? categoriesResult.body
+      : [];
   const metricsResult = await backendFetch('/admin/products/metrics', {
     method: 'GET',
     cookieHeader,
@@ -84,7 +97,8 @@ export default async function AdminProductsPage({ params, searchParams }: Produc
       loadError={data === null}
       metrics={metrics}
       metricsError={metrics === null}
-      query={{ status, q, page }}
+      query={{ status, category, q, page }}
+      categories={categories}
       locale={locale}
       messages={messages}
     />
