@@ -1883,10 +1883,12 @@ export interface components {
        */
       ids: string[];
       /**
-       * @description Distinct triage statuses in this bucket (sorted NEW → IN_REVIEW → RESOLVED).
-       * @example ["NEW"]
+       * @description Distinct triage statuses in this bucket (sorted NEW → IN_REVIEW → RESOLVED). Lets the panel hide actions that would move backward (see ADR 0060).
+       * @example [
+       *       "NEW"
+       *     ]
        */
-      statuses: string[];
+      statuses: ('NEW' | 'IN_REVIEW' | 'RESOLVED')[];
     };
     AdminUnansweredGroupListDto: {
       data: components['schemas']['AdminUnansweredGroupDto'][];
