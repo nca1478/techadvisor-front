@@ -94,17 +94,17 @@ export function OrderTimeline({
     <div>
       <ol
         aria-label={label}
-        className="flex flex-col items-center gap-0 sm:flex-row sm:flex-wrap sm:items-start sm:gap-y-6 lg:flex-nowrap lg:gap-y-0"
+        className="flex flex-col items-center gap-0 sm:grid sm:grid-cols-2 sm:items-start sm:gap-x-4 sm:gap-y-6 lg:flex lg:flex-row lg:flex-nowrap lg:gap-0"
       >
         {ORDER_TIMELINE_FLOW.map((step, index) => {
           const isDone = !isCancelled && currentIndex !== -1 && index < currentIndex;
           const isCurrent = !isCancelled && index === currentIndex;
           const isLast = index === ORDER_TIMELINE_FLOW.length - 1;
           const reached = isDone || isCurrent;
-          // Tablet (`sm`–`lg`) wraps two steps per row, so the connectors
-          // after the odd steps (Paid, Shipped) dangle at the row end with
-          // nothing after them: hide them below `lg` (desktop is a single
-          // row and keeps every connector).
+          // Tablet (`sm`–`lg`) is a fixed 2-column grid, so the connectors
+          // after the odd steps (Paid/Shipped, alone at each row end) would
+          // dangle with nothing after them: hide them below `lg` (desktop
+          // is a single row and keeps every connector).
           // Recorded date first; pre-history orders fall back to the
           // caller-provided date (creation for the first step, last
           // update for the current one) instead of inventing times.
@@ -115,7 +115,7 @@ export function OrderTimeline({
             <li
               key={step}
               aria-current={isCurrent ? 'step' : undefined}
-              className="flex w-full max-w-[15rem] items-stretch gap-3 sm:w-auto sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5"
+              className="flex w-full max-w-[15rem] min-w-0 items-stretch gap-3 sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5"
             >
               <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
                 <span
@@ -187,7 +187,7 @@ export function OrderTimeline({
           );
         })}
         {isCancelled && (
-          <li className="flex w-full max-w-[15rem] items-stretch gap-3 sm:w-auto sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5">
+          <li className="flex w-full max-w-[15rem] min-w-0 items-stretch gap-3 sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5">
             <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
               <span className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive-subtle font-mono text-xs font-semibold text-destructive lg:size-6">
                 {'×'}
