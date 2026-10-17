@@ -94,7 +94,7 @@ export function OrderTimeline({
     <div>
       <ol
         aria-label={label}
-        className="flex flex-col gap-0 sm:flex-row sm:flex-wrap sm:items-start"
+        className="flex flex-col items-center gap-0 sm:flex-row sm:flex-wrap sm:items-start sm:gap-y-6 lg:flex-nowrap lg:gap-y-0"
       >
         {ORDER_TIMELINE_FLOW.map((step, index) => {
           const isDone = !isCancelled && currentIndex !== -1 && index < currentIndex;
@@ -110,12 +110,12 @@ export function OrderTimeline({
             <li
               key={step}
               aria-current={isCurrent ? 'step' : undefined}
-              className="flex items-stretch gap-3 sm:items-center sm:gap-2"
+              className="flex w-full max-w-[15rem] items-stretch gap-3 sm:w-auto sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5"
             >
-              <span className="flex flex-col items-center" aria-hidden="true">
+              <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
                 <span
                   className={cn(
-                    'flex size-7 items-center justify-center rounded-lg font-mono text-xs font-semibold',
+                    'flex size-7 items-center justify-center rounded-lg font-mono text-xs font-semibold lg:size-6',
                     isCancelled
                       ? 'border border-border bg-surface text-muted-foreground'
                       : isCurrent
@@ -137,10 +137,10 @@ export function OrderTimeline({
                   />
                 ) : null}
               </span>
-              <span className="flex flex-col pb-4 sm:pb-0">
+              <span className="flex min-w-0 flex-col pb-4 sm:pb-0">
                 <span
                   className={cn(
-                    'pt-1 text-sm sm:pt-0',
+                    'pt-1 text-sm sm:pt-0 lg:text-[13px] lg:leading-tight',
                     isCancelled
                       ? 'text-muted-foreground'
                       : isCurrent
@@ -153,7 +153,10 @@ export function OrderTimeline({
                   {statusLabel(step, messages)}
                 </span>
                 {reachedAt !== null ? (
-                  <time dateTime={reachedAt} className="font-mono text-xs text-muted-foreground">
+                  <time
+                    dateTime={reachedAt}
+                    className="font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
+                  >
                     {formatTimelineDate(reachedAt, locale)}
                   </time>
                 ) : null}
@@ -162,7 +165,7 @@ export function OrderTimeline({
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'mx-2 hidden h-px w-8 self-center sm:block',
+                    'mx-2 hidden h-px w-8 shrink-0 self-center sm:block lg:mx-1.5 lg:w-6 xl:mx-2 xl:w-8',
                     isDone ? 'bg-primary/60' : 'bg-border-strong',
                   )}
                 />
@@ -171,21 +174,24 @@ export function OrderTimeline({
           );
         })}
         {isCancelled && (
-          <li className="flex items-stretch gap-3 sm:items-center sm:gap-2">
-            <span className="flex flex-col items-center" aria-hidden="true">
-              <span className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive-subtle font-mono text-xs font-semibold text-destructive">
+          <li className="flex w-full max-w-[15rem] items-stretch gap-3 sm:w-auto sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5">
+            <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
+              <span className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive-subtle font-mono text-xs font-semibold text-destructive lg:size-6">
                 {'×'}
               </span>
             </span>
-            <span className="flex flex-col">
+            <span className="flex min-w-0 flex-col">
               <span
                 aria-current="step"
-                className="pt-1 text-sm font-semibold text-destructive sm:pt-0"
+                className="pt-1 text-sm font-semibold text-destructive sm:pt-0 lg:text-[13px] lg:leading-tight"
               >
                 {statusLabel('CANCELLED', messages)}
               </span>
               {cancelledAt !== null ? (
-                <time dateTime={cancelledAt} className="font-mono text-xs text-muted-foreground">
+                <time
+                  dateTime={cancelledAt}
+                  className="font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
+                >
                   {formatTimelineDate(cancelledAt, locale)}
                 </time>
               ) : null}
