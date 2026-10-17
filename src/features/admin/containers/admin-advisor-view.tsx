@@ -13,7 +13,7 @@ import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/a
 import { ConversationDialog } from '@/features/admin/components/conversation-dialog';
 import type { ConversationSessionState } from '@/features/admin/components/conversation-dialog';
 import { Pagination } from '@/features/catalog/components/pagination';
-import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
+import { adminErrorMessage, adminHttp, AdminHttpError } from '@/features/admin/lib/admin-http';
 import type {
   AdminAdvisorFeedback,
   AdminAdvisorFeedbackDetail,
@@ -57,6 +57,40 @@ function formatDate(iso: string, locale: string): string {
 function formatRate(rate: number | null, locale: string, fallback: string): string {
   if (rate === null) return fallback;
   return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(rate);
+}
+
+/**
+ * Distinct triage statuses carried by a frequency bucket (backend `statuses`,
+ * see backend ADR 0060). Older cached payloads may omit it: `null` means
+ * "unknown" and callers fall back to the URL-filter heuristic.
+ */
+function groupStatuses(group: AdminUnansweredGroup): string[] | null {
+  const raw = (group as { statuses?: unknown }).statuses;
+  if (!Array.isArray(raw)) return null;
+  const known = raw.filter((status): status is string => typeof status === 'string');
+  return known.length > 0 ? known : [];
+}
+
+/** "Revisar" only moves NEW → IN_REVIEW, so it needs at least one NEW row. */
+function canMarkReview(group: AdminUnansweredGroup, filter: AdminAdvisorQuery['status']): boolean {
+  const statuses = groupStatuses(group);
+  if (statuses === null) return filter !== 'IN_REVIEW';
+  return statuses.includes('NEW');
+}
+
+/** "Resolver" moves NEW/IN_REVIEW → RESOLVED; fully RESOLVED buckets hide it. */
+function canMarkResolved(group: AdminUnansweredGroup): boolean {
+  const statuses = groupStatuses(group);
+  if (statuses === null) return true;
+  return statuses.some((status) => status !== 'RESOLVED');
+}
+
+function isBackwardMoveError(error: unknown): boolean {
+  return (
+    error instanceof AdminHttpError &&
+    error.status === 400 &&
+    error.message.includes('triage only moves forward')
+  );
 }
 
 /**
@@ -123,12 +157,26 @@ export function AdminAdvisorView({
     setPendingGroup(group.key);
     setGroupNotice(null);
     try {
+      let skippedBackward = 0;
       for (const id of group.ids) {
-        // Sequential triage moves; the backend rejects backward moves, so a
-        // mixed-status bucket surfaces its first conflict as an error below.
-        await adminHttp.patch(`/advisor/unanswered/${id}`, { status });
+        // Buckets mix statuses, so a group action can target rows that are
+        // already past it (e.g. Revisar over a RESOLVED row): those 400s are
+        // skipped, any other failure aborts with an error below.
+        try {
+          await adminHttp.patch(`/advisor/unanswered/${id}`, { status });
+        } catch (error) {
+          if (isBackwardMoveError(error)) {
+            skippedBackward += 1;
+            continue;
+          }
+          throw error;
+        }
       }
-      setGroupNotice({ ok: true, text: advisor.updated });
+      if (skippedBackward > 0 && skippedBackward === group.ids.length) {
+        setGroupNotice({ ok: true, text: advisor.updated });
+      } else {
+        setGroupNotice({ ok: true, text: advisor.updated });
+      }
       router.refresh();
     } catch (error) {
       setGroupNotice({ ok: false, text: adminErrorMessage(error, advisor.updateError) });
@@ -291,49 +339,60 @@ export function AdminAdvisorView({
                   </tr>
                 </thead>
                 <tbody>
-                  {groups.data.map((group, index) => (
-                    <tr key={group.key} className="border-b border-border last:border-0">
-                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                        {(groups.page - 1) * groups.limit + index + 1}
-                      </td>
-                      <td className="px-4 py-3">{group.sample}</td>
-                      <td className="px-4 py-3">{group.count}</td>
-                      <td className="px-4 py-3">{formatDate(group.latestAt, locale)}</td>
-                      <td className="px-4 py-3">
-                        <Stack direction="horizontal" gap="sm" wrap>
-                          {showTriage && query.status !== 'IN_REVIEW' && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              disabled={pendingGroup !== null}
-                              onClick={() => {
-                                void updateGroup(group, 'IN_REVIEW');
-                              }}
-                            >
-                              {pendingGroup === group.key ? advisor.resolving : advisor.markReview}
+                  {groups.data.map((group, index) => {
+                    const reviewable = showTriage && canMarkReview(group, query.status);
+                    const resolvable = showTriage && canMarkResolved(group);
+                    return (
+                      <tr key={group.key} className="border-b border-border last:border-0">
+                        <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                          {(groups.page - 1) * groups.limit + index + 1}
+                        </td>
+                        <td className="px-4 py-3">{group.sample}</td>
+                        <td className="px-4 py-3">{group.count}</td>
+                        <td className="px-4 py-3">{formatDate(group.latestAt, locale)}</td>
+                        <td className="px-4 py-3">
+                          <Stack direction="horizontal" gap="sm" wrap>
+                            {reviewable && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                disabled={pendingGroup !== null}
+                                onClick={() => {
+                                  void updateGroup(group, 'IN_REVIEW');
+                                }}
+                              >
+                                {pendingGroup === group.key
+                                  ? advisor.resolving
+                                  : advisor.markReview}
+                              </Button>
+                            )}
+                            {resolvable && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                disabled={pendingGroup !== null}
+                                onClick={() => {
+                                  void updateGroup(group, 'RESOLVED');
+                                }}
+                              >
+                                {pendingGroup === group.key
+                                  ? advisor.resolving
+                                  : advisor.markResolved}
+                              </Button>
+                            )}
+                            {!reviewable && !resolvable && (
+                              <Text variant="caption" tone="muted">
+                                {advisor.status_RESOLVED}
+                              </Text>
+                            )}
+                            <Button variant="link" size="sm" href={documentHref(group.sample)}>
+                              {advisor.createDocument}
                             </Button>
-                          )}
-                          {showTriage && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              disabled={pendingGroup !== null}
-                              onClick={() => {
-                                void updateGroup(group, 'RESOLVED');
-                              }}
-                            >
-                              {pendingGroup === group.key
-                                ? advisor.resolving
-                                : advisor.markResolved}
-                            </Button>
-                          )}
-                          <Button variant="link" size="sm" href={documentHref(group.sample)}>
-                            {advisor.createDocument}
-                          </Button>
-                        </Stack>
-                      </td>
-                    </tr>
-                  ))}
+                          </Stack>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

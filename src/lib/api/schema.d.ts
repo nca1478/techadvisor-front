@@ -1882,6 +1882,11 @@ export interface components {
        *     ]
        */
       ids: string[];
+      /**
+       * @description Distinct triage statuses in this bucket (sorted NEW → IN_REVIEW → RESOLVED).
+       * @example ["NEW"]
+       */
+      statuses: string[];
     };
     AdminUnansweredGroupListDto: {
       data: components['schemas']['AdminUnansweredGroupDto'][];

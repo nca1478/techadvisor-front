@@ -37,6 +37,7 @@ const groups: AdminUnansweredGroupList = {
       count: 2,
       latestAt: '2026-10-10T10:00:00.000Z',
       ids: ['id-a', 'id-b'],
+      statuses: ['NEW'],
     },
   ],
   page: 1,
@@ -150,6 +151,89 @@ describe('AdminAdvisorView', () => {
     expect(calls[0]?.body).toEqual({ status: 'RESOLVED' });
     expect(calls[1]?.url).toBe('/api/admin/advisor/unanswered/id-b');
     await screen.findByText('Actualizado.');
+  });
+
+  it('hides triage actions on fully resolved buckets (no backward moves)', () => {
+    render(
+      <AdminAdvisorView
+        metrics={metrics}
+        metricsError={false}
+        groups={{
+          ...groups,
+          data: [
+            {
+              key: 'celulares',
+              sample: 'celulares',
+              count: 1,
+              latestAt: '2026-10-16T14:58:00.000Z',
+              ids: ['id-resolved'],
+              statuses: ['RESOLVED'],
+            },
+          ],
+        }}
+        groupsError={false}
+        feedback={feedback}
+        feedbackError={false}
+        query={{ status: '', gpage: 1, fvalue: '', fpage: 1, tab: 'groups' }}
+        locale="es"
+        messages={messages}
+      />,
+    );
+    expect(screen.getByText('celulares')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Revisar' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Resolver' })).not.toBeInTheDocument();
+    expect(screen.getAllByText('Resuelta').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('skips backward-move conflicts on mixed buckets instead of erroring', async () => {
+    const calls: Array<{ url: string; body: unknown }> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init?: RequestInit) => {
+        const rawBody = typeof init?.body === 'string' ? init.body : '{}';
+        calls.push({ url, body: JSON.parse(rawBody) as unknown });
+        if (url.endsWith('/id-resolved')) {
+          return Promise.resolve(
+            jsonResponse(400, {
+              statusCode: 400,
+              code: 'BAD_REQUEST',
+              message:
+                'Cannot move unanswered query from RESOLVED to IN_REVIEW: triage only moves forward (NEW → IN_REVIEW → RESOLVED)',
+            }),
+          );
+        }
+        return Promise.resolve(jsonResponse(200, { id: 'x', status: 'IN_REVIEW' }));
+      }),
+    );
+    render(
+      <AdminAdvisorView
+        metrics={metrics}
+        metricsError={false}
+        groups={{
+          ...groups,
+          data: [
+            {
+              key: 'mixto',
+              sample: 'mixto',
+              count: 2,
+              latestAt: '2026-10-16T14:58:00.000Z',
+              ids: ['id-new', 'id-resolved'],
+              statuses: ['NEW', 'RESOLVED'],
+            },
+          ],
+        }}
+        groupsError={false}
+        feedback={feedback}
+        feedbackError={false}
+        query={{ status: '', gpage: 1, fvalue: '', fpage: 1, tab: 'groups' }}
+        locale="es"
+        messages={messages}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Revisar' }));
+    await screen.findByText('Actualizado.');
+    expect(calls).toHaveLength(2);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('expands feedback detail and loads the minimized conversation', async () => {
