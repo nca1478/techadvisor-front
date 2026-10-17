@@ -305,21 +305,14 @@ export default async function LocaleLayout({
                         >
                           {messages.footer.productsTitle}
                         </Text>
-                        <Link href={`/${locale}/productos`} variant="header" className="text-sm">
-                          {messages.nav.products}
-                        </Link>
                         <Link href={`/${locale}/buscar`} variant="header" className="text-sm">
                           {messages.search.title}
                         </Link>
+                        <Link href={`/${locale}/productos`} variant="header" className="text-sm">
+                          {messages.footer.showAll}
+                        </Link>
                         <Link href={`/${locale}/comparar`} variant="header" className="text-sm">
                           {messages.compare.title}
-                        </Link>
-                        <Link
-                          href={`/${locale}/cuenta/ordenes`}
-                          variant="header"
-                          className="text-sm"
-                        >
-                          {messages.account.ordersTitle}
                         </Link>
                       </Stack>
                     </nav>
