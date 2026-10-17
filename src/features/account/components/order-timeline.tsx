@@ -142,7 +142,14 @@ export function OrderTimeline({
                   />
                 ) : null}
               </span>
-              <span className="flex min-w-0 flex-col pb-4 sm:pb-0">
+              <span
+                className={cn(
+                  'flex min-w-0 flex-col sm:pb-0',
+                  // The last step needs no bottom gap on mobile so the space
+                  // below it equals the card padding above the first dot.
+                  isLast && !isCancelled ? 'pb-0' : 'pb-4',
+                )}
+              >
                 <span
                   className={cn(
                     'pt-1 text-sm sm:pt-0 lg:text-[13px] lg:leading-tight',
