@@ -701,7 +701,8 @@
       "next": "Next",
       "back": "Back",
       "save": "Save changes",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "fixErrors": "Fix the highlighted errors before saving."
     },
     "categoryForm": {
       "newTitle": "New category",
@@ -801,7 +802,8 @@
       "tableStockAfter": "Stock after",
       "tableReason": "Reason",
       "tableDate": "Date",
-      "adjustConfirm": "Apply a change of {delta} units? This appends an audit record and cannot be undone."
+      "adjustConfirm": "Apply a change of {delta} units? This appends an audit record and cannot be undone.",
+      "close": "Close"
     },
     "documents": {
       "title": "Documents",
@@ -892,6 +894,7 @@
       "status_NEW": "New",
       "status_IN_REVIEW": "In review",
       "status_RESOLVED": "Resolved",
+      "tableNumber": "No",
       "tableQuestion": "Question",
       "tableTimes": "Times",
       "tableLatest": "Latest",

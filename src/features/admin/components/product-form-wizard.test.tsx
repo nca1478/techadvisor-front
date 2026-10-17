@@ -139,4 +139,26 @@ describe('ProductForm wizard', () => {
     expect(screen.queryByRole('button', { name: formMessages.next })).toBeNull();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeVisible();
   });
+
+  it('jumps to the error step when save reports validation errors', async () => {
+    const onSubmit = vi.fn((): Promise<number | null> => Promise.resolve(0));
+    renderWizard({
+      mode: 'edit',
+      freeNavigation: true,
+      onSubmit,
+      extraSteps: [
+        { title: 'Images', content: <p>images panel</p> },
+        { title: 'Inventory', content: <p>inventory panel</p> },
+      ],
+      submitLabel: 'Save changes',
+      submitPendingLabel: 'Saving…',
+    });
+    // Jump straight to the last step, where the click used to look dead.
+    fireEvent.click(screen.getByRole('button', { name: '6. Inventory' }));
+    expect(screen.getByText('inventory panel')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(await screen.findByLabelText(formMessages.sku)).toBeVisible();
+  });
 });

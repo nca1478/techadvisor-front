@@ -9,6 +9,7 @@ import { formatMinorToMajor } from '@/features/admin/lib/admin-schemas';
 import {
   buildUpdateRequest,
   errorsForStep,
+  firstErrorStep,
   pickInitialTranslation,
   validateProductForm,
   type ProductFormErrors,
@@ -102,10 +103,16 @@ export function ProductEditContainer({
     return errorsForStep(validated.errors, step, 'edit');
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<number | null> {
     const validated = validateProductForm(values, specsFields, texts);
     setErrors(validated.errors);
-    if (Object.keys(validated.errors).length > 0 || validated.priceAmount === null) return;
+    if (Object.keys(validated.errors).length > 0 || validated.priceAmount === null) {
+      // Surface the failure in the always-visible footer and jump the
+      // wizard to the first step with inline errors (otherwise the click
+      // looks dead on the images/inventory steps).
+      setFeedback({ ok: false, text: form.fixErrors });
+      return firstErrorStep(validated.errors, 'edit');
+    }
 
     const body = buildUpdateRequest(values, validated.specs, validated.priceAmount);
     if (body.translations !== undefined && body.translations.length === 0) {
@@ -116,8 +123,10 @@ export function ProductEditContainer({
     try {
       await adminHttp.patch<AdminProduct>(`/products/${encodeURIComponent(product.id)}`, body);
       setFeedback({ ok: true, text: form.updated });
+      return null;
     } catch (error) {
       setFeedback({ ok: false, text: adminErrorMessage(error, form.updateError) });
+      return null;
     } finally {
       setPending(false);
     }

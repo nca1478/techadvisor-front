@@ -9,6 +9,7 @@ import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import {
   buildCreateRequest,
   errorsForStep,
+  firstErrorStep,
   initialStockError,
   validateProductForm,
   type ProductFormErrors,
@@ -103,10 +104,13 @@ export function ProductCreateContainer({
     return errorsForStep(all, step, 'create');
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<number | null> {
     const { all, specs, priceAmount } = collectErrors();
     setErrors(all);
-    if (Object.keys(all).length > 0 || priceAmount === null) return;
+    if (Object.keys(all).length > 0 || priceAmount === null) {
+      setServerError(form.fixErrors);
+      return firstErrorStep(all, 'create');
+    }
     const initialStock = parseWholeUnits(values.initialStock, 1_000_000) ?? 0;
 
     setPending(true);
@@ -118,8 +122,10 @@ export function ProductCreateContainer({
       );
       router.push(`/${locale}/admin/productos/${encodeURIComponent(created.id)}`);
       router.refresh();
+      return null;
     } catch (error) {
       setServerError(adminErrorMessage(error, form.createError));
+      return null;
     } finally {
       setPending(false);
     }

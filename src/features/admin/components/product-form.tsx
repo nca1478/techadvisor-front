@@ -61,7 +61,12 @@ export function ProductForm({
   locales: string[];
   onChange: (patch: Partial<ProductFormState>) => void;
   onValidateStep: (step: number) => Record<string, string>;
-  onSubmit: () => void;
+  /**
+   * Final save. May resolve to a step index when validation fails so the
+   * wizard jumps to the step holding the inline errors; anything else
+   * means the submit went through (or reported its own feedback).
+   */
+  onSubmit: () => unknown;
   pending: boolean;
   submitLabel: string;
   submitPendingLabel: string;
@@ -112,6 +117,21 @@ export function ProductForm({
 
   function handleBack() {
     setStep((prev) => Math.max(0, prev - 1));
+  }
+
+  /**
+   * Save is reachable without visiting the extra steps: once the four
+   * base steps are done (translation/review, index 3) the base payload is
+   * complete — images and inventory persist through their own endpoints.
+   */
+  const showSave = step === lastStep || (extraSteps.length > 0 && step >= 3);
+
+  async function handleSaveClick() {
+    const target = await onSubmit();
+    if (typeof target === 'number' && target >= 0 && target <= lastStep) {
+      setMaxVisited((prev) => Math.max(prev, target));
+      setStep(target);
+    }
   }
 
   // Single-line scrollable stepper on small screens: arrows reveal the
@@ -536,8 +556,8 @@ export function ProductForm({
             {formMessages.next}
           </Button>
         ) : null}
-        {step === lastStep ? (
-          <Button onClick={onSubmit} loading={pending}>
+        {showSave ? (
+          <Button onClick={() => void handleSaveClick()} loading={pending}>
             {pending ? submitPendingLabel : submitLabel}
           </Button>
         ) : null}

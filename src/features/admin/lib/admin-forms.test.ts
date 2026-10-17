@@ -15,6 +15,7 @@ import {
   buildUpdateRequest,
   collectTranslations,
   errorsForStep,
+  firstErrorStep,
   initialStockError,
   pickInitialTranslation,
   validateProductForm,
@@ -228,6 +229,23 @@ describe('errorsForStep', () => {
     const all = { initialStock: 'bad stock' };
     expect(errorsForStep(all, 1, 'create')).toEqual({ initialStock: 'bad stock' });
     expect(errorsForStep(all, 1, 'edit')).toEqual({});
+  });
+});
+
+describe('firstErrorStep', () => {
+  it('returns null when there are no errors', () => {
+    expect(firstErrorStep({}, 'edit')).toBeNull();
+  });
+
+  it('points at the earliest failing base step', () => {
+    expect(firstErrorStep({ name: 'required', priceMajor: 'bad price' }, 'edit')).toBe(0);
+    expect(firstErrorStep({ priceMajor: 'bad price' }, 'edit')).toBe(1);
+    expect(firstErrorStep({ 'specs.ram_gb': 'bad integer' }, 'edit')).toBe(2);
+  });
+
+  it('ignores create-only stock errors in edit mode', () => {
+    expect(firstErrorStep({ initialStock: 'bad stock' }, 'edit')).toBe(0);
+    expect(firstErrorStep({ initialStock: 'bad stock' }, 'create')).toBe(1);
   });
 });
 

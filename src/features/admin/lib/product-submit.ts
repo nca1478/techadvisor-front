@@ -209,3 +209,18 @@ export function errorsForStep(
   }
   return scoped;
 }
+
+/**
+ * First wizard step holding an error, so a failed save can jump the user
+ * to the step where the inline errors are visible (instead of staying on
+ * an extra step like images/inventory where nothing looks wrong).
+ * Translation (3) and extra steps (>3) never own errors: `null` when clean.
+ */
+export function firstErrorStep(errors: ProductFormErrors, mode: 'create' | 'edit'): number | null {
+  const keys = Object.keys(errors).filter((key) => errors[key] !== undefined);
+  if (keys.length === 0) return null;
+  if (keys.some((key) => stepErrorKeys(0, mode).includes(key))) return 0;
+  if (keys.some((key) => stepErrorKeys(1, mode).includes(key))) return 1;
+  if (keys.some((key) => key.startsWith('specs.'))) return 2;
+  return 0;
+}

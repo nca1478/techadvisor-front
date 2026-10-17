@@ -701,7 +701,8 @@
       "next": "Siguiente",
       "back": "Atrás",
       "save": "Guardar cambios",
-      "saving": "Guardando…"
+      "saving": "Guardando…",
+      "fixErrors": "Corrige los errores marcados antes de guardar."
     },
     "categoryForm": {
       "newTitle": "Nueva categoría",
@@ -801,7 +802,8 @@
       "tableStockAfter": "Stock resultante",
       "tableReason": "Motivo",
       "tableDate": "Fecha",
-      "adjustConfirm": "¿Aplicar un cambio de {delta} unidades? Crea un registro de auditoría y no se puede deshacer."
+      "adjustConfirm": "¿Aplicar un cambio de {delta} unidades? Crea un registro de auditoría y no se puede deshacer.",
+      "close": "Cerrar"
     },
     "documents": {
       "title": "Documentos",
@@ -892,6 +894,7 @@
       "status_NEW": "Nueva",
       "status_IN_REVIEW": "En revisión",
       "status_RESOLVED": "Resuelta",
+      "tableNumber": "No",
       "tableQuestion": "Pregunta",
       "tableTimes": "Veces",
       "tableLatest": "Última",
