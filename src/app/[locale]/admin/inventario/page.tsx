@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { Card } from '@/components/ui/card';
 import { InventoryPanelContainer } from '@/features/admin/containers/inventory-panel-container';
 import { InventoryView } from '@/features/admin/containers/inventory-view';
 import { backendFetch } from '@/lib/api/backend';
@@ -12,6 +11,7 @@ import type {
   AdminProductList,
   AdminProductMetrics,
   AdminStockFilter,
+  AdminCategory,
 } from '@/lib/api/admin';
 import {
   isAdminProductMetrics,
@@ -59,6 +59,10 @@ function isProductMetrics(value: unknown): value is AdminProductMetrics {
   return isAdminProductMetrics(value);
 }
 
+function isCategoryList(value: unknown): value is AdminCategory[] {
+  return Array.isArray(value);
+}
+
 /** Inventory: exact levels per product + adjust form and history for the selected product. */
 export default async function AdminInventoryPage({ params, searchParams }: InventoryPageProps) {
   const resolved = (await params) as { locale?: unknown };
@@ -71,6 +75,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
   const rawStock = firstParam(queryParams, 'stock');
   const stock: AdminStockFilter | null = isAdminStockFilter(rawStock) ? rawStock : null;
+  const category = firstParam(queryParams, 'category').trim().slice(0, 100);
   const q = firstParam(queryParams, 'q').trim().slice(0, 100);
   const rawProductId = firstParam(queryParams, 'productId');
   const selectedProductId = /^[0-9a-f-]{36}$/i.test(rawProductId) ? rawProductId : null;
@@ -83,6 +88,7 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
 
   const listResult = await backendFetch(
     `/admin/products${toAdminQuery({
+      ...(category === '' ? {} : { category }),
       ...(stock === null ? {} : { stock }),
       ...(q === '' ? {} : { q }),
       lowStockThreshold: LOW_STOCK_THRESHOLD,
@@ -95,14 +101,21 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
     },
   );
   const data = listResult.status === 200 && isProductList(listResult.body) ? listResult.body : null;
-  const metricsResult = await backendFetch('/admin/products/metrics', {
-    method: 'GET',
-    cookieHeader,
-  });
+  const [metricsResult, categoriesResult] = await Promise.all([
+    backendFetch('/admin/products/metrics', {
+      method: 'GET',
+      cookieHeader,
+    }),
+    backendFetch('/admin/categories', { method: 'GET', cookieHeader }),
+  ]);
   const metrics =
     metricsResult.status === 200 && isProductMetrics(metricsResult.body)
       ? metricsResult.body
       : null;
+  const categories =
+    categoriesResult.status === 200 && isCategoryList(categoriesResult.body)
+      ? categoriesResult.body
+      : [];
 
   const selected: AdminProduct | null =
     selectedProductId && data
@@ -142,22 +155,22 @@ export default async function AdminInventoryPage({ params, searchParams }: Inven
       metricsError={metrics === null}
       page={page}
       stock={stock}
+      category={category === '' ? null : category}
+      categories={categories}
       q={q}
       selectedProductId={selectedProductId}
       locale={locale}
       messages={messages}
       panel={
         selectedProductId ? (
-          <Card>
-            <InventoryPanelContainer
-              productId={selectedProductId}
-              productName={selected?.name ?? selectedProductId}
-              initialInventory={inventory}
-              initialMovements={movements}
-              locale={locale}
-              messages={messages}
-            />
-          </Card>
+          <InventoryPanelContainer
+            productId={selectedProductId}
+            productName={selected?.name ?? selectedProductId}
+            initialInventory={inventory}
+            initialMovements={movements}
+            locale={locale}
+            messages={messages}
+          />
         ) : null
       }
     />

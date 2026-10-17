@@ -9,9 +9,15 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { InventoryAdjustDialog } from '@/features/admin/components/inventory-adjust-dialog';
 import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import { Pagination } from '@/features/catalog/components/pagination';
-import type { AdminProductList, AdminProductMetrics, AdminStockFilter } from '@/lib/api/admin';
+import type {
+  AdminCategory,
+  AdminProductList,
+  AdminProductMetrics,
+  AdminStockFilter,
+} from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
 
 function formatPage(template: string, page: number, totalPages: number): string {
@@ -20,9 +26,9 @@ function formatPage(template: string, page: number, totalPages: number): string 
 
 /**
  * Inventory container: stock filter + paginated product table with exact
- * levels plus the selected product's adjust form and movement history
- * below. Filter, selection and pagination travel in the URL so the view
- * survives reloads (and the dashboard queue can link to it pre-filtered).
+ * levels plus the selected product's adjust form and movement history in
+ * a modal dialog. Filter, selection and pagination travel in the URL so the
+ * view survives reloads (and the dashboard queue can link to it pre-filtered).
  */
 export function InventoryView({
   data,
@@ -31,6 +37,8 @@ export function InventoryView({
   metricsError,
   page,
   stock,
+  category,
+  categories,
   q,
   selectedProductId,
   locale,
@@ -43,6 +51,8 @@ export function InventoryView({
   metricsError: boolean;
   page: number;
   stock: AdminStockFilter | null;
+  category: string | null;
+  categories: AdminCategory[];
   q: string;
   selectedProductId: string | null;
   locale: string;
@@ -55,17 +65,20 @@ export function InventoryView({
   function navigate(next: {
     page?: number;
     stock?: AdminStockFilter | null;
+    category?: string | null;
     q?: string;
     productId?: string | null;
   }) {
     const merged = {
       page: next.page ?? page,
       stock: next.stock === undefined ? stock : next.stock,
+      category: next.category === undefined ? category : next.category,
       q: next.q === undefined ? q : next.q,
       productId: next.productId === undefined ? selectedProductId : next.productId,
     };
     const params = new URLSearchParams();
     params.set('page', String(merged.page));
+    if (merged.category !== null) params.set('category', merged.category);
     if (merged.stock !== null) params.set('stock', merged.stock);
     if (merged.q !== '') params.set('q', merged.q);
     if (merged.productId) params.set('productId', merged.productId);
@@ -88,6 +101,13 @@ export function InventoryView({
   } = useDebouncedSearch(q, (trimmed) => {
     navigate({ q: trimmed, page: 1, productId: null });
   });
+
+  const selectedName =
+    selectedProductId !== null && data !== null
+      ? (data.data.find((product) => product.id === selectedProductId)?.name ?? selectedProductId)
+      : '';
+
+  const categoryNameById = new Map(categories.map((item) => [item.id, item.name]));
 
   return (
     <Stack gap="md">
@@ -166,6 +186,23 @@ export function InventoryView({
         </div>
         <div className="min-w-44">
           <Select
+            label={inventory.categoryFilter}
+            name="category"
+            value={category ?? ''}
+            options={[
+              { value: '', label: inventory.allCategories },
+              ...categories.map((item) => ({ value: item.slug, label: item.name })),
+            ]}
+            onChange={(event) => {
+              const value = event.target.value;
+              // Igual que el filtro de stock: la selección puede no estar en
+              // el listado filtrado, así que se limpia al cambiar de filtro.
+              navigate({ category: value === '' ? null : value, page: 1, productId: null });
+            }}
+          />
+        </div>
+        <div className="min-w-44">
+          <Select
             label={inventory.stockFilter}
             name="stock"
             value={stock ?? ''}
@@ -187,7 +224,7 @@ export function InventoryView({
           variant="secondary"
           onClick={() => {
             resetDraft();
-            navigate({ stock: null, q: '', page: 1, productId: null });
+            navigate({ category: null, stock: null, q: '', page: 1, productId: null });
           }}
         >
           {messages.catalog.clearFilters}
@@ -203,7 +240,7 @@ export function InventoryView({
         <Stack gap="md">
           <Card padding="none">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[48rem] border-collapse bg-surface text-left text-sm">
+              <table className="w-full min-w-[56rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
                     <th
@@ -214,6 +251,9 @@ export function InventoryView({
                     </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {inventory.tableProduct}
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
+                      {inventory.tableCategory}
                     </th>
                     <th
                       scope="col"
@@ -250,6 +290,9 @@ export function InventoryView({
                             {product.sku}
                           </Text>
                         </th>
+                        <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
+                          {categoryNameById.get(product.categoryId) ?? product.categoryId}
+                        </td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
                         <td className="px-4 py-3">
@@ -289,7 +332,16 @@ export function InventoryView({
           />
         </Stack>
       )}
-      {panel}
+      <InventoryAdjustDialog
+        open={selectedProductId !== null}
+        title={inventory.adjustTitle.replace('{name}', selectedName)}
+        closeLabel={inventory.close}
+        onClose={() => {
+          navigate({ productId: null });
+        }}
+      >
+        {panel}
+      </InventoryAdjustDialog>
     </Stack>
   );
 }
