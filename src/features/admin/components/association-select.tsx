@@ -28,7 +28,6 @@ export function AssociationSelect({
   changeLabel,
   clearLabel,
   noSelectionLabel,
-  closeLabel,
   error,
   disabled = false,
   onSelect,
@@ -43,7 +42,6 @@ export function AssociationSelect({
   changeLabel: string;
   clearLabel: string;
   noSelectionLabel: string;
-  closeLabel: string;
   error?: string;
   disabled?: boolean;
   onSelect: (id: string) => void;
@@ -65,10 +63,10 @@ export function AssociationSelect({
     );
   }, [options, query]);
 
-  function openList() {
+  function toggleList() {
     if (disabled) return;
     setQuery('');
-    setOpen(true);
+    setOpen((prev) => !prev);
   }
 
   function choose(next: string) {
@@ -88,14 +86,14 @@ export function AssociationSelect({
           type="button"
           variant="secondary"
           disabled={disabled}
-          onClick={openList}
+          onClick={toggleList}
           aria-expanded={open}
           aria-controls={listId}
           aria-labelledby={`${listId}-label ${id}`}
           className="justify-between font-normal"
         >
           <span className="truncate text-muted-foreground">{placeholder}</span>
-          <span aria-hidden="true">▾</span>
+          <span aria-hidden="true">{open ? '▴' : '▾'}</span>
         </Button>
       ) : (
         <div className="flex items-center gap-2">
@@ -110,7 +108,7 @@ export function AssociationSelect({
             variant="secondary"
             size="sm"
             disabled={disabled}
-            onClick={openList}
+            onClick={toggleList}
             aria-expanded={open}
             aria-controls={listId}
           >
@@ -197,19 +195,6 @@ export function AssociationSelect({
           {filtered.length === 0 ? (
             <p className="px-2 py-1.5 text-sm text-muted-foreground">{noResultsText}</p>
           ) : null}
-          <div className="mt-2 flex justify-end">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setOpen(false);
-                setQuery('');
-              }}
-            >
-              {closeLabel}
-            </Button>
-          </div>
         </div>
       ) : null}
       {error ? (

@@ -14,7 +14,6 @@ const TEXTS = {
   changeLabel: 'Change',
   clearLabel: 'Clear',
   noSelectionLabel: 'No association',
-  closeLabel: 'Close',
 };
 
 function renderSelect(overrides: Partial<Parameters<typeof AssociationSelect>[0]> = {}) {
@@ -51,6 +50,15 @@ describe('AssociationSelect', () => {
     expect(screen.queryByRole('option', { name: /Laptop 13/ })).toBeNull();
     fireEvent.click(screen.getByRole('option', { name: /Laptop 15/ }));
     expect(onSelect).toHaveBeenCalledWith('22222222-2222-4222-8222-222222222222');
+  });
+
+  it('toggles the list closed when the trigger is pressed again', () => {
+    renderSelect();
+    const trigger = screen.getByRole('button', { name: /Select a product/ });
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox')).toBeVisible();
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('listbox')).toBeNull();
   });
 
   it('shows the friendly name when selected and clears back to empty', () => {

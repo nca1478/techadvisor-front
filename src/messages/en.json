@@ -844,7 +844,6 @@
       "associationNoResults": "No matches for this filter.",
       "associationChange": "Change",
       "associationClear": "Clear",
-      "associationClose": "Close",
       "uploadSubmit": "Upload and ingest",
       "uploading": "Uploading…",
       "uploaded": "Document created. Ingestion continues below.",

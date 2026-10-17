@@ -184,7 +184,6 @@ export function DocumentUploadWizard({
                 changeLabel={docs.associationChange}
                 clearLabel={docs.associationClear}
                 noSelectionLabel={docs.associationNoSelection}
-                closeLabel={docs.associationClose}
                 error={errors['productId']}
                 disabled={pending}
                 onSelect={(productId) => {
@@ -204,7 +203,6 @@ export function DocumentUploadWizard({
                 changeLabel={docs.associationChange}
                 clearLabel={docs.associationClear}
                 noSelectionLabel={docs.associationNoSelection}
-                closeLabel={docs.associationClose}
                 error={errors['categoryId']}
                 disabled={pending}
                 onSelect={(categoryId) => {
