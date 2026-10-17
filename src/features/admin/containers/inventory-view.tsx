@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,28 @@ import type { Dictionary } from '@/lib/i18n/index';
 
 function formatPage(template: string, page: number, totalPages: number): string {
   return template.replace('{page}', String(page)).replace('{totalPages}', String(totalPages));
+}
+
+/**
+ * Deterministic badge tone per category slug: the same category always
+ * renders the same color, and distinct slugs spread across the available
+ * tones. Unknown categories (id fallback) stay neutral.
+ */
+const CATEGORY_TONES: readonly BadgeTone[] = [
+  'primary',
+  'success',
+  'warning',
+  'destructive',
+  'neutral',
+];
+
+function categoryTone(slug: string | null): BadgeTone {
+  if (slug === null || slug === '') return 'neutral';
+  let hash = 0;
+  for (let index = 0; index < slug.length; index += 1) {
+    hash = (hash * 31 + slug.charCodeAt(index)) >>> 0;
+  }
+  return CATEGORY_TONES[hash % CATEGORY_TONES.length];
 }
 
 /**
@@ -107,7 +130,7 @@ export function InventoryView({
       ? (data.data.find((product) => product.id === selectedProductId)?.name ?? selectedProductId)
       : '';
 
-  const categoryNameById = new Map(categories.map((item) => [item.id, item.name]));
+  const categoryById = new Map(categories.map((item) => [item.id, item]));
 
   return (
     <Stack gap="md">
@@ -290,8 +313,12 @@ export function InventoryView({
                             {product.sku}
                           </Text>
                         </th>
-                        <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                          {categoryNameById.get(product.categoryId) ?? product.categoryId}
+                        <td className="whitespace-nowrap px-4 py-3">
+                          {(() => {
+                            const item = categoryById.get(product.categoryId);
+                            if (item === undefined) return product.categoryId;
+                            return <Badge tone={categoryTone(item.slug)}>{item.name}</Badge>;
+                          })()}
                         </td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.stock}</td>
                         <td className="px-4 py-3 text-right tabular-nums">{product.reserved}</td>
