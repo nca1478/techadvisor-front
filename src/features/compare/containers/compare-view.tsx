@@ -12,6 +12,8 @@ import { parseCompareIds, parseCompareResponse, type CompareResponse } from '@/l
 import { CompatibilityAlert } from '@/features/cart/components/compatibility-alert';
 import type { CompatibilityIssue } from '@/lib/api/compatibility';
 import { sortCompatibilityIssues } from '@/lib/api/compatibility';
+import { estimatePower } from '../lib/power-estimate';
+import { PowerEstimateCard, type PowerEstimateMessages } from '../components/power-estimate-card';
 import { CompareTable, type CompareTableMessages } from '../components/compare-table';
 import { CompareSummary, type CompareSummaryMessages } from '../components/compare-summary';
 
@@ -32,6 +34,7 @@ export interface CompareViewMessages {
   compatibilityOk: string;
   compatibilityErrorBadge: string;
   compatibilityWarningBadge: string;
+  power: PowerEstimateMessages;
   viewProduct: string;
 }
 
@@ -142,6 +145,7 @@ export function CompareView({
 
   const issues: CompatibilityIssue[] =
     data !== null ? sortCompatibilityIssues(data.compatibility.issues) : [];
+  const powerEstimate = data !== null ? estimatePower(data.products) : null;
 
   return (
     <Container>
@@ -206,6 +210,9 @@ export function CompareView({
                 specLabels={specLabels}
                 messages={messages.table}
               />
+              {powerEstimate !== null ? (
+                <PowerEstimateCard estimate={powerEstimate} messages={messages.power} />
+              ) : null}
               <CompatibilityAlert
                 compatible={data.compatibility.compatible}
                 issues={issues}

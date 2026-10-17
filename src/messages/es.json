@@ -101,6 +101,9 @@
       "ram_type": "Tipo de memoria",
       "ram_slots": "Ranuras de memoria",
       "max_ram_gb": "Memoria máxima",
+      "max_ram_speed_mt_s": "Velocidad máxima de memoria",
+      "m2_slots": "Ranuras M.2",
+      "sata_ports": "Puertos SATA",
       "speed_mt_s": "Velocidad",
       "modules": "Módulos",
       "vram_gb": "Memoria de video",
@@ -282,6 +285,17 @@
       "compatibilityOk": "Compatible",
       "compatibilityErrorBadge": "Error",
       "compatibilityWarningBadge": "Aviso",
+      "power": {
+        "title": "Consumo estimado",
+        "subtitle": "Cálculo determinista desde el TDP del catálogo: base de 100 W más el TDP de cada producto, con un 20 % de margen. Orientativo.",
+        "estimatedDraw": "Consumo estimado",
+        "requiredPsu": "Fuente recomendada",
+        "strongestPsu": "Mayor fuente incluida",
+        "noPsu": "Sin fuente en la comparativa",
+        "unknownTdp": "Datos incompletos",
+        "sufficient": "Suficiente",
+        "insufficient": "Insuficiente"
+      },
       "viewProduct": "Ver producto"
     }
   },

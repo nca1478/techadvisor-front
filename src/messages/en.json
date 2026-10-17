@@ -101,6 +101,9 @@
       "ram_type": "Memory type",
       "ram_slots": "Memory slots",
       "max_ram_gb": "Max memory",
+      "max_ram_speed_mt_s": "Max memory speed",
+      "m2_slots": "M.2 slots",
+      "sata_ports": "SATA ports",
       "speed_mt_s": "Speed",
       "modules": "Modules",
       "vram_gb": "VRAM",
@@ -282,6 +285,17 @@
       "compatibilityOk": "Compatible",
       "compatibilityErrorBadge": "Error",
       "compatibilityWarningBadge": "Warning",
+      "power": {
+        "title": "Estimated power draw",
+        "subtitle": "Deterministic estimate from catalog TDP: 100 W base plus each product's TDP, with 20% headroom. Indicative only.",
+        "estimatedDraw": "Estimated draw",
+        "requiredPsu": "Recommended PSU",
+        "strongestPsu": "Strongest PSU included",
+        "noPsu": "No PSU in this comparison",
+        "unknownTdp": "Incomplete data",
+        "sufficient": "Sufficient",
+        "insufficient": "Insufficient"
+      },
       "viewProduct": "View product"
     }
   },
