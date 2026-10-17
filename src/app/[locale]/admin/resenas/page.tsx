@@ -53,6 +53,7 @@ export default async function AdminReviewsPage({ params, searchParams }: Reviews
     ? (rawStatus as AdminReviewStatus)
     : '';
   const page = Math.max(1, Number.parseInt(firstParam(queryParams, 'page'), 10) || 1);
+  const q = firstParam(queryParams, 'q').trim().slice(0, 100);
 
   const store = await cookies();
   const cookieHeader = store
@@ -61,6 +62,7 @@ export default async function AdminReviewsPage({ params, searchParams }: Reviews
     .join('; ');
   const search = new URLSearchParams();
   if (status !== '') search.set('status', status);
+  if (q !== '') search.set('q', q);
   search.set('page', String(page));
   search.set('limit', '10');
   const result = await backendFetch(`/admin/reviews?${search.toString()}`, {
@@ -71,10 +73,10 @@ export default async function AdminReviewsPage({ params, searchParams }: Reviews
 
   return (
     <AdminReviewsView
-      key={`${status}-${String(page)}`}
+      key={`${status}-${q}-${String(page)}`}
       data={data}
       loadError={data === null}
-      query={{ status, page }}
+      query={{ status, q, page }}
       locale={locale}
       messages={messages}
     />

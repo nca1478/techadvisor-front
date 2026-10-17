@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -13,6 +14,7 @@ import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ReviewStars } from '@/features/reviews/components/review-stars';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
+import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import type { AdminReview, AdminReviewList, AdminReviewStatus } from '@/lib/api/admin';
 import { ADMIN_REVIEW_STATUSES } from '@/lib/api/admin';
 import { formatReviewDate } from '@/features/reviews/components/review-list';
@@ -20,6 +22,7 @@ import type { Dictionary } from '@/lib/i18n/index';
 
 export interface AdminReviewsQuery {
   status: AdminReviewStatus | '';
+  q: string;
   page: number;
 }
 
@@ -67,10 +70,27 @@ export function AdminReviewsView({
     const merged: AdminReviewsQuery = { ...query, ...next };
     const search = new URLSearchParams();
     if (merged.status !== '') search.set('status', merged.status);
+    if (merged.q !== '') search.set('q', merged.q);
     if (merged.page > 1) search.set('page', String(merged.page));
     const rendered = search.toString();
     router.push(`/${locale}/admin/resenas${rendered === '' ? '' : `?${rendered}`}`);
   }
+
+  /**
+   * Product-name search, like the categories name filter: it applies while
+   * typing. Reviews are server-paginated, so keystrokes are debounced into
+   * a single URL navigation.
+   */
+  const {
+    draft,
+    handleChange: handleDraftChange,
+    handleEnter: applyDraftNow,
+    reset: resetDraft,
+  } = useDebouncedSearch(query.q, (trimmed) => {
+    navigate({ q: trimmed, page: 1 });
+  });
+
+  const hasActiveFilters = query.status !== '' || query.q !== '';
 
   async function moderate(review: AdminReview, target: ModerateTarget) {
     if (pendingId !== null) return;
@@ -94,6 +114,20 @@ export function AdminReviewsView({
     <Stack gap="md">
       <AdminHeaderCard title={moderation.title} subtitle={moderation.subtitle} />
       <AdminFiltersCard>
+        <div className="min-w-56">
+          <Input
+            label={moderation.productFilter}
+            name="q"
+            value={draft}
+            placeholder={moderation.productSearchPlaceholder}
+            onChange={(event) => {
+              handleDraftChange(event.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') applyDraftNow();
+            }}
+          />
+        </div>
         <div className="min-w-44">
           <Select
             label={moderation.statusFilter}
@@ -114,7 +148,8 @@ export function AdminReviewsView({
         <Button
           variant="secondary"
           onClick={() => {
-            navigate({ status: '', page: 1 });
+            resetDraft();
+            navigate({ status: '', q: '', page: 1 });
           }}
         >
           {messages.catalog.clearFilters}
@@ -136,19 +171,20 @@ export function AdminReviewsView({
         <Card>
           <Stack gap="sm" align="center" className="px-4 py-8 text-center">
             <Text className="font-medium">
-              {query.status === '' ? moderation.empty : moderation.emptyFiltered}
+              {hasActiveFilters ? moderation.emptyFiltered : moderation.empty}
             </Text>
-            {query.status === '' ? null : (
+            {hasActiveFilters ? (
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  navigate({ status: '', page: 1 });
+                  resetDraft();
+                  navigate({ status: '', q: '', page: 1 });
                 }}
               >
                 {messages.catalog.clearFilters}
               </Button>
-            )}
+            ) : null}
           </Stack>
         </Card>
       ) : (

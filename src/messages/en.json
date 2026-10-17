@@ -967,6 +967,8 @@
       "subtitle": "Moderate customer reviews. Only published reviews appear in the store.",
       "statusFilter": "Status",
       "allStatuses": "All statuses",
+      "productFilter": "Product",
+      "productSearchPlaceholder": "Search by product name…",
       "status_PENDING": "Pending",
       "status_PUBLISHED": "Published",
       "status_REJECTED": "Rejected",

@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { ProductStatusContainer } from '@/features/admin/containers/product-status-container';
 import type { AdminProductList, AdminProductMetrics, AdminProductStatus } from '@/lib/api/admin';
@@ -51,7 +51,6 @@ export function AdminProductsView({
 }) {
   const router = useRouter();
   const products = messages.admin.products;
-  const [draft, setDraft] = useState(query.q);
 
   function navigate(next: Partial<AdminProductsQuery>) {
     const merged: AdminProductsQuery = { ...query, ...next };
@@ -64,6 +63,20 @@ export function AdminProductsView({
     // así que conservar la posición evita perderla (igual que en documentos).
     router.push(`/${locale}/admin/productos${search}`, { scroll: false });
   }
+
+  /**
+   * Name search, like the categories name filter: it applies while typing.
+   * Products are server-paginated, so keystrokes are debounced into a
+   * single URL navigation.
+   */
+  const {
+    draft,
+    handleChange: handleDraftChange,
+    handleEnter: applyDraftNow,
+    reset: resetDraft,
+  } = useDebouncedSearch(query.q, (trimmed) => {
+    navigate({ q: trimmed, page: 1 });
+  });
 
   return (
     <Stack gap="md">
@@ -137,10 +150,10 @@ export function AdminProductsView({
             name="q"
             value={draft}
             onChange={(event) => {
-              setDraft(event.target.value);
+              handleDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+              if (event.key === 'Enter') applyDraftNow();
             }}
           />
         </div>
@@ -163,7 +176,7 @@ export function AdminProductsView({
         <Button
           variant="secondary"
           onClick={() => {
-            setDraft('');
+            resetDraft();
             navigate({ status: '', q: '', page: 1 });
           }}
         >

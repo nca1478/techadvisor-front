@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdminReviewsView } from '@/features/admin/containers/admin-reviews-view';
 import type { AdminReviewList } from '@/lib/api/admin';
@@ -58,7 +58,7 @@ function renderView() {
     <AdminReviewsView
       data={data}
       loadError={false}
-      query={{ status: '', page: 1 }}
+      query={{ status: '', q: '', page: 1 }}
       locale="es"
       messages={messages}
     />,
@@ -131,12 +131,31 @@ describe('AdminReviewsView', () => {
     expect(pushMock).toHaveBeenCalledWith('/es/admin/resenas?status=PENDING');
   });
 
+  it('applies the product search while typing (debounced) and clears it', () => {
+    vi.useFakeTimers();
+    try {
+      renderView();
+      const search = screen.getByLabelText(messages.admin.reviews.productFilter);
+      fireEvent.change(search, { target: { value: 'asus' } });
+      expect(pushMock).not.toHaveBeenCalled();
+      act(() => {
+        vi.advanceTimersByTime(400);
+      });
+      expect(pushMock).toHaveBeenCalledWith('/es/admin/resenas?q=asus');
+
+      fireEvent.click(screen.getAllByRole('button', { name: messages.catalog.clearFilters })[0]);
+      expect(pushMock).toHaveBeenCalledWith('/es/admin/resenas');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('renders the empty state without rows', () => {
     render(
       <AdminReviewsView
         data={{ data: [], total: 0, page: 1, limit: 10 }}
         loadError={false}
-        query={{ status: '', page: 1 }}
+        query={{ status: '', q: '', page: 1 }}
         locale="es"
         messages={messages}
       />,
@@ -149,7 +168,7 @@ describe('AdminReviewsView', () => {
       <AdminReviewsView
         data={{ data: [], total: 0, page: 1, limit: 10 }}
         loadError={false}
-        query={{ status: 'PENDING', page: 1 }}
+        query={{ status: 'PENDING', q: '', page: 1 }}
         locale="es"
         messages={messages}
       />,

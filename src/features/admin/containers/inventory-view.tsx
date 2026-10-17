@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import { Pagination } from '@/features/catalog/components/pagination';
 import type { AdminProductList, AdminProductMetrics, AdminStockFilter } from '@/lib/api/admin';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -51,7 +51,6 @@ export function InventoryView({
 }) {
   const router = useRouter();
   const inventory = messages.admin.inventory;
-  const [draft, setDraft] = useState(q);
 
   function navigate(next: {
     page?: number;
@@ -74,6 +73,21 @@ export function InventoryView({
     // así que conservar la posición evita perderla (igual que en productos).
     router.push(`/${locale}/admin/inventario?${params.toString()}`, { scroll: false });
   }
+
+  /**
+   * Name/SKU/slug search, like the categories name filter: it applies while
+   * typing. The list is server-paginated, so keystrokes are debounced into
+   * a single URL navigation (the selected product is cleared, it may not
+   * be in the filtered list).
+   */
+  const {
+    draft,
+    handleChange: handleDraftChange,
+    handleEnter: applyDraftNow,
+    reset: resetDraft,
+  } = useDebouncedSearch(q, (trimmed) => {
+    navigate({ q: trimmed, page: 1, productId: null });
+  });
 
   return (
     <Stack gap="md">
@@ -143,10 +157,10 @@ export function InventoryView({
             name="q"
             value={draft}
             onChange={(event) => {
-              setDraft(event.target.value);
+              handleDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1, productId: null });
+              if (event.key === 'Enter') applyDraftNow();
             }}
           />
         </div>
@@ -172,7 +186,7 @@ export function InventoryView({
         <Button
           variant="secondary"
           onClick={() => {
-            setDraft('');
+            resetDraft();
             navigate({ stock: null, q: '', page: 1, productId: null });
           }}
         >

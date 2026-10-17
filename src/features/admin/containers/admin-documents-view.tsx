@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/features/admin/components/confirm-dialog';
 import { DocumentsTable } from '@/features/admin/components/documents-table';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import { pollDocumentsUntilSettled } from '@/features/admin/lib/document-polling';
+import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import type {
   AdminDocument,
   AdminDocumentList,
@@ -60,7 +61,6 @@ export function AdminDocumentsView({
   const router = useRouter();
   const docs = messages.admin.documents;
   const [rows, setRows] = useState<AdminDocument[]>(data?.data ?? []);
-  const [draft, setDraft] = useState(query.q);
   const [pendingIds, setPendingIds] = useState<ReadonlySet<string>>(new Set());
   const [stoppedIds, setStoppedIds] = useState<ReadonlySet<string>>(new Set());
   const [confirmReingestId, setConfirmReingestId] = useState<string | null>(null);
@@ -138,6 +138,21 @@ export function AdminDocumentsView({
     // filtro+página), así que conservar la posición evita perder la tabla.
     router.push(`/${locale}/admin/documentos${search}`, { scroll: false });
   }
+
+  /**
+   * Title search, like the categories name filter: it applies while typing.
+   * Documents are server-paginated, so keystrokes are debounced into a
+   * single URL navigation (the page remounts this view, resetting the draft
+   * from the new query).
+   */
+  const {
+    draft,
+    handleChange: handleDraftChange,
+    handleEnter: applyDraftNow,
+    reset: resetDraft,
+  } = useDebouncedSearch(query.q, (trimmed) => {
+    navigate({ q: trimmed, page: 1 });
+  });
 
   function upsertRow(document: AdminDocument) {
     setRows((current) => {
@@ -224,10 +239,10 @@ export function AdminDocumentsView({
             name="q"
             value={draft}
             onChange={(event) => {
-              setDraft(event.target.value);
+              handleDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') navigate({ q: draft.trim(), page: 1 });
+              if (event.key === 'Enter') applyDraftNow();
             }}
           />
         </div>
@@ -256,7 +271,7 @@ export function AdminDocumentsView({
         <Button
           variant="secondary"
           onClick={() => {
-            setDraft('');
+            resetDraft();
             navigate({ status: '', type: '', q: '', page: 1 });
           }}
         >
@@ -286,7 +301,7 @@ export function AdminDocumentsView({
               setConfirmDeleteId(id);
             }}
             onClearFilters={() => {
-              setDraft('');
+              resetDraft();
               navigate({ status: '', type: '', q: '', page: 1 });
             }}
           />

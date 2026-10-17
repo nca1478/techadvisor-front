@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { useDebouncedSearch } from '@/features/admin/lib/use-debounced-search';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import { Pagination } from '@/features/catalog/components/pagination';
 import type { AdminOrderList } from '@/lib/api/admin';
@@ -53,20 +53,6 @@ export function AdminOrdersView({
 }) {
   const router = useRouter();
   const orders = messages.admin.orders;
-  const [draft, setDraft] = useState(query.q);
-  // Last search sent to the server (guards duplicate navigations from the
-  // debounce timer racing an Enter press or the clear button).
-  const appliedRef = useRef(query.q);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Drop any pending search when the view unmounts.
-  useEffect(
-    () => () => {
-      if (debounceRef.current !== null) clearTimeout(debounceRef.current);
-    },
-    [],
-  );
-
   function navigate(next: Partial<AdminOrdersQuery>) {
     const merged: AdminOrdersQuery = { ...query, ...next };
     const search = toAdminQuery({
@@ -82,27 +68,14 @@ export function AdminOrdersView({
    * typing. Orders are server-paginated (unlike the client-side categories
    * list), so keystrokes are debounced into a single URL navigation.
    */
-  function applySearch(value: string) {
-    const trimmed = value.trim();
-    if (trimmed === appliedRef.current) return;
-    appliedRef.current = trimmed;
+  const {
+    draft,
+    handleChange: handleDraftChange,
+    handleEnter: applyDraftNow,
+    reset: resetDraft,
+  } = useDebouncedSearch(query.q, (trimmed) => {
     navigate({ q: trimmed, page: 1 });
-  }
-
-  function handleDraftChange(value: string) {
-    setDraft(value);
-    if (debounceRef.current !== null) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      applySearch(value);
-    }, 400);
-  }
-
-  function clearDraftTimer() {
-    if (debounceRef.current !== null) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
-    }
-  }
+  });
 
   return (
     <Stack gap="md">
@@ -118,10 +91,7 @@ export function AdminOrdersView({
               handleDraftChange(event.target.value);
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                clearDraftTimer();
-                applySearch(draft);
-              }
+              if (event.key === 'Enter') applyDraftNow();
             }}
           />
         </div>
@@ -147,9 +117,7 @@ export function AdminOrdersView({
         <Button
           variant="secondary"
           onClick={() => {
-            clearDraftTimer();
-            appliedRef.current = '';
-            setDraft('');
+            resetDraft();
             navigate({ status: '', q: '', page: 1 });
           }}
         >

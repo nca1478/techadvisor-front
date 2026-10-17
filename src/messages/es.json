@@ -967,6 +967,8 @@
       "subtitle": "Modera las reseñas de clientes. Solo las publicadas aparecen en la tienda.",
       "statusFilter": "Estado",
       "allStatuses": "Todos los estados",
+      "productFilter": "Producto",
+      "productSearchPlaceholder": "Busca por nombre del producto…",
       "status_PENDING": "Pendiente",
       "status_PUBLISHED": "Publicada",
       "status_REJECTED": "Rechazada",
