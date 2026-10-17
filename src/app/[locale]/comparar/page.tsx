@@ -23,7 +23,10 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
 /**
  * Localized compare page. Product ids travel in `?ids=a,b,c` (2..3) so the
  * comparison survives reloads and shares; the client view fetches
- * `POST /api/advisor/compare` (tabla SQL + resumen citado).
+ * `POST /api/advisor/compare` (tabla SQL + veredicto determinista).
+ * El resumen del asesor queda oculto por ahora (`showAdvisorSummary` en
+ * `false` por defecto): el componente `CompareSummary` no se elimina para
+ * reutilizarlo más adelante.
  */
 export default async function ComparePage({ params, searchParams }: ComparePageProps) {
   const resolved = (await params) as { locale?: unknown };
@@ -42,7 +45,6 @@ export default async function ComparePage({ params, searchParams }: ComparePageP
       productsHref={`/${locale}/productos`}
       messages={messages.compare.page}
       specLabels={messages.catalog.specLabels}
-      showAdvisorSummary
     />
   );
 }

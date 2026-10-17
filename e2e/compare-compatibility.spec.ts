@@ -5,7 +5,9 @@ import { expect, test, type Page } from '@playwright/test';
  * (`e2e/mock-backend.mjs`, started by `playwright.config.ts`).
  *
  * - `/comparar?ids=` renders the SQL table with the highlighted best
- *   column plus the cited advisor summary.
+ *   column. El resumen del asesor (`CompareSummary`) queda oculto por ahora:
+ *   el backend simulado sigue devolviendo `summary` + `citations`, pero la
+ *   página no los renderiza.
  * - The cart calls `POST /compatibility/check` (deterministic rule engine,
  *   no LLM): DDR4 memory in a DDR5 board is an error that gates checkout
  *   behind explicit acknowledgement (never a hard block); an AM4 CPU in an
@@ -46,7 +48,7 @@ test.afterEach(async ({ page }) => {
   await emptyCart(page);
 });
 
-test('comparar page shows the SQL table with best highlight and cited summary', async ({
+test('comparar page shows the SQL table with best highlight and hides the advisor summary', async ({
   page,
 }) => {
   await page.goto('/en/comparar?ids=prod-mock-laptop-13,prod-mock-mouse-pro');
@@ -54,9 +56,10 @@ test('comparar page shows the SQL table with best highlight and cited summary', 
   // SQL table: product columns link to detail, cheapest price highlighted.
   await expect(page.getByRole('link', { name: 'Mock Laptop 13' })).toBeVisible();
   await expect(page.getByText('Best').first()).toBeVisible();
-  // Advisor summary with [n] citation markers and visible sources.
-  await expect(page.getByText(/costs less than.*\[1\]/)).toBeVisible();
-  await expect(page.getByText('Sources', { exact: true })).toBeVisible();
+  // Resumen del asesor oculto temporalmente (no eliminado): aunque el mock
+  // devuelve `summary` + `citations`, no deben renderizarse.
+  await expect(page.getByText(/costs less than.*\[1\]/)).toHaveCount(0);
+  await expect(page.getByText('Sources', { exact: true })).toHaveCount(0);
 });
 
 test('compare selection resets when navigating away and back', async ({ page }) => {
