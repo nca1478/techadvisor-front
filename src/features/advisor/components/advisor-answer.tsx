@@ -12,6 +12,12 @@ export interface AdvisorAnswerProps {
   sourceLabel: string;
   showSnippetLabel: string;
   hideSnippetLabel: string;
+  /**
+   * Oculta visualmente las menciones/citas ([N]) y la lista de fuentes (<ol>)
+   * sin eliminarlas del DOM. Usado en la pantalla de soporte posventa donde
+   * no aportan al usuario. El nombre se conserva por compatibilidad.
+   */
+  hideCitationsList?: boolean;
 }
 
 /**
@@ -26,6 +32,7 @@ export function AdvisorAnswer({
   sourceLabel,
   showSnippetLabel,
   hideSnippetLabel,
+  hideCitationsList = false,
 }: AdvisorAnswerProps) {
   const [openCitation, setOpenCitation] = useState<number | null>(null);
   // Defensive dedupe: the backend stores message-level citations as a flatMap
@@ -50,7 +57,24 @@ export function AdvisorAnswer({
           const citation = byNumber.get(n);
           if (!citation) {
             // Marker without evidence: render as inert text, never a link.
+            // En soporte posventa se oculta visualmente pero se conserva en el DOM.
+            if (hideCitationsList) {
+              return (
+                <span key={index} hidden aria-hidden="true" className="hidden">
+                  {part}
+                </span>
+              );
+            }
             return <span key={index}>{part}</span>;
+          }
+          // En soporte posventa las menciones [N] se ocultan visualmente
+          // pero se conservan en el DOM (no se eliminan).
+          if (hideCitationsList) {
+            return (
+              <span key={index} hidden aria-hidden="true" className="hidden">
+                {part}
+              </span>
+            );
           }
           const expanded = openCitation === n;
           return (
@@ -69,7 +93,13 @@ export function AdvisorAnswer({
           );
         })}
       </p>
-      <ol className="mt-3 flex flex-col gap-2" aria-label={sourceLabel}>
+      {/* Lista de fuentes oculta bajo demanda (soporte posventa): se conserva en el DOM, solo se oculta visualmente. */}
+      <ol
+        hidden={hideCitationsList}
+        aria-hidden={hideCitationsList || undefined}
+        className={hideCitationsList ? 'hidden' : 'mt-3 flex flex-col gap-2'}
+        aria-label={sourceLabel}
+      >
         {uniqueCitations.map((citation) => {
           const expanded = openCitation === citation.n;
           return (

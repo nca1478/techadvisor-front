@@ -48,7 +48,10 @@ export default async function SupportPage({ params }: SupportPageProps) {
   return (
     <Container className="flex flex-1 flex-col gap-8 py-6">
       <Stack gap="sm">
-        <Heading level={1}>{messages.support.title}</Heading>
+        {/* Título oculto visualmente (sin utilidad para el usuario): se conserva en el DOM para SEO/a11y, no se elimina. */}
+        <Heading level={1} className="hidden">
+          {messages.support.title}
+        </Heading>
         <Text tone="muted">{messages.support.subtitle}</Text>
       </Stack>
 

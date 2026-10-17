@@ -141,6 +141,7 @@ export function SupportView({
                 sourceLabel={messages.sourceLabel}
                 showSnippetLabel={messages.showSnippet}
                 hideSnippetLabel={messages.hideSnippet}
+                hideCitationsList
               />
             )}
             <AdvisorFeedback
@@ -152,7 +153,8 @@ export function SupportView({
           </div>
         )}
 
-        <Text variant="caption" tone="muted">
+        {/* Disclaimer oculto visualmente (sin utilidad para el usuario): se conserva en el DOM, no se elimina. */}
+        <Text variant="caption" tone="muted" className="hidden">
           {messages.disclaimer}
         </Text>
         <Text variant="caption" tone="muted">
