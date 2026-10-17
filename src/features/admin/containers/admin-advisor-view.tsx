@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heading } from '@/components/ui/heading';
-import { Link } from '@/components/ui/link';
 import { Select } from '@/components/ui/select';
 import { Stack } from '@/components/ui/stack';
+import { Tabs } from '@/components/ui/tabs';
 import { Text } from '@/components/ui/text';
 import { AdminFiltersCard, AdminHeaderCard } from '@/features/admin/components/admin-section';
+import { ConversationDialog } from '@/features/admin/components/conversation-dialog';
+import type { ConversationSessionState } from '@/features/admin/components/conversation-dialog';
 import { Pagination } from '@/features/catalog/components/pagination';
 import { adminErrorMessage, adminHttp } from '@/features/admin/lib/admin-http';
 import type {
@@ -32,6 +33,7 @@ export interface AdminAdvisorQuery {
   gpage: number;
   fvalue: AdminFeedbackValue | '';
   fpage: number;
+  tab: 'feedback' | 'groups';
 }
 
 interface FeedbackDetailState {
@@ -40,11 +42,7 @@ interface FeedbackDetailState {
   error: string | null;
 }
 
-interface SessionState {
-  loading: boolean;
-  data: AdminAdvisorSession | null;
-  error: string | null;
-}
+type SessionState = ConversationSessionState;
 
 function formatPage(template: string, page: number, totalPages: number): string {
   return template.replace('{page}', String(page)).replace('{totalPages}', String(totalPages));
@@ -97,16 +95,27 @@ export function AdminAdvisorView({
   const [details, setDetails] = useState<Record<string, FeedbackDetailState | undefined>>({});
   const [openSessionId, setOpenSessionId] = useState<string | null>(null);
   const [session, setSession] = useState<SessionState | null>(null);
+  const [activeTab, setActiveTab] = useState<AdminAdvisorQuery['tab']>(query.tab);
+
+  useEffect(() => {
+    setActiveTab(query.tab);
+  }, [query.tab]);
 
   function navigate(next: Partial<AdminAdvisorQuery>) {
     const merged: AdminAdvisorQuery = { ...query, ...next };
     const search = new URLSearchParams();
+    if (merged.tab === 'groups') search.set('tab', 'groups');
     if (merged.status !== '') search.set('status', merged.status);
     if (merged.gpage > 1) search.set('gpage', String(merged.gpage));
     if (merged.fvalue !== '') search.set('fvalue', merged.fvalue);
     if (merged.fpage > 1) search.set('fpage', String(merged.fpage));
     const rendered = search.toString();
     router.push(`/${locale}/admin/asesor${rendered === '' ? '' : `?${rendered}`}`);
+  }
+
+  function selectTab(tab: AdminAdvisorQuery['tab']) {
+    setActiveTab(tab);
+    if (tab !== query.tab) navigate({ tab });
   }
 
   async function updateGroup(group: AdminUnansweredGroup, status: AdminUnansweredStatus) {
@@ -205,65 +214,8 @@ export function AdminAdvisorView({
         : metricsText;
   const viewAll = messages.admin.dashboard.viewAll;
 
-  return (
+  const groupsPanel = (
     <Stack gap="md">
-      <AdminHeaderCard title={advisor.title} subtitle={advisor.subtitle} />
-
-      {metricsError || metrics === null ? (
-        <Text role="alert" className="text-destructive">
-          {messages.admin.loadError}
-        </Text>
-      ) : (
-        <Stack gap="md">
-          <div className="flex flex-col gap-3 lg:flex-row">
-            <Card className="lg:flex-1" tone={metrics.openUnanswered > 0 ? 'warning' : 'success'}>
-              <Stack gap="sm">
-                <Text variant="caption" tone="muted" as="div">
-                  {advisor.openUnanswered}
-                </Text>
-                <Text variant="price" as="div">
-                  {metrics.openUnanswered}
-                </Text>
-                {statusHint !== null && (
-                  <Text variant="caption" tone="muted" as="div">
-                    {statusHint}
-                  </Text>
-                )}
-                <Link href="#advisor-groups">{viewAll}</Link>
-              </Stack>
-            </Card>
-            <Card className="lg:flex-1" tone="primary">
-              <Stack gap="sm">
-                <Text variant="caption" tone="muted" as="div">
-                  {advisor.satisfaction}
-                </Text>
-                <Text variant="price" as="div">
-                  {formatRate(metrics.satisfactionRate, locale, '—')}
-                </Text>
-                {satisfactionHint !== null && (
-                  <Text variant="caption" tone="muted" as="div">
-                    {satisfactionHint}
-                  </Text>
-                )}
-                <Link href="#advisor-feedback">{viewAll}</Link>
-              </Stack>
-            </Card>
-            {metrics.unansweredByReason.map((entry) => (
-              <Card key={entry.key} className="lg:flex-1" tone="warning">
-                <Stack gap="sm">
-                  <Text variant="caption" tone="muted" as="div">
-                    {reasonLabels[entry.key] ?? entry.key}
-                  </Text>
-                  <Text variant="price" as="div">
-                    {entry.count}
-                  </Text>
-                  <Link href="#advisor-groups">{viewAll}</Link>
-                </Stack>
-              </Card>
-            ))}
-          </div>
-        </Stack>
-      )}
       <div id="advisor-groups">
         <AdminHeaderCard title={advisor.groupsTitle} subtitle={advisor.createDocumentHint} />
       </div>
@@ -299,7 +251,18 @@ export function AdminAdvisorView({
           {messages.admin.loadError}
         </Text>
       ) : groups.data.length === 0 ? (
-        <Text tone="muted">{advisor.emptyGroups}</Text>
+        <Stack gap="md">
+          <Text tone="muted">{advisor.emptyGroups}</Text>
+          <Pagination
+            page={1}
+            totalPages={1}
+            onPageChange={() => {}}
+            previousLabel={messages.admin.previous}
+            nextLabel={messages.admin.next}
+            statusLabel={(page, totalPages) => formatPage(messages.admin.pageOf, page, totalPages)}
+            alwaysVisible
+          />
+        </Stack>
       ) : (
         <Stack gap="md">
           <Card padding="none">
@@ -307,6 +270,12 @@ export function AdminAdvisorView({
               <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {advisor.tableNumber}
+                    </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {advisor.tableQuestion}
                     </th>
@@ -322,8 +291,11 @@ export function AdminAdvisorView({
                   </tr>
                 </thead>
                 <tbody>
-                  {groups.data.map((group) => (
+                  {groups.data.map((group, index) => (
                     <tr key={group.key} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        {(groups.page - 1) * groups.limit + index + 1}
+                      </td>
                       <td className="px-4 py-3">{group.sample}</td>
                       <td className="px-4 py-3">{group.count}</td>
                       <td className="px-4 py-3">{formatDate(group.latestAt, locale)}</td>
@@ -375,10 +347,15 @@ export function AdminAdvisorView({
             previousLabel={messages.admin.previous}
             nextLabel={messages.admin.next}
             statusLabel={(page, totalPages) => formatPage(messages.admin.pageOf, page, totalPages)}
+            alwaysVisible
           />
         </Stack>
       )}
+    </Stack>
+  );
 
+  const feedbackPanel = (
+    <Stack gap="md">
       <div id="advisor-feedback">
         <AdminHeaderCard title={advisor.feedbackTitle} subtitle={advisor.conversationNote} />
       </div>
@@ -404,7 +381,18 @@ export function AdminAdvisorView({
           {messages.admin.loadError}
         </Text>
       ) : feedback.data.length === 0 ? (
-        <Text tone="muted">{messages.common.emptyTitle}</Text>
+        <Stack gap="md">
+          <Text tone="muted">{messages.common.emptyTitle}</Text>
+          <Pagination
+            page={1}
+            totalPages={1}
+            onPageChange={() => {}}
+            previousLabel={messages.admin.previous}
+            nextLabel={messages.admin.next}
+            statusLabel={(page, totalPages) => formatPage(messages.admin.pageOf, page, totalPages)}
+            alwaysVisible
+          />
+        </Stack>
       ) : (
         <Stack gap="md">
           <Card padding="none">
@@ -412,6 +400,12 @@ export function AdminAdvisorView({
               <table className="w-full min-w-[52rem] border-collapse bg-surface text-left text-sm">
                 <thead>
                   <tr className="border-b border-border">
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-right text-sm font-bold text-muted-foreground"
+                    >
+                      {advisor.tableNumber}
+                    </th>
                     <th
                       scope="col"
                       className="whitespace-nowrap px-4 py-3 text-sm font-bold text-muted-foreground"
@@ -439,12 +433,15 @@ export function AdminAdvisorView({
                   </tr>
                 </thead>
                 <tbody>
-                  {feedback.data.map((row) => {
+                  {feedback.data.map((row, index) => {
                     const sessionId = asOptionalId(row.sessionId);
                     const detail = details[row.id];
                     const expanded = openFeedbackId === row.id;
                     return (
                       <tr key={row.id} className="border-b border-border last:border-0">
+                        <td className="px-4 py-3 text-right align-top tabular-nums text-muted-foreground">
+                          {(feedback.page - 1) * feedback.limit + index + 1}
+                        </td>
                         <td className="whitespace-nowrap px-4 py-3 align-top">
                           <Badge
                             tone={row.value === 'up' ? 'success' : 'destructive'}
@@ -532,45 +529,123 @@ export function AdminAdvisorView({
             previousLabel={messages.admin.previous}
             nextLabel={messages.admin.next}
             statusLabel={(page, totalPages) => formatPage(messages.admin.pageOf, page, totalPages)}
+            alwaysVisible
           />
         </Stack>
       )}
+    </Stack>
+  );
 
-      {openSessionId !== null && (
-        <Card>
-          <Stack gap="sm">
-            <Heading level={3}>{advisor.conversationTitle}</Heading>
-            <Text tone="muted">{advisor.conversationNote}</Text>
-            {session === null || session.loading ? (
-              <Text tone="muted">{messages.common.loading}</Text>
-            ) : session.error !== null ? (
-              <Text role="alert" className="text-destructive">
-                {session.error}
-              </Text>
-            ) : session.data === null || session.data.messages.length === 0 ? (
-              <Text tone="muted">{advisor.conversationEmpty}</Text>
-            ) : (
+  return (
+    <Stack gap="md">
+      <AdminHeaderCard title={advisor.title} subtitle={advisor.subtitle} />
+
+      {metricsError || metrics === null ? (
+        <Text role="alert" className="text-destructive">
+          {messages.admin.loadError}
+        </Text>
+      ) : (
+        <Stack gap="md">
+          <div className="flex flex-col gap-3 lg:flex-row">
+            <Card className="lg:flex-1" tone={metrics.openUnanswered > 0 ? 'warning' : 'success'}>
               <Stack gap="sm">
-                {session.data.messages.map((message, index) => (
-                  <Text key={`${message.createdAt}-${String(index)}`}>
-                    <strong>{message.role}:</strong> {message.excerpt}
+                <Text variant="small" tone="muted" as="div" className="font-bold">
+                  {advisor.openUnanswered}
+                </Text>
+                <Text variant="price" as="div">
+                  {metrics.openUnanswered}
+                </Text>
+                {statusHint !== null && (
+                  <Text variant="caption" tone="muted" as="div">
+                    {statusHint}
                   </Text>
-                ))}
+                )}
+                <div className="text-left">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => {
+                      selectTab('groups');
+                    }}
+                  >
+                    {viewAll}
+                  </Button>
+                </div>
               </Stack>
-            )}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setOpenSessionId(null);
-                setSession(null);
-              }}
-            >
-              {advisor.close}
-            </Button>
-          </Stack>
-        </Card>
+            </Card>
+            <Card className="lg:flex-1" tone="primary">
+              <Stack gap="sm">
+                <Text variant="small" tone="muted" as="div" className="font-bold">
+                  {advisor.satisfaction}
+                </Text>
+                <Text variant="price" as="div">
+                  {formatRate(metrics.satisfactionRate, locale, '—')}
+                </Text>
+                {satisfactionHint !== null && (
+                  <Text variant="caption" tone="muted" as="div">
+                    {satisfactionHint}
+                  </Text>
+                )}
+                <div className="text-left">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => {
+                      selectTab('feedback');
+                    }}
+                  >
+                    {viewAll}
+                  </Button>
+                </div>
+              </Stack>
+            </Card>
+            {metrics.unansweredByReason.map((entry) => (
+              <Card key={entry.key} className="lg:flex-1" tone="warning">
+                <Stack gap="sm">
+                  <Text variant="small" tone="muted" as="div" className="font-bold">
+                    {reasonLabels[entry.key] ?? entry.key}
+                  </Text>
+                  <Text variant="price" as="div">
+                    {entry.count}
+                  </Text>
+                  <div className="text-left">
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => {
+                        selectTab('groups');
+                      }}
+                    >
+                      {viewAll}
+                    </Button>
+                  </div>
+                </Stack>
+              </Card>
+            ))}
+          </div>
+        </Stack>
       )}
+      <Tabs
+        label={advisor.title}
+        selectedId={activeTab}
+        onSelect={(id) => {
+          if (id === 'feedback' || id === 'groups') selectTab(id);
+        }}
+        items={[
+          { id: 'feedback', label: advisor.feedbackTitle, content: feedbackPanel },
+          { id: 'groups', label: advisor.groupsTitle, content: groupsPanel },
+        ]}
+      />
+
+      <ConversationDialog
+        open={openSessionId !== null}
+        session={session}
+        onClose={() => {
+          setOpenSessionId(null);
+          setSession(null);
+        }}
+        messages={messages}
+      />
     </Stack>
   );
 }

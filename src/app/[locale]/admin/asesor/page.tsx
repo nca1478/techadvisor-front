@@ -80,6 +80,8 @@ export default async function AdminAdvisorPage({ params, searchParams }: Advisor
     ? (rawValue as AdminFeedbackValue)
     : '';
   const fpage = Math.max(1, Number.parseInt(firstParam(queryParams, 'fpage'), 10) || 1);
+  const rawTab = firstParam(queryParams, 'tab');
+  const tab: AdminAdvisorQuery['tab'] = rawTab === 'groups' ? 'groups' : 'feedback';
 
   const store = await cookies();
   const cookieHeader = store
@@ -119,14 +121,14 @@ export default async function AdminAdvisorPage({ params, searchParams }: Advisor
 
   return (
     <AdminAdvisorView
-      key={`${status}-${String(gpage)}-${fvalue}-${String(fpage)}`}
+      key={`${tab}-${status}-${String(gpage)}-${fvalue}-${String(fpage)}`}
       metrics={metrics}
       metricsError={metrics === null}
       groups={groups}
       groupsError={groups === null}
       feedback={feedback}
       feedbackError={feedback === null}
-      query={{ status, gpage, fvalue, fpage }}
+      query={{ status, gpage, fvalue, fpage, tab }}
       locale={locale}
       messages={messages}
     />

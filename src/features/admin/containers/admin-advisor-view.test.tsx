@@ -16,7 +16,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 const messages = es;
-const query: AdminAdvisorQuery = { status: 'NEW', gpage: 1, fvalue: '', fpage: 1 };
+const query: AdminAdvisorQuery = { status: 'NEW', gpage: 1, fvalue: '', fpage: 1, tab: 'feedback' };
 
 const metrics: AdminAdvisorMetrics = {
   openUnanswered: 3,
@@ -93,21 +93,41 @@ function renderView() {
 describe('AdminAdvisorView', () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
+    // jsdom has no <dialog> imperative API: mirror showModal()/close() on
+    // the `open` attribute closely enough for visibility computation.
+    window.HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    window.HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    };
   });
 
   it('renders metrics, frequency groups and minimized feedback', () => {
     renderView();
-    expect(screen.getByText('¿Cuánto dura la batería?')).toBeInTheDocument();
+    // Default tab (page 1) is feedback; groups live in the second tab.
     expect(screen.getByText('¿Cuánto dura…?')).toBeInTheDocument();
+    expect(screen.queryByText('¿Cuánto dura la batería?')).not.toBeInTheDocument();
     expect(screen.getAllByText('No útil').length).toBeGreaterThan(0);
     // Satisfaction rate renders as a localized percent.
     expect(screen.getByText(/Satisfacción/)).toBeInTheDocument();
-    // Create-document shortcut carries the question as the title.
+    // Feedback pagination stays visible even with a single page.
+    expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
+    // Create-document shortcut carries the question as the title (groups tab).
+    fireEvent.click(screen.getByRole('tab', { name: 'Preguntas sin respuesta por frecuencia' }));
     const docLink = screen.getAllByRole('link', { name: 'Crear documento' })[0];
     expect(docLink).toHaveAttribute(
       'href',
       `/es/admin/documentos/nuevo?title=${encodeURIComponent('¿Cuánto dura la batería?')}`,
     );
+  });
+
+  it('shows groups in the second tab with always-visible pagination', () => {
+    renderView();
+    fireEvent.click(screen.getByRole('tab', { name: 'Preguntas sin respuesta por frecuencia' }));
+    expect(screen.getByText('¿Cuánto dura la batería?')).toBeInTheDocument();
+    // Pagination controls stay visible at the end of the table (single page).
+    expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
   });
 
   it('resolves a whole bucket with one action (forward-only triage)', async () => {
@@ -121,6 +141,7 @@ describe('AdminAdvisorView', () => {
       }),
     );
     renderView();
+    fireEvent.click(screen.getByRole('tab', { name: 'Preguntas sin respuesta por frecuencia' }));
     fireEvent.click(screen.getByRole('button', { name: 'Resolver' }));
     await waitFor(() => {
       expect(calls).toHaveLength(2);
@@ -179,6 +200,9 @@ describe('AdminAdvisorView', () => {
         messages={messages}
       />,
     );
-    expect(screen.getAllByText('No se pudo cargar.')).toHaveLength(3);
+    // Metrics error + active (feedback) tab error; groups error appears in its tab.
+    expect(screen.getAllByText('No se pudo cargar.')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('tab', { name: 'Preguntas sin respuesta por frecuencia' }));
+    expect(screen.getAllByText('No se pudo cargar.')).toHaveLength(2);
   });
 });
