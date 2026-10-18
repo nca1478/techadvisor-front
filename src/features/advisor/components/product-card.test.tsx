@@ -54,8 +54,8 @@ describe('ProductCard', () => {
     expect(screen.getByText('En stock')).toBeInTheDocument();
   });
 
-  it('renders the reason as plain text with expandable citations', async () => {
-    render(
+  it('hides citation markers and fragments in the shopping chat', () => {
+    const { container } = render(
       <ProductCard
         product={product}
         locale="es"
@@ -65,12 +65,11 @@ describe('ProductCard', () => {
       />,
     );
     expect(screen.getAllByText(/16 GB de RAM/).length).toBeGreaterThanOrEqual(1);
-    // One inline [1] marker plus one source-list entry per citation.
-    const firstCitation = screen.getAllByRole('button', { name: /Manual/ }).at(0);
-    if (firstCitation !== undefined) {
-      fireEvent.click(firstCitation);
-    }
-    expect(await screen.findByText('Diez horas.')).toBeInTheDocument();
+    // Sin botones de cita visibles ni lista de fuentes: se conservan en el
+    // DOM ocultos (sr-only/hidden) pero no aportan ruido visual.
+    expect(screen.queryByRole('button', { name: /Manual/ })).toBeNull();
+    expect(container.querySelector('ol')?.hasAttribute('hidden')).toBe(true);
+    expect(container.querySelector('ol')?.className).toContain('hidden');
   });
 
   it('adds to cart and confirms without touching prices', async () => {

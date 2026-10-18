@@ -91,6 +91,7 @@ export function ProductCard({ product, locale, productHref, messages, onAdd }: P
             sourceLabel={messages.sourceLabel}
             showSnippetLabel={messages.showSnippet}
             hideSnippetLabel={messages.hideSnippet}
+            hideCitationsList
           />
         ) : null}
         <div className="flex flex-wrap items-center gap-2">

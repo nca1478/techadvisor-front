@@ -134,15 +134,17 @@ export function SupportView({
                 </Text>
               </div>
             ) : (
-              <AdvisorAnswer
-                answer={result.answer}
-                citations={result.citations}
-                locale={locale}
-                sourceLabel={messages.sourceLabel}
-                showSnippetLabel={messages.showSnippet}
-                hideSnippetLabel={messages.hideSnippet}
-                hideCitationsList
-              />
+              <div className="rounded-lg border border-border bg-surface-raise px-3 py-2">
+                <AdvisorAnswer
+                  answer={result.answer}
+                  citations={result.citations}
+                  locale={locale}
+                  sourceLabel={messages.sourceLabel}
+                  showSnippetLabel={messages.showSnippet}
+                  hideSnippetLabel={messages.hideSnippet}
+                  hideCitationsList
+                />
+              </div>
             )}
             <AdvisorFeedback
               feedback={feedback}

@@ -14,12 +14,27 @@ export interface AdvisorAnswerProps {
   hideSnippetLabel: string;
   /**
    * Oculta visualmente las menciones/citas ([N]) y la lista de fuentes (<ol>)
-   * sin eliminarlas del DOM. Usado en la pantalla de soporte posventa donde
-   * no aportan al usuario. El nombre se conserva por compatibilidad.
+   * sin eliminarlas del DOM. Usado en el chat de compras, la ficha de
+   * producto y la pantalla de soporte posventa. La vista visible muestra el
+   * texto limpio (sin `[N]` ni espacios residuales); el original íntegro se
+   * conserva en el `sr-only`. El nombre se conserva por compatibilidad.
    */
   hideCitationsList?: boolean;
 }
 
+/**
+ * Limpia los marcadores `[N]` para la vista visible cuando las citas están
+ * ocultas (chat de compras, ficha de producto, posventa): los elimina y
+ * reordena espacios (evita "NVMe . Ofrece"). El texto original íntegro se
+ * conserva en el `sr-only` para lectores de pantalla.
+ */
+export function cleanVisibleAnswer(answer: string): string {
+  return answer
+    .replace(/\[\d+\]/g, '')
+    .replace(/\s+([.,;:!?])/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
 /**
  * Plain-text answer with clickable numbered citations. The LLM text is
  * NEVER rendered as HTML: it is split on `[n]` markers and each fragment
@@ -47,52 +62,39 @@ export function AdvisorAnswer({
 
   return (
     <div>
-      <p className="text-base leading-relaxed text-foreground">
-        {parts.map((part, index) => {
-          const match = part.match(/^\[(\d+)\]$/);
-          if (!match) {
-            return <span key={index}>{part}</span>;
-          }
-          const n = Number.parseInt(match[1], 10);
-          const citation = byNumber.get(n);
-          if (!citation) {
-            // Marker without evidence: render as inert text, never a link.
-            // En soporte posventa se oculta visualmente pero se conserva en el DOM.
-            if (hideCitationsList) {
-              return (
-                <span key={index} hidden aria-hidden="true" className="hidden">
-                  {part}
-                </span>
-              );
+      {hideCitationsList ? (
+        <p className="text-base leading-relaxed text-foreground">{cleanVisibleAnswer(answer)}</p>
+      ) : (
+        <p className="text-base leading-relaxed text-foreground">
+          {parts.map((part, index) => {
+            const match = part.match(/^\[(\d+)\]$/);
+            if (!match) {
+              return <span key={index}>{part}</span>;
             }
-            return <span key={index}>{part}</span>;
-          }
-          // En soporte posventa las menciones [N] se ocultan visualmente
-          // pero se conservan en el DOM (no se eliminan).
-          if (hideCitationsList) {
+            const n = Number.parseInt(match[1], 10);
+            const citation = byNumber.get(n);
+            if (!citation) {
+              // Marker without evidence: render as inert text, never a link.
+              return <span key={index}>{part}</span>;
+            }
+            const expanded = openCitation === n;
             return (
-              <span key={index} hidden aria-hidden="true" className="hidden">
-                {part}
-              </span>
+              <button
+                key={index}
+                type="button"
+                aria-expanded={expanded}
+                aria-label={`${sourceLabel} ${String(n)}: ${citation.title}`}
+                onClick={() => {
+                  setOpenCitation(expanded ? null : n);
+                }}
+                className="mx-0.5 inline-flex min-h-6 min-w-6 items-center justify-center rounded-md border border-accent/40 bg-accent/10 px-1.5 align-baseline font-mono text-xs font-semibold text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                [{String(n)}]
+              </button>
             );
-          }
-          const expanded = openCitation === n;
-          return (
-            <button
-              key={index}
-              type="button"
-              aria-expanded={expanded}
-              aria-label={`${sourceLabel} ${String(n)}: ${citation.title}`}
-              onClick={() => {
-                setOpenCitation(expanded ? null : n);
-              }}
-              className="mx-0.5 inline-flex min-h-6 min-w-6 items-center justify-center rounded-md border border-accent/40 bg-accent/10 px-1.5 align-baseline font-mono text-xs font-semibold text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              [{String(n)}]
-            </button>
-          );
-        })}
-      </p>
+          })}
+        </p>
+      )}
       {/* Lista de fuentes oculta bajo demanda (soporte posventa): se conserva en el DOM, solo se oculta visualmente. */}
       <ol
         hidden={hideCitationsList}

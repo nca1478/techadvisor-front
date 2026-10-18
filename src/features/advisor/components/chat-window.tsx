@@ -258,6 +258,7 @@ export function ChatWindow({
                     sourceLabel={messages.advisor.sourceLabel}
                     showSnippetLabel={messages.advisor.showSnippet}
                     hideSnippetLabel={messages.advisor.hideSnippet}
+                    hideCitationsList
                   />
                 ) : (
                   <p className="text-sm leading-relaxed text-foreground">{bubble.text}</p>
@@ -306,7 +307,7 @@ export function ChatWindow({
             <div className="max-w-[95%] rounded-lg rounded-bl-none border border-border bg-surface-raise px-3 py-2 sm:max-w-[85%]">
               <span className="sr-only">{`${chat.assistantLabel}: `}</span>
               <p aria-hidden="true" className="text-sm leading-relaxed text-foreground">
-                {streamingText}
+                {streamingText.replace(/\[\d+\]/g, '')}
                 <span aria-hidden="true" className="animate-pulse text-accent">
                   {'▍'}
                 </span>

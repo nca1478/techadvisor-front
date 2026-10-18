@@ -203,6 +203,41 @@ describe('ChatWindow', () => {
     expect(onNewChat).toHaveBeenCalled();
   });
 
+  it('hides citation markers and source fragments in the shopping chat', () => {
+    const { container } = render(
+      <ChatWindow
+        {...baseProps({
+          bubbles: [
+            { id: 'u1', role: 'user', text: 'Portátil para estudiar' },
+            {
+              id: 'a1',
+              role: 'assistant',
+              text: 'Esta opción encaja [1].',
+              citations: [
+                { n: 1, documentId: 'd', chunkId: 'c', title: 'Manual', snippet: 'Texto.' },
+              ],
+            },
+          ],
+        })}
+      />,
+    );
+    // Texto visible sin ruido de citas; la evidencia se conserva en el DOM
+    // oculta (sr-only/hidden) para lectores de pantalla.
+    expect(screen.queryByRole('button', { name: /Manual/ })).toBeNull();
+    const sourcesList = container.querySelector('ol');
+    expect(sourcesList?.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('strips citation markers from streaming text', () => {
+    render(
+      <ChatWindow
+        {...baseProps({ sending: true, streamingText: 'Esta opción [1] encaja [2].' })}
+      />,
+    );
+    expect(screen.getByText(/Esta opción/)).toBeInTheDocument();
+    expect(screen.queryByText(/\[1\]/)).toBeNull();
+  });
+
   it('votes per assistant bubble when onFeedback is provided', () => {
     const onFeedback = vi.fn();
     render(

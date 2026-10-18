@@ -58,9 +58,9 @@ describe('AdvisorView', () => {
     );
   });
 
-  it('shows cited answers with feedback buttons', () => {
+  it('shows answers without visible citations but keeps feedback buttons', () => {
     const onFeedback = vi.fn();
-    render(
+    const { container } = render(
       <AdvisorView
         {...baseProps()}
         status="answered"
@@ -77,6 +77,9 @@ describe('AdvisorView', () => {
     expect(screen.getByText(messages.feedbackLabel)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: messages.feedbackUp }));
     expect(onFeedback).toHaveBeenCalledWith('up');
+    // Citas y fragmentos ocultos visualmente (se conservan en el DOM).
+    expect(screen.queryByRole('button', { name: /Manual/ })).toBeNull();
+    expect(container.querySelector('ol')?.hasAttribute('hidden')).toBe(true);
   });
 
   it('announces errors in an alert region with retry', () => {
