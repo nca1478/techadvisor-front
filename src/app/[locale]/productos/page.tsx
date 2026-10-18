@@ -5,7 +5,7 @@ import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton'
 import { ProductListView } from '@/features/catalog/containers/product-list-view';
 import { firstParam, resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { createApiClient } from '@/lib/api/client';
-import { createCatalogApi, type ProductSort } from '@/lib/api/catalog';
+import { createCatalogApi, type ProductSort, visibleCategories } from '@/lib/api/catalog';
 import { getPublicConfig } from '@/lib/api/index';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
@@ -109,7 +109,9 @@ export default async function ListingPage({ params, searchParams }: ListingPageP
       <ProductListView
         initialData={productsResult.status === 'fulfilled' ? productsResult.value : null}
         loadError={productsResult.status === 'rejected'}
-        categories={categoriesResult.status === 'fulfilled' ? categoriesResult.value : []}
+        categories={
+          categoriesResult.status === 'fulfilled' ? visibleCategories(categoriesResult.value) : []
+        }
         brands={brandsResult.status === 'fulfilled' ? brandsResult.value : []}
         locale={locale}
         currency={currency}

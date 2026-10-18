@@ -5,7 +5,7 @@ import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { createApiClient } from '@/lib/api/client';
-import { createCatalogApi } from '@/lib/api/catalog';
+import { createCatalogApi, visibleCategories } from '@/lib/api/catalog';
 import type { Locale } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n/index';
 import { CategoryGrid } from '../components/category-grid';
@@ -44,11 +44,7 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   }
 
   const products = featuredResult.value.data.filter((product) => product.inStock).slice(0, 8);
-  // The admin `showInHome` flag controls this section; rows created before
-  // the contract carry no flag and default to visible (same as the DB).
-  const categories = categoriesResult.value.filter(
-    (category) => (category as unknown as Record<string, unknown>)['showInHome'] !== false,
-  );
+  const categories = visibleCategories(categoriesResult.value);
   const listHref = `/${locale}/productos`;
   const coverMessages = {
     badge: messages.catalog.homeCoverBadge,
@@ -89,18 +85,20 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
         </Section>
       </Container>
 
-      <div className="border-y border-border bg-surface">
-        <Container>
-          <Section spacing="tight">
-            <CategoryGrid
-              categories={categories}
-              title={messages.catalog.homeCategoriesTitle}
-              subtitle={messages.catalog.homeCategoriesSubtitle}
-              hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
-            />
-          </Section>
-        </Container>
-      </div>
+      {categories.length > 0 && (
+        <div className="border-y border-border bg-surface">
+          <Container>
+            <Section spacing="tight">
+              <CategoryGrid
+                categories={categories}
+                title={messages.catalog.homeCategoriesTitle}
+                subtitle={messages.catalog.homeCategoriesSubtitle}
+                hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
+              />
+            </Section>
+          </Container>
+        </div>
+      )}
     </>
   );
 }

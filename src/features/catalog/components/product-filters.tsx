@@ -63,19 +63,21 @@ export function ProductFilters({
               onChange({ ...values, q: event.target.value });
             }}
           />
-          <Select
-            label={messages.categoryLabel}
-            name="category"
-            value={values.category}
-            placeholder={messages.allCategories}
-            options={categories.map((category) => ({
-              value: category.slug,
-              label: category.name,
-            }))}
-            onChange={(event) => {
-              onChange({ ...values, category: event.target.value });
-            }}
-          />
+          {categories.length > 0 && (
+            <Select
+              label={messages.categoryLabel}
+              name="category"
+              value={values.category}
+              placeholder={messages.allCategories}
+              options={categories.map((category) => ({
+                value: category.slug,
+                label: category.name,
+              }))}
+              onChange={(event) => {
+                onChange({ ...values, category: event.target.value });
+              }}
+            />
+          )}
           <Select
             label={messages.brandLabel}
             name="brand"

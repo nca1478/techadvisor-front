@@ -42,6 +42,15 @@ export function productImageAlt(image: { alt: unknown }, productName: string): s
   return nullableString(image.alt) ?? productName;
 }
 
+/**
+ * Storefront-visible categories: the admin `showInHome` flag hides a
+ * category from the header menu, the home section and every category
+ * picker (listing/search filters) without deleting it.
+ */
+export function visibleCategories(categories: CatalogCategory[]): CatalogCategory[] {
+  return categories.filter((category) => category.showInHome);
+}
+
 export function primaryImage(product: Pick<ProductListItem, 'imageUrl' | 'imageAlt' | 'name'>): {
   src: string | null;
   alt: string;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { CatalogCategory } from './catalog';
 import { createApiClient } from './client';
-import { createCatalogApi } from './catalog';
+import { createCatalogApi, visibleCategories } from './catalog';
 
 function inputToUrl(input: string | URL | Request): string {
   if (typeof input === 'string') return input;
@@ -66,5 +67,32 @@ describe('createCatalogApi', () => {
     await expect(createCatalogApi(failing).productDetail('missing')).rejects.toMatchObject({
       code: 'NOT_FOUND',
     });
+  });
+});
+
+describe('visibleCategories', () => {
+  const category = (overrides: Partial<CatalogCategory>): CatalogCategory =>
+    ({
+      id: 'id',
+      name: 'Name',
+      slug: 'slug',
+      parentSlug: null,
+      imageUrl: null,
+      imageAlt: null,
+      showInHome: true,
+      specsSchema: [],
+      ...overrides,
+    }) as CatalogCategory;
+
+  it('drops categories hidden by the admin flag', () => {
+    const result = visibleCategories([
+      category({ slug: 'shown' }),
+      category({ slug: 'hidden', showInHome: false }),
+    ]);
+    expect(result.map((item) => item.slug)).toEqual(['shown']);
+  });
+
+  it('returns an empty list when nothing is enabled', () => {
+    expect(visibleCategories([category({ showInHome: false })])).toEqual([]);
   });
 });

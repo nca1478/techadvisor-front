@@ -5,7 +5,7 @@ import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton'
 import { firstParam, resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { SearchView } from '@/features/search/containers/search-view';
 import { createApiClient } from '@/lib/api/client';
-import { createCatalogApi } from '@/lib/api/catalog';
+import { createCatalogApi, visibleCategories } from '@/lib/api/catalog';
 import { getPublicConfig } from '@/lib/api/index';
 import { createSearchApi } from '@/lib/api/search';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
@@ -92,7 +92,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       <SearchView
         initialData={searchResult.status === 'fulfilled' ? searchResult.value : null}
         loadError={q !== '' && searchResult.status === 'rejected'}
-        categories={categoriesResult.status === 'fulfilled' ? categoriesResult.value : []}
+        categories={
+          categoriesResult.status === 'fulfilled' ? visibleCategories(categoriesResult.value) : []
+        }
         locale={locale}
         currency={currency}
         messages={messages}
