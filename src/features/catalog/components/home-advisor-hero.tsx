@@ -81,14 +81,6 @@ export function HomeAdvisorHero({
           <Button href={catalogHref} size="lg">
             {messages.cta}
           </Button>
-          <Text
-            variant="caption"
-            tone="headerMuted"
-            as="span"
-            className="font-mono uppercase tracking-[0.12em]"
-          >
-            1-tap add · cited answers
-          </Text>
         </div>
 
         <div
