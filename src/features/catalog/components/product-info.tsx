@@ -31,9 +31,11 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
         >
           {product.brand.name} · {product.category.name}
         </Text>
-        <Heading level={1}>{product.name}</Heading>
+        <Heading level={1} visual="title">
+          {product.name}
+        </Heading>
         <Stack direction="horizontal" gap="md" align="center" className="mt-1 flex-wrap">
-          <Text variant="price-lg" as="span">
+          <Text variant="price-md" as="span">
             {formatPrice(product.priceAmount, currency, locale)}
           </Text>
           {product.inStock ? (

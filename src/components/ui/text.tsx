@@ -8,6 +8,7 @@ const VARIANTS = {
   caption: 'text-xs leading-normal',
   /** Price voice: mono tabulars, tight — amounts scan in one glance. */
   price: 'price text-xl font-semibold leading-none',
+  'price-md': 'price text-2xl font-semibold tracking-tight leading-none',
   'price-lg': 'price text-3xl font-semibold tracking-tight leading-none',
 } as const;
 
