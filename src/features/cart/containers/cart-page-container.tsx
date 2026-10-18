@@ -51,8 +51,9 @@ export function CartPageContainer({
   const { status, cart, error, reload, updateQty, removeItem } = useCart();
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const productIds = cart?.items.map((item) => item.productId) ?? [];
-  const compatibility = useCompatibility(productIds, locale);
+  const compatibilityItems =
+    cart?.items.map((item) => ({ productId: item.productId, qty: item.qty })) ?? [];
+  const compatibility = useCompatibility(compatibilityItems, locale);
 
   // La confirmación explícita caduca si cambia el conjunto de avisos (sin
   // efectos: se deriva durante el render comparando la clave).

@@ -11,8 +11,14 @@ export type CompatibilityIssue = components['schemas']['CompatibilityIssueDto'];
 export type CompatibilityResult = components['schemas']['CompatibilityCheckResponseDto'];
 export type CompatibilitySeverity = CompatibilityIssue['severity'];
 
+export interface CompatibilityCheckItem {
+  productId: string;
+  qty: number;
+}
+
 export interface CompatibilityCheckInput {
-  productIds: string[];
+  productIds?: string[];
+  items?: CompatibilityCheckItem[];
   locale?: string;
 }
 

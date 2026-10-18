@@ -69,6 +69,10 @@ const BOARD_DDR5_ID = '22222222-2222-4222-8222-222222222222';
 const RAM_DDR4_ID = '33333333-3333-4333-8333-333333333333';
 const CPU_AM4_ID = '44444444-4444-4444-8444-444444444444';
 const BOARD_LGA1700_ID = '55555555-5555-4555-8555-555555555555';
+const BOARD_QTY_ID = '66666666-6666-4666-8666-666666666666';
+const SATA_QTY_ID = '77777777-7777-4777-8777-777777777777';
+const RAM_QTY_ID = '88888888-8888-4888-8888-888888888888';
+const M2_QTY_ID = '99999999-9999-4999-8999-999999999999';
 
 const PRODUCTS = [
   productFixture({}),
@@ -148,6 +152,84 @@ const COMPAT_FIXTURES = [
       id: 'cat-boards',
       name: 'Motherboards',
       slug: 'motherboards',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: BOARD_QTY_ID,
+    sku: 'MOCK-BOARD-QTY',
+    name: 'Mock Board Qty',
+    slug: 'mock-board-qty',
+    description:
+      'A mock AM5/DDR5 board with 2 SATA ports, 1 M.2 slot, 2 RAM slots and 32GB max. Fixture for quantity-aware compatibility e2e.',
+    priceAmount: 19900,
+    specs: {
+      socket: 'AM5',
+      ram_type: 'DDR5',
+      form_factor: 'ATX',
+      ram_slots: 2,
+      max_ram_gb: 32,
+      max_ram_speed_mt_s: 6400,
+      m2_slots: 1,
+      sata_ports: 2,
+    },
+    category: {
+      id: 'cat-boards',
+      name: 'Motherboards',
+      slug: 'motherboards',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: SATA_QTY_ID,
+    sku: 'MOCK-SATA-QTY',
+    name: 'Mock SATA Drive',
+    slug: 'mock-sata-drive',
+    description: 'A mock SATA drive. Fixture for quantity-aware compatibility e2e.',
+    priceAmount: 5900,
+    specs: { storage_type: 'SSD', form_factor: '2.5 inch', storage_gb: 1024 },
+    category: {
+      id: 'cat-storage',
+      name: 'Storage',
+      slug: 'storage',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: M2_QTY_ID,
+    sku: 'MOCK-M2-QTY',
+    name: 'Mock M2 Drive',
+    slug: 'mock-m2-drive',
+    description: 'A mock NVMe M.2 drive. Fixture for quantity-aware compatibility e2e.',
+    priceAmount: 8900,
+    specs: { storage_type: 'NVME', form_factor: 'M.2 2280', storage_gb: 1024 },
+    category: {
+      id: 'cat-storage',
+      name: 'Storage',
+      slug: 'storage',
+      parentSlug: null,
+      specsSchema: [],
+      locale: 'en',
+    },
+  }),
+  productFixture({
+    id: RAM_QTY_ID,
+    sku: 'MOCK-RAM-QTY',
+    name: 'Mock RAM Qty DDR5',
+    slug: 'mock-ram-qty',
+    description: 'A mock DDR5 16GB kit (1 module). Fixture for quantity-aware compatibility e2e.',
+    priceAmount: 6900,
+    specs: { ram_type: 'DDR5', ram_gb: 16, speed_mt_s: 5600, modules: 1 },
+    category: {
+      id: 'cat-ram',
+      name: 'Memory',
+      slug: 'memory',
       parentSlug: null,
       specsSchema: [],
       locale: 'en',
@@ -809,10 +891,15 @@ async function handler(req, res) {
 
   // Compatibility (deterministic mock of the rule engine): DDR4 memory in a
   // DDR5 board is an error; an AM4 CPU in an LGA1700 board is an error.
-  // Anything else in the fixture set is compatible.
-  function mockCompatibilityCheck(ids) {
+  // Quantity-aware: `items` (productId+qty) are expanded like the real
+  // backend; legacy `productIds` count as qty 1. The `BOARD_QTY` board has
+  // 2 SATA ports, 1 M.2 slot, 2 RAM slots and 32GB max — exceeding any of
+  // those with qty must raise an error, mirroring the real engine.
+  function mockCompatibilityCheck(qtyById) {
     const issues = [];
+    const ids = [...qtyById.keys()];
     const has = (id) => ids.includes(id);
+    const qty = (id) => qtyById.get(id) ?? 0;
     if (has(RAM_DDR4_ID) && has(BOARD_DDR5_ID)) {
       issues.push({
         rule: 'ram-type',
@@ -833,18 +920,79 @@ async function handler(req, res) {
           'Processor "Mock CPU AM4" uses socket AM4, but board "Mock Board LGA1700" uses socket LGA1700. They are not compatible.',
       });
     }
+    if (has(BOARD_QTY_ID) && has(SATA_QTY_ID) && qty(SATA_QTY_ID) > 2) {
+      issues.push({
+        rule: 'storage-interface',
+        severity: 'error',
+        productIds: [SATA_QTY_ID, BOARD_QTY_ID],
+        messageKey: 'storage-interface.unsupported',
+        message: `Drive "Mock SATA Drive" needs a SATA connection, but board "Mock Board Qty" has no free connectors of that type left.`,
+      });
+    }
+    if (has(BOARD_QTY_ID) && has(M2_QTY_ID) && qty(M2_QTY_ID) > 1) {
+      issues.push({
+        rule: 'storage-interface',
+        severity: 'error',
+        productIds: [M2_QTY_ID, BOARD_QTY_ID],
+        messageKey: 'storage-interface.unsupported',
+        message: `Drive "Mock M2 Drive" needs a M.2 connection, but board "Mock Board Qty" has no free connectors of that type left.`,
+      });
+    }
+    if (has(BOARD_QTY_ID) && has(RAM_QTY_ID)) {
+      const totalGb = 16 * qty(RAM_QTY_ID);
+      const needSlots = 1 * qty(RAM_QTY_ID);
+      if (totalGb > 32) {
+        issues.push({
+          rule: 'ram-capacity',
+          severity: 'error',
+          productIds: [BOARD_QTY_ID, RAM_QTY_ID],
+          messageKey: 'ram-capacity.exceeded',
+          message: `Total memory (${String(totalGb)} GB) exceeds the maximum of board "Mock Board Qty" (32 GB).`,
+        });
+      }
+      if (needSlots > 2) {
+        issues.push({
+          rule: 'ram-slots',
+          severity: 'error',
+          productIds: [BOARD_QTY_ID, RAM_QTY_ID],
+          messageKey: 'ram-slots.exceeded',
+          message: `You need ${String(needSlots)} memory slots, but board "Mock Board Qty" only has 2 slots.`,
+        });
+      }
+    }
     return { compatible: issues.length === 0, issues };
   }
 
   if (method === 'POST' && path === '/compatibility/check') {
-    const ids = Array.isArray(body.productIds) ? body.productIds : [];
+    const qtyById = new Map();
+    const legacyIds = Array.isArray(body.productIds) ? body.productIds : [];
+    for (const id of legacyIds) {
+      if (typeof id === 'string' && !qtyById.has(id)) qtyById.set(id, 1);
+    }
+    const items = Array.isArray(body.items) ? body.items : [];
+    for (const item of items) {
+      if (
+        item &&
+        typeof item.productId === 'string' &&
+        Number.isInteger(item.qty) &&
+        item.qty >= 1
+      ) {
+        qtyById.set(item.productId, item.qty);
+      }
+    }
+    const ids = [...qtyById.keys()];
     const unknown = ids.filter((id) => !ALL_PRODUCTS.some((product) => product.id === id));
     if (unknown.length > 0) {
       const err = uniformError(404, 'NOT_FOUND', `Products not found: ${unknown.join(', ')}`);
       send(res, err.status, err.body);
       return;
     }
-    send(res, 200, mockCompatibilityCheck([...new Set(ids)]));
+    if (ids.length === 0) {
+      const err = uniformError(400, 'BAD_REQUEST', 'either productIds or items is required');
+      send(res, err.status, err.body);
+      return;
+    }
+    send(res, 200, mockCompatibilityCheck(qtyById));
     return;
   }
 
@@ -887,7 +1035,7 @@ async function handler(req, res) {
         direction: null,
       },
     ];
-    const compatibility = mockCompatibilityCheck(ids);
+    const compatibility = mockCompatibilityCheck(new Map(ids.map((id) => [id, 1])));
     const first = ordered[0];
     const second = ordered[1];
     send(res, 200, {

@@ -67,9 +67,11 @@ function jsonResponse(status: number, body: unknown): Response {
 function stubFetch(compatibilityBody: unknown) {
   vi.stubGlobal(
     'fetch',
-    vi.fn((url: unknown) => {
+    vi.fn((url: unknown, init?: RequestInit) => {
       if (String(url) === '/api/cart') return Promise.resolve(jsonResponse(200, cartPayload()));
       if (String(url) === '/api/compatibility/check') {
+        // Expose the request body for qty assertions (see test below).
+        (globalThis as { __compatBody?: unknown }).__compatBody = JSON.parse(init?.body as string);
         return Promise.resolve(jsonResponse(200, compatibilityBody));
       }
       return Promise.resolve(jsonResponse(500, { message: 'unmocked' }));
@@ -133,5 +135,26 @@ describe('CartPageContainer compatibility', () => {
       );
     });
     expect(screen.queryByRole('checkbox')).toBeNull();
+  });
+
+  it('sends cart quantities to the compatibility check', async () => {
+    stubFetch({ compatible: true, issues: [] });
+    renderCart();
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: messages.summary.checkout })).toHaveAttribute(
+        'href',
+        '/es/checkout',
+      );
+    });
+    const body = (globalThis as { __compatBody?: unknown }).__compatBody as {
+      items?: { productId: string; qty: number }[];
+    };
+    expect(body.items).toEqual(
+      expect.arrayContaining([
+        { productId: 'ram-id', qty: 1 },
+        { productId: 'board-id', qty: 1 },
+      ]),
+    );
   });
 });

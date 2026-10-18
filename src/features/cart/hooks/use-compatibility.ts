@@ -5,6 +5,7 @@ import {
   compatibilityHasErrors,
   parseCompatibilityResult,
   sortCompatibilityIssues,
+  type CompatibilityCheckItem,
   type CompatibilityIssue,
 } from '@/lib/api/compatibility';
 
@@ -32,21 +33,25 @@ interface Entry extends CompatibilityState {
  * Consulta `POST /api/compatibility/check` con los productos del carrito.
  * El veredicto viene del motor determinista del backend (reglas sobre
  * `specs`); el LLM no interviene. Se re-ejecuta cuando cambia el conjunto
- * de productos o el idioma. Mientras la respuesta va en vuelo se deriva
- * `loading` durante el render (sin setState sincrónico en el efecto).
+ * de productos, sus cantidades o el idioma. Mientras la respuesta va en vuelo
+ * se deriva `loading` durante el render (sin setState sincrónico en el efecto).
  */
-export function useCompatibility(productIds: string[], locale: string): CompatibilityState {
-  const key = [...productIds].sort().join(',');
+export function useCompatibility(
+  items: CompatibilityCheckItem[],
+  locale: string,
+): CompatibilityState {
+  const sorted = [...items].sort((a, b) => a.productId.localeCompare(b.productId));
+  const key = sorted.map((item) => `${item.productId}:${String(item.qty)}`).join(',');
   const [entry, setEntry] = useState<Entry>({ ...IDLE, status: 'loading', key: '' });
 
   useEffect(() => {
-    if (productIds.length === 0) return;
+    if (sorted.length === 0) return;
     let cancelled = false;
     fetch('/api/compatibility/check', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       credentials: 'same-origin',
-      body: JSON.stringify({ productIds: [...productIds].sort(), locale }),
+      body: JSON.stringify({ items: sorted, locale }),
     })
       .then(async (res) => {
         const body: unknown = await res.json().catch(() => null);
@@ -87,10 +92,10 @@ export function useCompatibility(productIds: string[], locale: string): Compatib
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` resume ids+orden.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` resume ids+cantidades.
   }, [key, locale]);
 
-  if (productIds.length === 0) return IDLE;
+  if (sorted.length === 0) return IDLE;
   if (entry.key !== key) {
     return { ...IDLE, status: 'loading' };
   }
