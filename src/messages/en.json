@@ -925,7 +925,6 @@
       "tableNumber": "No",
       "tableQuestion": "Question",
       "tableTimes": "Times",
-      "tableLatest": "Latest",
       "tableActions": "Actions",
       "emptyGroups": "No unanswered questions match this filter.",
       "markReview": "Review",
@@ -955,7 +954,8 @@
       "conversationError": "The conversation could not be loaded.",
       "close": "Close",
       "detailQueryLabel": "Question",
-      "detailAnswerLabel": "Voted answer"
+      "detailAnswerLabel": "Voted answer",
+      "detailReasonLabel": "Reason"
     },
     "orders": {
       "title": "Orders",

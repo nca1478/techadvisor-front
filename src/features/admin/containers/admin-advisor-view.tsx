@@ -23,6 +23,7 @@ import type {
   AdminFeedbackValue,
   AdminUnansweredGroup,
   AdminUnansweredGroupList,
+  AdminUnansweredQuery,
   AdminUnansweredStatus,
 } from '@/lib/api/admin';
 import { ADMIN_UNANSWERED_STATUSES, asOptionalId } from '@/lib/api/admin';
@@ -39,6 +40,12 @@ export interface AdminAdvisorQuery {
 interface FeedbackDetailState {
   loading: boolean;
   data: AdminAdvisorFeedbackDetail | null;
+  error: string | null;
+}
+
+interface GroupDetailState {
+  loading: boolean;
+  data: AdminUnansweredQuery | null;
   error: string | null;
 }
 
@@ -127,6 +134,10 @@ export function AdminAdvisorView({
   const [groupNotice, setGroupNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [openFeedbackId, setOpenFeedbackId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, FeedbackDetailState | undefined>>({});
+  const [openGroupKey, setOpenGroupKey] = useState<string | null>(null);
+  const [groupDetails, setGroupDetails] = useState<Record<string, GroupDetailState | undefined>>(
+    {},
+  );
   const [openSessionId, setOpenSessionId] = useState<string | null>(null);
   const [session, setSession] = useState<SessionState | null>(null);
   const [activeTab, setActiveTab] = useState<AdminAdvisorQuery['tab']>(query.tab);
@@ -144,7 +155,9 @@ export function AdminAdvisorView({
     if (merged.fvalue !== '') search.set('fvalue', merged.fvalue);
     if (merged.fpage > 1) search.set('fpage', String(merged.fpage));
     const rendered = search.toString();
-    router.push(`/${locale}/admin/asesor${rendered === '' ? '' : `?${rendered}`}`);
+    router.push(`/${locale}/admin/asesor${rendered === '' ? '' : `?${rendered}`}`, {
+      scroll: false,
+    });
   }
 
   function selectTab(tab: AdminAdvisorQuery['tab']) {
@@ -222,6 +235,45 @@ export function AdminAdvisorView({
         data: null,
         error: adminErrorMessage(error, advisor.conversationError),
       });
+    }
+  }
+
+  async function toggleGroupDetail(group: AdminUnansweredGroup) {
+    if (openGroupKey === group.key) {
+      setOpenGroupKey(null);
+      return;
+    }
+    setOpenGroupKey(group.key);
+    setOpenSessionId(null);
+    const cached = groupDetails[group.key];
+    if (cached?.data) return;
+    if (group.ids.length === 0) {
+      setGroupDetails((prev) => ({
+        ...prev,
+        [group.key]: { loading: false, data: null, error: messages.admin.loadError },
+      }));
+      return;
+    }
+    const newestId = group.ids[0];
+    setGroupDetails((prev) => ({
+      ...prev,
+      [group.key]: { loading: true, data: null, error: null },
+    }));
+    try {
+      const data = await adminHttp.get<AdminUnansweredQuery>(`/advisor/unanswered/${newestId}`);
+      setGroupDetails((prev) => ({
+        ...prev,
+        [group.key]: { loading: false, data, error: null },
+      }));
+    } catch (error) {
+      setGroupDetails((prev) => ({
+        ...prev,
+        [group.key]: {
+          loading: false,
+          data: null,
+          error: adminErrorMessage(error, messages.admin.loadError),
+        },
+      }));
     }
   }
 
@@ -330,8 +382,11 @@ export function AdminAdvisorView({
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {advisor.tableTimes}
                     </th>
-                    <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
-                      {advisor.tableLatest}
+                    <th
+                      scope="col"
+                      className="whitespace-nowrap px-4 py-3 text-sm font-bold text-muted-foreground"
+                    >
+                      {advisor.tableDate}
                     </th>
                     <th scope="col" className="px-4 py-3 text-sm font-bold text-muted-foreground">
                       {advisor.tableActions}
@@ -342,16 +397,58 @@ export function AdminAdvisorView({
                   {groups.data.map((group, index) => {
                     const reviewable = showTriage && canMarkReview(group, query.status);
                     const resolvable = showTriage && canMarkResolved(group);
+                    const expanded = openGroupKey === group.key;
+                    const groupDetail = groupDetails[group.key];
                     return (
                       <tr key={group.key} className="border-b border-border last:border-0">
-                        <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                        <td className="px-4 py-3 text-right align-top tabular-nums text-muted-foreground">
                           {(groups.page - 1) * groups.limit + index + 1}
                         </td>
-                        <td className="px-4 py-3">{group.sample}</td>
-                        <td className="px-4 py-3">{group.count}</td>
-                        <td className="px-4 py-3">{formatDate(group.latestAt, locale)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 align-top">
+                          <Stack gap="sm">
+                            {!expanded && <Text>{group.sample}</Text>}
+                            {expanded && (
+                              <Stack gap="sm">
+                                {groupDetail === undefined || groupDetail.loading ? (
+                                  <Text tone="muted">{messages.common.loading}</Text>
+                                ) : groupDetail.error !== null ? (
+                                  <Text role="alert" className="text-destructive">
+                                    {groupDetail.error}
+                                  </Text>
+                                ) : (
+                                  groupDetail.data !== null && (
+                                    <Stack gap="sm">
+                                      <Text>
+                                        <strong>{advisor.detailQueryLabel}:</strong>{' '}
+                                        {groupDetail.data.query}
+                                      </Text>
+                                      <Text>
+                                        <strong>{advisor.detailReasonLabel}:</strong>{' '}
+                                        {reasonLabels[groupDetail.data.reason] ??
+                                          groupDetail.data.reason}
+                                      </Text>
+                                    </Stack>
+                                  )
+                                )}
+                              </Stack>
+                            )}
+                          </Stack>
+                        </td>
+                        <td className="px-4 py-3 align-top tabular-nums">{group.count}</td>
+                        <td className="px-4 py-3 align-top whitespace-nowrap">
+                          {formatDate(group.latestAt, locale)}
+                        </td>
+                        <td className="px-4 py-3 align-top">
                           <Stack direction="horizontal" gap="sm" wrap>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                void toggleGroupDetail(group);
+                              }}
+                            >
+                              {advisor.viewDetail}
+                            </Button>
                             {reviewable && (
                               <Button
                                 variant="secondary"

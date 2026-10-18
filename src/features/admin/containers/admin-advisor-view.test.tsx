@@ -270,6 +270,45 @@ describe('AdminAdvisorView', () => {
     expect(screen.getAllByText(/nunca se expone aquí/).length).toBeGreaterThan(0);
   });
 
+  it('expands a group to show the full question, reason and conversation', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) => {
+        if (url === '/api/admin/advisor/unanswered/id-a') {
+          return Promise.resolve(
+            jsonResponse(200, {
+              id: 'id-a',
+              query: '¿Cuánto dura la batería?',
+              productId: null,
+              sessionId: 'session-9',
+              reason: 'no_evidence',
+              status: 'NEW',
+              createdAt: '2026-10-10T10:00:00.000Z',
+            }),
+          );
+        }
+        if (url === '/api/admin/advisor/sessions/session-9') {
+          return Promise.resolve(
+            jsonResponse(200, {
+              sessionId: 'session-9',
+              messageCount: 1,
+              messages: [{ role: 'USER', excerpt: 'hola', length: 4 }],
+              createdAt: '2026-10-10T10:00:00.000Z',
+            }),
+          );
+        }
+        return Promise.resolve(jsonResponse(404, { message: 'not found' }));
+      }),
+    );
+    renderView();
+    fireEvent.click(screen.getByRole('tab', { name: 'Preguntas sin respuesta por frecuencia' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver' }));
+    await screen.findByText(/Motivo/);
+    // "Sin evidencia" también aparece en la tarjeta de métricas por motivo.
+    expect(screen.getAllByText(/Sin evidencia/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/¿Cuánto dura la batería\?/)).toBeInTheDocument();
+  });
+
   it('renders load errors without rows', () => {
     render(
       <AdminAdvisorView

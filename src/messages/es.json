@@ -925,7 +925,6 @@
       "tableNumber": "No",
       "tableQuestion": "Pregunta",
       "tableTimes": "Veces",
-      "tableLatest": "Última",
       "tableActions": "Acciones",
       "emptyGroups": "Ninguna pregunta sin respuesta coincide con este filtro.",
       "markReview": "Revisar",
@@ -955,7 +954,8 @@
       "conversationError": "No se pudo cargar la conversación.",
       "close": "Cerrar",
       "detailQueryLabel": "Pregunta",
-      "detailAnswerLabel": "Respuesta votada"
+      "detailAnswerLabel": "Respuesta votada",
+      "detailReasonLabel": "Motivo"
     },
     "orders": {
       "title": "Pedidos",
