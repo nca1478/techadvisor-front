@@ -324,14 +324,14 @@ export default async function LocaleLayout({
                         >
                           {messages.footer.helpTitle}
                         </Text>
+                        <Link href={`/${locale}/asesor`} variant="header" className="text-sm">
+                          {messages.nav.asesor}
+                        </Link>
                         <Link href={`/${locale}/soporte`} variant="header" className="text-sm">
                           {messages.support.navLabel}
                         </Link>
                         <Link href={`/${locale}/carrito`} variant="header" className="text-sm">
                           {messages.nav.cart}
-                        </Link>
-                        <Link href={`/${locale}/asesor`} variant="header" className="text-sm">
-                          {messages.nav.asesor}
                         </Link>
                       </Stack>
                     </nav>
