@@ -163,9 +163,9 @@ export default async function LocaleLayout({
                   </MobileHeaderMenu>
                 </div>
               </Container>
-              {/* Segunda línea: categorías, con divisora a todo el ancho. */}
+              {/* Segunda línea: categorías, con divisoras arriba y abajo a todo el ancho. */}
               {categories.length > 0 ? (
-                <div className="border-t border-header-sub mt-2 md:mt-0">
+                <div className="border-y border-border mt-2 md:mt-0">
                   <Container>
                     <div className="py-3 md:py-2">
                       <CategoryNav
@@ -361,13 +361,17 @@ export default async function LocaleLayout({
                     </nav>
                   </div>
                 </div>
-                <div className="border-t border-border py-6 text-center sm:py-8">
-                  <Text variant="small" tone="headerMuted" className="text-center">
-                    © {new Date().getFullYear()} {messages.common.techAdvisor}.{' '}
-                    {messages.footer.rights}
-                  </Text>
-                </div>
               </Container>
+              <div className="border-t border-border">
+                <Container>
+                  <div className="py-6 text-center sm:py-8">
+                    <Text variant="small" tone="headerMuted" className="text-center">
+                      © {new Date().getFullYear()} {messages.common.techAdvisor}.{' '}
+                      {messages.footer.rights}
+                    </Text>
+                  </div>
+                </Container>
+              </div>
             </footer>
           </ThemeProvider>
         </CompareSelectionProvider>
