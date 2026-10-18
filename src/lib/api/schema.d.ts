@@ -514,7 +514,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Full abstention row (admin-only, e.g. to draft a corpus document) */
+    get: operations['AdminAdvisorController_getUnanswered'];
     put?: never;
     post?: never;
     delete?: never;
@@ -924,7 +925,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Natural-language product search over the RAG corpus */
+    /** Product search: natural-language over the RAG corpus, or filter-only browse */
     get: operations['SearchController_searchProducts'];
     put?: never;
     post?: never;
@@ -2903,14 +2904,28 @@ export interface components {
        */
       deleted: number;
     };
+    CompatibilityCheckItemDto: {
+      /**
+       * @description Product id (UUID).
+       * @example 3fa85f64-5717-4562-b3fc-2c963f66afa6
+       */
+      productId: string;
+      /**
+       * @description Units of this product in the build (1..999).
+       * @example 3
+       */
+      qty: number;
+    };
     CompatibilityCheckRequestDto: {
       /**
-       * @description Product ids to check together (1..20 unique UUIDs).
+       * @description Legacy product ids (each counts as qty 1). Prefer `items`.
        * @example [
        *       "3fa85f64-5717-4562-b3fc-2c963f66afa6"
        *     ]
        */
-      productIds: string[];
+      productIds?: string[];
+      /** @description Quantity-aware items: one entry per distinct product with its cart qty. */
+      items?: components['schemas']['CompatibilityCheckItemDto'][];
       /**
        * @description BCP 47 locale for issue messages; defaults server-side.
        * @example es
@@ -4945,6 +4960,52 @@ export interface operations {
       };
     };
   };
+  AdminAdvisorController_getUnanswered: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminUnansweredQueryDto'];
+        };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
   AdminAdvisorController_updateUnansweredStatus: {
     parameters: {
       query?: never;
@@ -6295,7 +6356,7 @@ export interface operations {
   };
   SearchController_searchProducts: {
     parameters: {
-      query: {
+      query?: {
         /** @description Max products (1..24, default 12). */
         limit?: unknown;
         /** @description BCP 47 locale; falls back to default. */
@@ -6306,8 +6367,8 @@ export interface operations {
         maxPrice?: unknown;
         /** @description Category slug filter. */
         category?: unknown;
-        /** @description Natural-language query (1..200 chars). */
-        q: unknown;
+        /** @description Natural-language query (0..200 chars). Empty browses by filters. */
+        q?: unknown;
       };
       header?: never;
       path?: never;
