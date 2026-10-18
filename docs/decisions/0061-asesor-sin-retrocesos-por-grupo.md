@@ -1,4 +1,4 @@
-# 0034 — Asesor admin: no ofrecer retrocesos de triaje por grupo
+# 0061 — Asesor admin: no ofrecer retrocesos de triaje por grupo
 
 Fecha: 2026-10-17
 Estado: aceptado
