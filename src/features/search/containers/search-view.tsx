@@ -62,13 +62,19 @@ export function SearchView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [queryInput, setQueryInput] = useState(query);
   const [category, setCategory] = useState(initialCategory);
   const [maxPriceInput, setMaxPriceInput] = useState(minorToInput(initialMaxPriceMinor, currency));
   const [maxPriceError, setMaxPriceError] = useState<string | undefined>(undefined);
 
-  function apply(nextCategory: string, nextMaxPriceMinor: number | null) {
+  function apply(nextQuery: string, nextCategory: string, nextMaxPriceMinor: number | null) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('q', query);
+    const trimmedQuery = nextQuery.trim();
+    if (trimmedQuery) {
+      params.set('q', trimmedQuery);
+    } else {
+      params.delete('q');
+    }
     if (nextCategory) {
       params.set('category', nextCategory);
     } else {
@@ -89,7 +95,7 @@ export function SearchView({
     const trimmed = maxPriceInput.trim();
     if (trimmed === '') {
       setMaxPriceError(undefined);
-      apply(category, null);
+      apply(queryInput, category, null);
       return;
     }
     const parsed = Number(trimmed);
@@ -98,15 +104,16 @@ export function SearchView({
       return;
     }
     setMaxPriceError(undefined);
-    apply(category, Math.round(parsed * 10 ** currencyFractionDigits(currency)));
+    apply(queryInput, category, Math.round(parsed * 10 ** currencyFractionDigits(currency)));
   }
 
   function handleClear() {
+    setQueryInput('');
     setCategory('');
     setMaxPriceInput('');
     setMaxPriceError(undefined);
     const params = new URLSearchParams(searchParams.toString());
-    params.set('q', query);
+    params.delete('q');
     params.delete('category');
     params.delete('maxPrice');
     const url = `${pathname}?${params.toString()}`;
@@ -125,11 +132,12 @@ export function SearchView({
           </Stack>
 
           <SearchFilters
-            values={{ category, maxPriceInput }}
+            values={{ query: queryInput, category, maxPriceInput }}
             categories={categories}
             messages={messages.search}
             maxPriceError={maxPriceError}
             onChange={(next) => {
+              setQueryInput(next.query);
               setCategory(next.category);
               setMaxPriceInput(next.maxPriceInput);
             }}

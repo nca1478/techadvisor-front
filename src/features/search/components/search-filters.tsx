@@ -8,6 +8,7 @@ import type { CatalogCategory } from '@/lib/api/catalog';
 import type { Dictionary } from '@/lib/i18n/index';
 
 export interface SearchFilterValues {
+  query: string;
   category: string;
   maxPriceInput: string;
 }
@@ -45,20 +46,31 @@ export function SearchFilters({
       }}
     >
       <Stack gap="md">
+        <Input
+          label={messages.label}
+          name="q"
+          placeholder={messages.placeholder}
+          value={values.query}
+          onChange={(event) => {
+            onChange({ ...values, query: event.target.value });
+          }}
+        />
         <Stack direction="horizontal" gap="md" wrap>
-          <Select
-            label={messages.categoryLabel}
-            name="category"
-            value={values.category}
-            placeholder={messages.allCategories}
-            options={categories.map((category) => ({
-              value: category.slug,
-              label: category.name,
-            }))}
-            onChange={(event) => {
-              onChange({ ...values, category: event.target.value });
-            }}
-          />
+          {categories.length > 0 && (
+            <Select
+              label={messages.categoryLabel}
+              name="category"
+              value={values.category}
+              placeholder={messages.allCategories}
+              options={categories.map((category) => ({
+                value: category.slug,
+                label: category.name,
+              }))}
+              onChange={(event) => {
+                onChange({ ...values, category: event.target.value });
+              }}
+            />
+          )}
           <Input
             label={messages.maxPriceLabel}
             name="max-price"

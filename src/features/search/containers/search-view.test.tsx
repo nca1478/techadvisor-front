@@ -176,6 +176,43 @@ describe('SearchView', () => {
     });
   });
 
+  it('edits the query on the page so filters work without the header bar', () => {
+    currentParams = '';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((): Promise<Response> =>
+        Promise.resolve(new Response(JSON.stringify(emptyCart), { status: 200 })),
+      ),
+    );
+    render(
+      <CartProvider>
+        <SearchView
+          initialData={null}
+          loadError={false}
+          categories={categories}
+          locale="en"
+          currency="USD"
+          messages={en}
+          query=""
+          initialCategory=""
+          initialMaxPriceMinor={null}
+        />
+      </CartProvider>,
+    );
+
+    fireEvent.change(screen.getByLabelText(en.search.label), {
+      target: { value: 'grafica' },
+    });
+    fireEvent.change(screen.getByLabelText(en.search.categoryLabel), {
+      target: { value: 'audio' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: en.search.applyFilters }));
+
+    expect(replace).toHaveBeenCalledWith('/en/buscar?q=grafica&category=audio', {
+      scroll: false,
+    });
+  });
+
   it('rejects an invalid max price without navigating', () => {
     renderView({});
 
