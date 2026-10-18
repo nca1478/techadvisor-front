@@ -30,7 +30,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         priority
         fit="contain"
         tone="light"
-        className="border border-border p-6"
+        className="border border-border p-6 shadow-md"
       />
       {images.length > 1 && (
         <div role="group" aria-label={productName} className="flex gap-4 overflow-x-auto pb-1">

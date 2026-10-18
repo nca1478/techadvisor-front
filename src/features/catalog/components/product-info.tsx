@@ -49,7 +49,7 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
         )}
       </Stack>
 
-      <div className="rounded-xl border border-primary/25 bg-primary-subtle p-4">
+      <div className="rounded-xl border border-primary/25 bg-primary-subtle p-4 shadow-md">
         <Stack gap="sm">
           <AddToCartButton
             productId={product.id}
@@ -79,7 +79,7 @@ export function ProductInfo({ product, locale, currency, messages }: ProductInfo
       {specs.length > 0 && (
         <Stack gap="sm">
           <Heading level={3}>{messages.specsTitle}</Heading>
-          <dl className="overflow-hidden rounded-md border border-border">
+          <dl className="overflow-hidden rounded-md border border-border bg-surface shadow-md">
             {specs.map(([key, value]) => (
               <div
                 key={key}
