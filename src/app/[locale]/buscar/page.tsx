@@ -81,6 +81,12 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       ? parsedMaxPrice
       : null;
 
+  // Without `q` the backend still browses ACTIVE products by the remaining
+  // filters (SQL-only). Only skip the fetch when there is nothing to search
+  // by at all — otherwise filter-only URLs would show the idle hint.
+  const shouldSearch =
+    q !== '' || category !== '' || brand !== '' || sort !== '' || inStockOnly || maxPrice !== null;
+
   let currency = 'USD';
   try {
     const config = await getPublicConfig(client);
@@ -90,9 +96,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
   }
 
   const [searchResult, categoriesResult, brandsResult] = await Promise.allSettled([
-    q === ''
-      ? Promise.resolve(null)
-      : search.search({
+    shouldSearch
+      ? search.search({
           q,
           category: category === '' ? undefined : category,
           brand: brand === '' ? undefined : brand,
@@ -101,7 +106,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
           maxPrice: maxPrice ?? undefined,
           currency,
           locale,
-        }),
+        })
+      : Promise.resolve(null),
     catalog.listCategories(locale),
     catalog.listBrands(),
   ]);
@@ -110,7 +116,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     <Suspense fallback={<ListingSkeleton loadingLabel={messages.common.loading} />}>
       <SearchView
         initialData={searchResult.status === 'fulfilled' ? searchResult.value : null}
-        loadError={q !== '' && searchResult.status === 'rejected'}
+        loadError={shouldSearch && searchResult.status === 'rejected'}
         categories={
           categoriesResult.status === 'fulfilled' ? visibleCategories(categoriesResult.value) : []
         }

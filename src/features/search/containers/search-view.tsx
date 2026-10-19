@@ -208,7 +208,7 @@ export function SearchView({
             />
           </Disclosure>
 
-          {query.trim() === '' ? (
+          {initialData === null && !loadError ? (
             <CatalogEmpty title={messages.common.emptyTitle} message={messages.search.subtitle} />
           ) : loadError || initialData === null ? (
             <CatalogError
@@ -225,10 +225,14 @@ export function SearchView({
               className={isPending ? 'opacity-60' : undefined}
             >
               <Text variant="small" tone="muted" role="status">
-                {formatTemplate(messages.search.resultsFor, {
-                  count: String(initialData.results.length),
-                  query: initialData.query,
-                })}
+                {initialData.query === ''
+                  ? formatTemplate(messages.catalog.results, {
+                      count: String(initialData.results.length),
+                    })
+                  : formatTemplate(messages.search.resultsFor, {
+                      count: String(initialData.results.length),
+                      query: initialData.query,
+                    })}
               </Text>
               {initialData.degraded && (
                 <Card>

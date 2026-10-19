@@ -266,6 +266,19 @@ describe('SearchView', () => {
     });
   });
 
+  it('shows browse results when filters are set without a text query', () => {
+    renderView({
+      query: '',
+      initialCategory: 'audio',
+      initialBrand: 'testbrand',
+      initialSort: 'price_asc',
+      initialData: response({ query: '', results: response().results }),
+    });
+
+    expect(screen.getByText('Light Headphones')).toBeVisible();
+    expect(screen.getByText('1 products')).toBeVisible();
+  });
+
   it('rejects an invalid max price without navigating', () => {
     renderView({});
     openFilters();
