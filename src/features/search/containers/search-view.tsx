@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { Disclosure } from '@/components/ui/disclosure';
 import { Heading } from '@/components/ui/heading';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
@@ -122,6 +123,11 @@ export function SearchView({
     });
   }
 
+  const activeFilterCount =
+    (queryInput.trim() !== '' ? 1 : 0) +
+    (category !== '' ? 1 : 0) +
+    (maxPriceInput.trim() !== '' ? 1 : 0);
+
   return (
     <Container>
       <Section spacing="tight">
@@ -131,19 +137,21 @@ export function SearchView({
             <Text tone="muted">{messages.search.subtitle}</Text>
           </Stack>
 
-          <SearchFilters
-            values={{ query: queryInput, category, maxPriceInput }}
-            categories={categories}
-            messages={messages.search}
-            maxPriceError={maxPriceError}
-            onChange={(next) => {
-              setQueryInput(next.query);
-              setCategory(next.category);
-              setMaxPriceInput(next.maxPriceInput);
-            }}
-            onApply={handleApply}
-            onClear={handleClear}
-          />
+          <Disclosure title={messages.search.filtersTitle} count={activeFilterCount}>
+            <SearchFilters
+              values={{ query: queryInput, category, maxPriceInput }}
+              categories={categories}
+              messages={messages.search}
+              maxPriceError={maxPriceError}
+              onChange={(next) => {
+                setQueryInput(next.query);
+                setCategory(next.category);
+                setMaxPriceInput(next.maxPriceInput);
+              }}
+              onApply={handleApply}
+              onClear={handleClear}
+            />
+          </Disclosure>
 
           {query.trim() === '' ? (
             <CatalogEmpty title={messages.common.emptyTitle} message={messages.search.subtitle} />

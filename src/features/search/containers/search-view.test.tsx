@@ -122,6 +122,10 @@ function renderView(props: {
   );
 }
 
+function openFilters() {
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(en.search.filtersTitle) }));
+}
+
 describe('SearchView', () => {
   it('renders results without evidence snippets and no degraded notice by default', () => {
     renderView({});
@@ -162,6 +166,7 @@ describe('SearchView', () => {
 
   it('applies category and max-price filters through the URL in minor units', () => {
     renderView({});
+    openFilters();
 
     fireEvent.change(screen.getByLabelText(en.search.categoryLabel), {
       target: { value: 'audio' },
@@ -199,6 +204,7 @@ describe('SearchView', () => {
         />
       </CartProvider>,
     );
+    openFilters();
 
     fireEvent.change(screen.getByLabelText(en.search.label), {
       target: { value: 'grafica' },
@@ -215,6 +221,7 @@ describe('SearchView', () => {
 
   it('rejects an invalid max price without navigating', () => {
     renderView({});
+    openFilters();
 
     fireEvent.change(screen.getByLabelText(en.search.maxPriceLabel), {
       target: { value: '-5' },
@@ -223,5 +230,17 @@ describe('SearchView', () => {
 
     expect(screen.getByText(en.search.maxPriceInvalid)).toBeVisible();
     expect(replace).not.toHaveBeenCalled();
+  });
+
+  it('collapses filters in a disclosure with an active-filter badge', () => {
+    renderView({});
+
+    expect(screen.queryByLabelText(en.search.maxPriceLabel)).not.toBeInTheDocument();
+    const trigger = screen.getByRole('button', { name: new RegExp(en.search.filtersTitle) });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByLabelText(en.search.maxPriceLabel)).toBeVisible();
   });
 });

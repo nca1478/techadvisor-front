@@ -136,6 +136,7 @@
     "maxPricePlaceholder": "p. ej. 800",
     "maxPriceInvalid": "Ingresa un precio válido de 0 o más.",
     "applyFilters": "Aplicar",
+    "filtersTitle": "Filtros",
     "clearFilters": "Limpiar filtros"
   },
   "advisor": {
