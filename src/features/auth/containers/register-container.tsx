@@ -95,7 +95,9 @@ export function RegisterContainer({
                 onSubmit={() => void handleSubmit()}
               />
               <Stack gap="sm" className="items-center">
-                <Text tone="muted">{hasAccountPrompt}</Text>
+                <Text tone="muted" variant="small" className="w-full text-center">
+                  {hasAccountPrompt}
+                </Text>
                 <Button variant="dark" size="lg" href={loginHref} className="w-full">
                   {signInCta}
                 </Button>
