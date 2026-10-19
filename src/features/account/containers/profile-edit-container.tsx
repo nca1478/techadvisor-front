@@ -18,10 +18,12 @@ import { profileUpdateSchema } from '../schemas';
 export function ProfileEditContainer({
   email,
   initialName,
+  isGoogleUser = false,
   messages,
 }: {
   email: string;
   initialName: string;
+  isGoogleUser?: boolean;
   messages: Dictionary['account'];
 }) {
   const { refresh } = useSession();
@@ -57,7 +59,11 @@ export function ProfileEditContainer({
     try {
       const payload: UpdateProfileRequest = {
         name: parsed.data.name,
-        ...(parsed.data.password.length > 0 ? { password: parsed.data.password } : {}),
+        // Google users have no local password: never send one even if a
+        // crafted state carried it (their inputs are disabled upstream).
+        ...(!isGoogleUser && parsed.data.password.length > 0
+          ? { password: parsed.data.password }
+          : {}),
       };
       const res = await fetch('/api/account/profile', {
         method: 'PATCH',
@@ -87,12 +93,14 @@ export function ProfileEditContainer({
       errors={errors}
       pending={pending}
       success={success}
+      passwordDisabled={isGoogleUser}
       messages={{
         emailLabel: messages.emailLabel,
         emailHint: messages.emailHint,
         nameLabel: messages.nameLabel,
         newPasswordLabel: messages.newPasswordLabel,
         newPasswordHint: messages.newPasswordHint,
+        googlePasswordHint: messages.googlePasswordHint,
         confirmPasswordLabel: messages.confirmPasswordLabel,
         submit: messages.saveAction,
         required: messages.required,

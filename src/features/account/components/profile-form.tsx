@@ -10,6 +10,7 @@ export interface ProfileFormMessages {
   nameLabel: string;
   newPasswordLabel: string;
   newPasswordHint: string;
+  googlePasswordHint?: string;
   confirmPasswordLabel: string;
   submit: string;
   submitting?: string;
@@ -29,6 +30,8 @@ export interface ProfileFieldErrors {
 /**
  * Presentational profile form: name first + email side-by-side, then new
  * password + confirmation side-by-side. Email is shown but never editable.
+ * Google users (`passwordDisabled`) see both password inputs disabled with
+ * an explanatory hint: their password lives in their Google account.
  * Single column on mobile, two columns from `sm` up. Full parent width.
  */
 export function ProfileForm({
@@ -38,6 +41,7 @@ export function ProfileForm({
   pending,
   success,
   messages,
+  passwordDisabled = false,
   onChange,
   onSubmit,
 }: {
@@ -47,6 +51,7 @@ export function ProfileForm({
   pending: boolean;
   success: string | null;
   messages: ProfileFormMessages;
+  passwordDisabled?: boolean;
   onChange: (field: 'name' | 'password' | 'confirmPassword', value: string) => void;
   onSubmit: () => void;
 }) {
@@ -90,7 +95,13 @@ export function ProfileForm({
             autoComplete="new-password"
             value={values.password}
             error={errors.password}
-            hint={messages.newPasswordHint}
+            hint={
+              passwordDisabled
+                ? (messages.googlePasswordHint ?? messages.newPasswordHint)
+                : messages.newPasswordHint
+            }
+            disabled={passwordDisabled}
+            readOnly={passwordDisabled}
             onChange={(event) => {
               onChange('password', event.target.value);
             }}
@@ -102,6 +113,8 @@ export function ProfileForm({
             autoComplete="new-password"
             value={values.confirmPassword}
             error={errors.confirmPassword}
+            disabled={passwordDisabled}
+            readOnly={passwordDisabled}
             onChange={(event) => {
               onChange('confirmPassword', event.target.value);
             }}

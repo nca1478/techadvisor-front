@@ -16,14 +16,15 @@ const user = {
   email: 'ada@example.com',
   name: 'Ada Lovelace',
   role: 'CUSTOMER',
+  provider: 'LOCAL',
   createdAt: '2026-10-06T12:00:00.000Z',
   updatedAt: '2026-10-06T12:00:00.000Z',
 } as unknown as AuthUser;
 
-function renderView(defaultTab: 'perfil' | 'pedidos' = 'perfil') {
+function renderView(defaultTab: 'perfil' | 'pedidos' = 'perfil', overrideUser: AuthUser = user) {
   render(
     <AccountView
-      user={user}
+      user={overrideUser}
       orders={[]}
       loadError={false}
       locale="es"
@@ -65,5 +66,29 @@ describe('AccountView tabs', () => {
     renderView('pedidos');
     expect(screen.getByRole('tab', { name: 'Pedidos', selected: true })).toBeDefined();
     expect(screen.getByText(messages.empty)).toBeDefined();
+  });
+});
+
+describe('AccountView Google users', () => {
+  const googleUser = {
+    ...user,
+    email: 'gin@example.com',
+    provider: 'GOOGLE',
+  } as unknown as AuthUser;
+
+  it('disables both password inputs and explains why for GOOGLE provider', () => {
+    renderView('perfil', googleUser);
+    const password = screen.getByLabelText('Nueva contraseña');
+    const confirm = screen.getByLabelText('Confirmar contraseña');
+    expect(password).toBeDisabled();
+    expect(confirm).toBeDisabled();
+    expect(screen.getByText(messages.googlePasswordHint)).toBeDefined();
+  });
+
+  it('keeps password inputs editable for LOCAL provider', () => {
+    renderView('perfil', user);
+    expect(screen.getByLabelText('Nueva contraseña')).not.toBeDisabled();
+    expect(screen.getByLabelText('Confirmar contraseña')).not.toBeDisabled();
+    expect(screen.queryByText(messages.googlePasswordHint)).toBeNull();
   });
 });

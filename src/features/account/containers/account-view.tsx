@@ -52,6 +52,7 @@ export function AccountView({
               <ProfileEditContainer
                 email={user.email}
                 initialName={initialName}
+                isGoogleUser={user.provider === 'GOOGLE'}
                 messages={messages}
               />
             </Card>
