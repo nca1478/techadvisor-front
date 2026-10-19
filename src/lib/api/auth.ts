@@ -4,6 +4,7 @@ import type { components } from './schema';
 export type AuthUser = components['schemas']['UserResponseDto'];
 export type RegisterRequest = components['schemas']['RegisterRequestDto'];
 export type LoginRequest = components['schemas']['LoginRequestDto'];
+export type GoogleLoginRequest = components['schemas']['GoogleLoginRequestDto'];
 export type RefreshRequest = components['schemas']['RefreshRequestDto'];
 
 /**
@@ -33,6 +34,7 @@ export function createAuthApi(client: ApiClient = createApiClient()) {
   return {
     register: (body: RegisterRequest) => client.post<AuthPayload>('/auth/register', body),
     login: (body: LoginRequest) => client.post<AuthPayload>('/auth/login', body),
+    googleLogin: (body: GoogleLoginRequest) => client.post<AuthPayload>('/auth/google', body),
     refresh: (body: RefreshRequest) => client.post<{ tokens: TokenPair }>('/auth/refresh', body),
     logout: (body: RefreshRequest) => client.post<{ ok: boolean }>('/auth/logout', body),
     me: (accessToken: string) =>

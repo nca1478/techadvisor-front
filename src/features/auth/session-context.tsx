@@ -20,6 +20,9 @@ export interface SessionContextValue {
   status: SessionStatus;
   user: AuthUser | null;
   login: (values: LoginFormValues) => Promise<{ ok: true } | { ok: false; message: string }>;
+  loginWithGoogle: (
+    credential: { idToken: string } | { accessToken: string },
+  ) => Promise<{ ok: true } | { ok: false; message: string }>;
   register: (values: RegisterFormValues) => Promise<{ ok: true } | { ok: false; message: string }>;
   logout: () => Promise<void>;
   refresh: () => Promise<AuthUser | null>;
@@ -133,6 +136,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [mergeGuestCart, refresh],
   );
 
+  const loginWithGoogle = useCallback(
+    async (credential: { idToken: string } | { accessToken: string }) => {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(credential),
+      });
+      if (!res.ok) {
+        return {
+          ok: false as const,
+          message: errorMessage(res.status, await res.json().catch(() => null)),
+        };
+      }
+      await mergeGuestCart();
+      await refresh();
+      return { ok: true as const };
+    },
+    [mergeGuestCart, refresh],
+  );
+
   const register = useCallback(
     async (values: RegisterFormValues) => {
       const res = await fetch('/api/auth/register', {
@@ -168,8 +192,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<SessionContextValue>(
-    () => ({ status, user, login, register, logout, refresh }),
-    [status, user, login, register, logout, refresh],
+    () => ({ status, user, login, loginWithGoogle, register, logout, refresh }),
+    [status, user, login, loginWithGoogle, register, logout, refresh],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

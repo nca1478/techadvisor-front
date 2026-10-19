@@ -71,6 +71,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/auth/google': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Log in or sign up with a Google ID token */
+    post: operations['AuthController_google'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/auth/refresh': {
     parameters: {
       query?: never;
@@ -167,6 +184,40 @@ export interface paths {
     };
     /** Catalog counters: totals plus stock health for the products header */
     get: operations['AdminController_productMetrics'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/products/suggest-sku': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generate a unique random SKU (TA-XXXXXX) for the product form */
+    get: operations['AdminController_suggestSku'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/products/suggest-slug': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generate a unique slug from an optional product name */
+    get: operations['AdminController_suggestSlug'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1351,6 +1402,12 @@ export interface components {
       /** @example correct-horse-battery-staple-42 */
       password: string;
     };
+    GoogleLoginRequestDto: {
+      /** @description GIS ID token (JWT). One of idToken/accessToken is required. */
+      idToken?: string;
+      /** @description Google OAuth2 access token (popup flow, mobile-friendly). One of idToken/accessToken is required. */
+      accessToken?: string;
+    };
     RefreshRequestDto: {
       /** @description Opaque refresh token issued by login/refresh. */
       refreshToken: string;
@@ -1371,6 +1428,11 @@ export interface components {
        * @enum {string}
        */
       role: 'CUSTOMER' | 'ADMIN';
+      /**
+       * @example LOCAL
+       * @enum {string}
+       */
+      provider: 'LOCAL' | 'GOOGLE';
       /**
        * Format: date-time
        * @example 2026-10-06T12:00:00.000Z
@@ -3247,6 +3309,72 @@ export interface operations {
       };
     };
   };
+  AuthController_google: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GoogleLoginRequestDto'];
+      };
+    };
+    responses: {
+      /** @description Authenticated. Verifies the GIS ID token, creates a CUSTOMER (provider GOOGLE) on first use, signs in existing users unchanged. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Rate limit exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
   AuthController_refresh: {
     parameters: {
       query?: never;
@@ -3629,6 +3757,96 @@ export interface operations {
         content: {
           'application/json': components['schemas']['AdminProductMetricsDto'];
         };
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminController_suggestSku: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unique SKU candidate. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+      /** @description Internal server error (uniform format). */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorResponseDto'];
+        };
+      };
+    };
+  };
+  AdminController_suggestSlug: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unique slug candidate. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Bad request. */
       400: {
@@ -6365,6 +6583,12 @@ export interface operations {
         currency?: unknown;
         /** @description Max price in minor units, in `currency`. */
         maxPrice?: unknown;
+        /** @description When 1/true, only products in stock. */
+        inStock?: unknown;
+        /** @description Explicit ordering (price_asc, price_desc, name_asc, name_desc, newest). Default: relevance. */
+        sort?: unknown;
+        /** @description Brand slug filter. */
+        brand?: unknown;
         /** @description Category slug filter. */
         category?: unknown;
         /** @description Natural-language query (0..200 chars). Empty browses by filters. */

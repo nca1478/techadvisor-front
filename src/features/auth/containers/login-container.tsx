@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
@@ -12,10 +12,13 @@ import { Text } from '@/components/ui/text';
 import { loginSchema } from '../schemas';
 import { useSession } from '../session-context';
 import { AuthForm, type AuthFormMessages, type FieldErrors } from '../components/auth-form';
+import { GoogleSigninButton } from '../components/google-signin-button';
 
 /**
  * Login container: validates locally with Zod, delegates to the session
  * context (BFF + httpOnly cookies), then follows `?next=` or lands on home.
+ * Google sign-in (GIS ID token via `loginWithGoogle`) sits below the local
+ * form and above the register CTA; it is hidden when unconfigured.
  */
 export function LoginContainer({
   locale,
@@ -25,6 +28,7 @@ export function LoginContainer({
   noAccountPrompt,
   registerCta,
   messages,
+  google,
 }: {
   locale: string;
   next: string;
@@ -33,6 +37,12 @@ export function LoginContainer({
   noAccountPrompt: string;
   registerCta: string;
   messages: AuthFormMessages;
+  google: {
+    clientId: string;
+    divider: string;
+    buttonLabel: string;
+    error: string;
+  };
 }) {
   const defaultHome = `/${locale}`;
   const registerHref =
@@ -40,10 +50,11 @@ export function LoginContainer({
       ? `/${locale}/registro?next=${encodeURIComponent(next)}`
       : `/${locale}/registro`;
   const router = useRouter();
-  const { login } = useSession();
+  const { login, loginWithGoogle } = useSession();
   const [values, setValues] = useState({ email: '', password: '', name: '' });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [pending, setPending] = useState(false);
+  const [googlePending, setGooglePending] = useState(false);
 
   async function handleSubmit() {
     const parsed = loginSchema.safeParse({ email: values.email, password: values.password });
@@ -72,6 +83,28 @@ export function LoginContainer({
     }
   }
 
+  const handleGoogleCredential = useCallback(
+    async (accessToken: string) => {
+      setGooglePending(true);
+      try {
+        const result = await loginWithGoogle({ accessToken });
+        if (!result.ok) {
+          setErrors({ form: google.error });
+          return;
+        }
+        router.push(next || `/${locale}`);
+        router.refresh();
+      } finally {
+        setGooglePending(false);
+      }
+    },
+    [google.error, loginWithGoogle, locale, next, router],
+  );
+
+  const handleGoogleError = useCallback(() => {
+    setErrors({ form: google.error });
+  }, [google.error]);
+
   return (
     <Container>
       <Section>
@@ -93,8 +126,24 @@ export function LoginContainer({
                 }}
                 onSubmit={() => void handleSubmit()}
               />
+              {google.clientId ? (
+                <Stack gap="sm" className="items-center">
+                  <Text tone="muted" variant="small" className="w-full text-center">
+                    {google.divider}
+                  </Text>
+                  <GoogleSigninButton
+                    clientId={google.clientId}
+                    label={google.buttonLabel}
+                    disabled={pending || googlePending}
+                    onCredential={(accessToken) => void handleGoogleCredential(accessToken)}
+                    onError={handleGoogleError}
+                  />
+                </Stack>
+              ) : null}
               <Stack gap="sm" className="items-center">
-                <Text tone="muted">{noAccountPrompt}</Text>
+                <Text tone="muted" variant="small" className="w-full text-center">
+                  {noAccountPrompt}
+                </Text>
                 <Button variant="dark" size="lg" href={registerHref} className="w-full">
                   {registerCta}
                 </Button>

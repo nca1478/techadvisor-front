@@ -54,6 +54,12 @@ export default async function LoginPage({ params, searchParams }: AuthPageProps)
         invalidEmail: messages.auth.invalidEmail,
         required: messages.auth.required,
       }}
+      google={{
+        clientId: process.env['NEXT_PUBLIC_GOOGLE_CLIENT_ID'] ?? '',
+        divider: messages.auth.googleDivider,
+        buttonLabel: messages.auth.googleButtonLabel,
+        error: messages.auth.googleError,
+      }}
     />
   );
 }

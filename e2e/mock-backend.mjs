@@ -390,6 +390,7 @@ function mockUser(email, name) {
     // Back-office specs register `e2e-admin-*@example.com` to get an ADMIN
     // session (the admin layout redirects CUSTOMER to the store home).
     role: email.startsWith('e2e-admin-') ? 'ADMIN' : 'CUSTOMER',
+    provider: 'LOCAL',
     createdAt: '2026-10-06T00:00:00.000Z',
     updatedAt: now(),
   };
@@ -544,6 +545,28 @@ async function handler(req, res) {
     state.usersByEmail[email] = user;
     state.user = user;
     send(res, path === '/auth/register' ? 201 : 200, { user, tokens: tokenPair(email) });
+    return;
+  }
+
+  // Google sign-in mock: any non-empty idToken/accessToken signs in (or
+  // creates) a provider-GOOGLE user; otherwise 401 like the backend.
+  if (method === 'POST' && path === '/auth/google') {
+    const credential =
+      typeof body.idToken === 'string' && body.idToken.length > 0
+        ? body.idToken
+        : typeof body.accessToken === 'string' && body.accessToken.length > 0
+          ? body.accessToken
+          : null;
+    if (!credential) {
+      const err = uniformError(401, 'UNAUTHORIZED', 'Invalid Google credential');
+      send(res, err.status, err.body);
+      return;
+    }
+    const email = 'e2e-google@example.com';
+    const user = { ...mockUser(email, 'Google User'), provider: 'GOOGLE' };
+    state.usersByEmail[email] = user;
+    state.user = user;
+    send(res, 200, { user, tokens: tokenPair(email) });
     return;
   }
 
