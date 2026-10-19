@@ -7,7 +7,7 @@ proxies BFF en `src/app/api/*` para las llamadas de cliente.
 
 > Fuente de verdad: [`../AGENTS.md`](../AGENTS.md).
 > Nota: el `AGENTS.md` de esta carpeta es guía vendor autogenerada de Next.js;
-> la especificación del producto vive en el `AGENTS.md` de la raíz.
+> la especificación del producto vive en el `AGENTS.md` de la raíz..
 
 Tienda completa e i18n (`es`/`en`): home, catálogo con filtros, detalle con
 widget del asesor, búsqueda semántica, carrito, checkout con Stripe Checkout
@@ -46,17 +46,17 @@ Locales `es`/`en` (textos en `src/messages/*.json`, selector visual con
 banderas). Config pública (moneda, locales) desde `GET /config/public` del
 backend; operación actual en moneda única USD (sin selector de moneda).
 
-| Ruta | Qué hay |
-| ---- | ------- |
-| `/` | home (hero, categorías, destacados, asesor) |
-| `/productos`, `/productos/[slug]` | listado con filtros/acordeón + detalle (SEO/JSON-LD, widget "Pregúntale al asesor") |
-| `/buscar` | búsqueda semántica (`GET /search`) |
-| `/carrito`, `/checkout`, `/cuenta` | carrito, checkout con confirmación vía webhook, pedidos y perfil |
-| `/ingresar`, `/registro` | auth (sesión en cookie vía BFF) |
-| `/asesor` | chat conversacional con streaming, historial y borrado; "agregar al carrito" desde la recomendación |
-| `/comparar` | comparador de 2–3 productos + aviso de compatibilidad |
-| `/soporte` | posventa (garantía/envíos/devoluciones con citas) |
-| `/admin` | dashboard (ventas, rango, overview), productos, categorías, inventario (filtros/cola), órdenes, documentos RAG (origen), reseñas (moderación), asesor (sin respuesta, feedback) |
+| Ruta                               | Qué hay                                                                                                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                | home (hero, categorías, destacados, asesor)                                                                                                                                     |
+| `/productos`, `/productos/[slug]`  | listado con filtros/acordeón + detalle (SEO/JSON-LD, widget "Pregúntale al asesor")                                                                                             |
+| `/buscar`                          | búsqueda semántica (`GET /search`)                                                                                                                                              |
+| `/carrito`, `/checkout`, `/cuenta` | carrito, checkout con confirmación vía webhook, pedidos y perfil                                                                                                                |
+| `/ingresar`, `/registro`           | auth (sesión en cookie vía BFF)                                                                                                                                                 |
+| `/asesor`                          | chat conversacional con streaming, historial y borrado; "agregar al carrito" desde la recomendación                                                                             |
+| `/comparar`                        | comparador de 2–3 productos + aviso de compatibilidad                                                                                                                           |
+| `/soporte`                         | posventa (garantía/envíos/devoluciones con citas)                                                                                                                               |
+| `/admin`                           | dashboard (ventas, rango, overview), productos, categorías, inventario (filtros/cola), órdenes, documentos RAG (origen), reseñas (moderación), asesor (sin respuesta, feedback) |
 
 Sistema de diseño propio: tokens y primitivas en `src/components/ui/`
 (usados en todas las vistas; sin fetch en componentes `ui/`). SEO básico en
@@ -77,14 +77,14 @@ regenerar tipos aquí. Ver `docs/decisions/0003-generador-de-tipos-openapi.md`.
 
 ## Scripts
 
-| Script              | Qué hace                              |
-| ------------------- | ----------------------------------------- |
-| `npm run dev`       | servidor de desarrollo (puerto 3000)                    |
-| `npm run build`     | build de producción                          |
-| `npm run lint`      | eslint                                    |
-| `npm run typecheck` | `tsc --noEmit`                            |
-| `npm test`          | tests unitarios / de componentes (vitest)           |
-| `npm run test:e2e`  | smoke e2e (playwright, chromium)          |
+| Script              | Qué hace                                                  |
+| ------------------- | --------------------------------------------------------- |
+| `npm run dev`       | servidor de desarrollo (puerto 3000)                      |
+| `npm run build`     | build de producción                                       |
+| `npm run lint`      | eslint                                                    |
+| `npm run typecheck` | `tsc --noEmit`                                            |
+| `npm test`          | tests unitarios / de componentes (vitest)                 |
+| `npm run test:e2e`  | smoke e2e (playwright, chromium)                          |
 | `npm run api:types` | regenera los tipos de la API desde el OpenAPI del backend |
 
 Verificación tras cada tarea (en esta carpeta): `npm run lint`,
