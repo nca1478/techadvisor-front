@@ -94,7 +94,7 @@ export function OrderTimeline({
     <div>
       <ol
         aria-label={label}
-        className="flex flex-col items-center gap-0 sm:grid sm:grid-cols-2 sm:items-start sm:gap-x-4 sm:gap-y-6 lg:flex lg:flex-row lg:flex-nowrap lg:gap-0"
+        className="flex flex-col items-center gap-0 sm:grid sm:grid-cols-2 sm:items-start sm:gap-x-4 sm:gap-y-6 lg:flex lg:flex-row lg:items-start lg:flex-nowrap lg:gap-0"
       >
         {ORDER_TIMELINE_FLOW.map((step, index) => {
           const isDone = !isCancelled && currentIndex !== -1 && index < currentIndex;
@@ -115,7 +115,7 @@ export function OrderTimeline({
             <li
               key={step}
               aria-current={isCurrent ? 'step' : undefined}
-              className="flex w-full max-w-[15rem] min-w-0 items-stretch gap-3 sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5"
+              className="flex w-full max-w-[15rem] min-w-0 items-start gap-3 sm:max-w-none sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5"
             >
               <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
                 <span
@@ -152,7 +152,7 @@ export function OrderTimeline({
               >
                 <span
                   className={cn(
-                    'pt-1 text-sm sm:pt-0 lg:text-[13px] lg:leading-tight',
+                    'pt-1 text-sm sm:pt-1 lg:pt-[3px] lg:text-[13px] lg:leading-tight',
                     isCancelled
                       ? 'text-muted-foreground'
                       : isCurrent
@@ -167,17 +167,28 @@ export function OrderTimeline({
                 {reachedAt !== null ? (
                   <time
                     dateTime={reachedAt}
-                    className="font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
+                    className="block min-h-[2.75em] font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
                   >
                     {formatTimelineDate(reachedAt, locale)}
                   </time>
-                ) : null}
+                ) : (
+                  // Invisible placeholder reserves the date row height so dots
+                  // and connectors stay on one axis whether or not the step
+                  // has a recorded date yet. Two lines are reserved because
+                  // long dates wrap on narrow desktop columns.
+                  <span
+                    aria-hidden="true"
+                    className="block min-h-[2.75em] invisible font-mono text-xs select-none lg:text-[11px] lg:leading-snug"
+                  >
+                    {'\u00A0'}
+                  </span>
+                )}
               </span>
               {(!isLast || isCancelled) && (
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'mx-2 hidden h-px w-8 shrink-0 self-center lg:mx-1.5 lg:w-6 xl:mx-2 xl:w-8',
+                    'mx-2 hidden h-px w-8 shrink-0 self-start sm:mt-[13px] lg:mx-1.5 lg:mt-[11px] lg:w-6 xl:mx-2 xl:w-8',
                     endsTabletRow ? 'lg:block' : 'sm:block',
                     isDone ? 'bg-primary/60' : 'bg-border-strong',
                   )}
@@ -187,27 +198,34 @@ export function OrderTimeline({
           );
         })}
         {isCancelled && (
-          <li className="flex w-full max-w-[15rem] min-w-0 items-stretch gap-3 sm:max-w-none sm:items-center sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5">
+          <li className="flex w-full max-w-[15rem] min-w-0 items-start gap-3 sm:max-w-none sm:gap-2 lg:min-w-0 lg:flex-1 lg:gap-1.5">
             <span className="flex shrink-0 flex-col items-center" aria-hidden="true">
               <span className="flex size-7 items-center justify-center rounded-lg border border-destructive/30 bg-destructive-subtle font-mono text-xs font-semibold text-destructive lg:size-6">
                 {'×'}
               </span>
             </span>
-            <span className="flex min-w-0 flex-col">
+            <span className="flex min-w-0 flex-col sm:pb-0">
               <span
                 aria-current="step"
-                className="pt-1 text-sm font-semibold text-destructive sm:pt-0 lg:text-[13px] lg:leading-tight"
+                className="pt-1 text-sm font-semibold text-destructive sm:pt-1 lg:pt-[3px] lg:text-[13px] lg:leading-tight"
               >
                 {statusLabel('CANCELLED', messages)}
               </span>
               {cancelledAt !== null ? (
                 <time
                   dateTime={cancelledAt}
-                  className="font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
+                  className="block min-h-[2.75em] font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
                 >
                   {formatTimelineDate(cancelledAt, locale)}
                 </time>
-              ) : null}
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="block min-h-[2.75em] invisible font-mono text-xs select-none lg:text-[11px] lg:leading-snug"
+                >
+                  {'\u00A0'}
+                </span>
+              )}
             </span>
           </li>
         )}
