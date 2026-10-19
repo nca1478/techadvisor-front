@@ -1,5 +1,7 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
+
 /**
  * Fecha/hora localizada en la zona horaria del navegador.
  *
@@ -10,10 +12,12 @@
  * La BD (Supabase, `timezone = UTC`) y la API (ISO 8601 UTC) están bien y no
  * se tocan: los `timestamptz` se guardan y sirven en UTC, como exige AGENTS.md.
  *
- * Este Client Component se hidrata en el navegador, así que el mismo ISO se
- * formatea con la zona horaria local del usuario. `suppressHydrationWarning`
- * absorbe la diferencia SSR (UTC) → cliente (local) sin ruido en consola.
- * El atributo `dateTime` conserva siempre el ISO UTC para accesibilidad/SEO.
+ * Patrón mount-gated con `useSyncExternalStore`: el servidor y la
+ * hidratación inicial pintan el ISO en crudo (idénticos, sin mismatch), y el
+ * cliente lo reformatea en la zona horaria del navegador tras el montaje. `suppressHydrationWarning` NO sirve
+ * aquí: React conserva el texto del servidor y nunca lo reemplaza, solo
+ * silencia el aviso (por eso el primer intento del fix no cambió nada en
+ * producción). El atributo `dateTime` conserva siempre el ISO UTC.
  */
 
 export type FormattedDateStyle = 'date' | 'datetime';
@@ -45,10 +49,22 @@ export function formatLocalDate(
   }
 }
 
+function noopSubscribe(): () => void {
+  return () => {};
+}
+
 export function FormattedDate({ iso, locale, format = 'datetime', className }: FormattedDateProps) {
+  // Servidor: `null` (pinta el ISO crudo). Cliente: fecha en hora local.
+  // `useSyncExternalStore` es el patrón idiomático para valores que difieren
+  // entre SSR e hidratación, sin `setState` en efectos.
+  const text = useSyncExternalStore(
+    noopSubscribe,
+    () => formatLocalDate(iso, locale, format),
+    () => null,
+  );
   return (
-    <time dateTime={iso} suppressHydrationWarning className={className}>
-      {formatLocalDate(iso, locale, format)}
+    <time dateTime={iso} className={className}>
+      {text ?? iso}
     </time>
   );
 }

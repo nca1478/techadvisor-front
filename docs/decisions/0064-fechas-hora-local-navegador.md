@@ -28,10 +28,12 @@ Investigación:
 No se toca backend ni BD (están correctos en UTC). El fix es solo frontend:
 
 - Nuevo Client Component `components/ui/formatted-date.tsx` (`FormattedDate`
-  + helper `formatLocalDate`): formatea el ISO en la zona horaria del
-  navegador tras la hidratación, con `suppressHydrationWarning` para absorber
-  la diferencia SSR (UTC) → cliente (local) y `dateTime={iso}` con el ISO UTC
-  para accesibilidad/SEO.
+  + helper `formatLocalDate`): pinta el ISO en crudo en SSR/hidratación
+  (idénticos, sin mismatch) y lo reformatea en la zona horaria del navegador
+  con un `useEffect` tras el montaje. `suppressHydrationWarning` se descartó
+  explícitamente: React conserva el texto del servidor y nunca lo reemplaza,
+  solo silencia el aviso — el primer intento con esa técnica no cambió nada
+  en producción.
 - Las vistas renderizadas en servidor usan `<FormattedDate>`:
   `OrderTimeline`, `OrdersTable`, página `cuenta/ordenes/[id]`,
   `DashboardView` (admin) y `ReviewListView`.
@@ -56,4 +58,5 @@ No se toca backend ni BD (están correctos en UTC). El fix es solo frontend:
 
 - Todas las fechas se ven en la hora local del navegador, en cualquier zona.
 - Sin cambios de contrato API, sin migraciones, sin dependencias nuevas.
-- Tests: `formatted-date.test.tsx` (5 casos).
+- Tests: `formatted-date.test.tsx` (6 casos, incluyendo que el SSR solo
+  emite el ISO crudo y ningún texto formateado en zona del servidor).

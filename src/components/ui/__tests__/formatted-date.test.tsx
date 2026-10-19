@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { FormattedDate, formatLocalDate } from '../formatted-date';
 
@@ -36,5 +37,13 @@ describe('FormattedDate', () => {
     const iso = '2026-10-19T18:16:00.000Z';
     render(<FormattedDate iso={iso} locale="es" format="date" />);
     expect(screen.getByText(formatLocalDate(iso, 'es', 'date'))).toBeDefined();
+  });
+
+  it('server-renders the raw ISO so no server-timezone text leaks into SSR HTML', () => {
+    const iso = '2026-10-19T18:16:00.000Z';
+    const html = renderToString(<FormattedDate iso={iso} locale="en" />);
+    expect(html).toContain(`dateTime="${iso}"`);
+    expect(html).toContain(`>${iso}</time>`);
+    expect(html).not.toContain(formatLocalDate(iso, 'en', 'datetime'));
   });
 });
