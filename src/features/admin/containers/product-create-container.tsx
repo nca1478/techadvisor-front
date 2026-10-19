@@ -67,6 +67,8 @@ export function ProductCreateContainer({
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [pending, setPending] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [generatingSku, setGeneratingSku] = useState(false);
+  const [generatingSlug, setGeneratingSlug] = useState(false);
 
   const form = messages.admin.productForm;
   const texts: ProductValidationTexts = useMemo(
@@ -102,6 +104,32 @@ export function ProductCreateContainer({
     const { all } = collectErrors();
     setErrors(all);
     return errorsForStep(all, step, 'create');
+  }
+
+  async function handleGenerateSku(): Promise<void> {
+    setGeneratingSku(true);
+    try {
+      const res = await adminHttp.get<{ sku: string }>('/products/suggest-sku');
+      setValues((prev) => ({ ...prev, sku: res.sku }));
+    } catch {
+      setServerError(form.generateError);
+    } finally {
+      setGeneratingSku(false);
+    }
+  }
+
+  async function handleGenerateSlug(): Promise<void> {
+    setGeneratingSlug(true);
+    try {
+      const res = await adminHttp.get<{ slug: string }>(
+        `/products/suggest-slug${values.name.trim() === '' ? '' : `?name=${encodeURIComponent(values.name.trim())}`}`,
+      );
+      setValues((prev) => ({ ...prev, slug: res.slug }));
+    } catch {
+      setServerError(form.generateError);
+    } finally {
+      setGeneratingSlug(false);
+    }
   }
 
   async function handleSubmit(): Promise<number | null> {
@@ -160,6 +188,10 @@ export function ProductCreateContainer({
         }
         formMessages={form}
         statusLabels={messages.admin.products}
+        onGenerateSku={() => void handleGenerateSku()}
+        onGenerateSlug={() => void handleGenerateSlug()}
+        generatingSku={generatingSku}
+        generatingSlug={generatingSlug}
       />
     </Stack>
   );

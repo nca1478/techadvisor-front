@@ -161,4 +161,26 @@ describe('ProductForm wizard', () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(await screen.findByLabelText(formMessages.sku)).toBeVisible();
   });
+
+  it('renders fused generate buttons that call the provided handlers', () => {
+    const onGenerateSku = vi.fn();
+    const onGenerateSlug = vi.fn();
+    renderWizard({ onGenerateSku, onGenerateSlug });
+    const skuButton = screen.getByRole('button', { name: formMessages.generateSku });
+    const slugButton = screen.getByRole('button', { name: formMessages.generateSlug });
+    expect(skuButton).toBeVisible();
+    expect(slugButton).toBeVisible();
+    fireEvent.click(skuButton);
+    fireEvent.click(slugButton);
+    expect(onGenerateSku).toHaveBeenCalledTimes(1);
+    expect(onGenerateSlug).toHaveBeenCalledTimes(1);
+  });
+
+  it('announces busy state while generating', () => {
+    renderWizard({ onGenerateSku: vi.fn(), onGenerateSlug: vi.fn(), generatingSku: true });
+    expect(screen.getByRole('button', { name: formMessages.generateSku })).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+  });
 });

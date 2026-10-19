@@ -49,6 +49,10 @@ export function ProductForm({
   freeNavigation = false,
   formMessages,
   statusLabels,
+  onGenerateSku,
+  onGenerateSlug,
+  generatingSku = false,
+  generatingSlug = false,
 }: {
   mode: 'create' | 'edit';
   values: ProductFormState;
@@ -80,6 +84,10 @@ export function ProductForm({
   freeNavigation?: boolean;
   formMessages: Dictionary['admin']['productForm'];
   statusLabels: Dictionary['admin']['products'];
+  onGenerateSku?: () => void;
+  onGenerateSlug?: () => void;
+  generatingSku?: boolean;
+  generatingSlug?: boolean;
 }) {
   const [step, setStep] = useState(0);
   const [maxVisited, setMaxVisited] = useState(0);
@@ -285,27 +293,130 @@ export function ProductForm({
           />
           <Stack direction="horizontal" gap="md" wrap>
             <div className="min-w-52 flex-1">
-              <Input
-                label={formMessages.sku}
-                name="sku"
-                value={values.sku}
-                error={errors['sku']}
-                onChange={(event) => {
-                  set({ sku: event.target.value });
-                }}
-              />
+              <div className="flex w-full flex-col gap-1.5">
+                <label htmlFor="sku" className="text-sm font-medium text-foreground">
+                  {formMessages.sku}
+                </label>
+                <div className="relative">
+                  <input
+                    id="sku"
+                    name="sku"
+                    value={values.sku}
+                    aria-invalid={errors['sku'] ? true : undefined}
+                    aria-describedby={errors['sku'] ? 'sku-error' : undefined}
+                    onChange={(event) => {
+                      set({ sku: event.target.value });
+                    }}
+                    className={cn(
+                      'w-full rounded-md border bg-surface pr-11 text-foreground placeholder:text-muted-foreground',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      errors['sku'] ? 'border-destructive' : 'border-border',
+                      'h-10 px-3 text-sm',
+                    )}
+                  />
+                  <button
+                    type="button"
+                    aria-label={formMessages.generateSku}
+                    title={formMessages.generateSku}
+                    aria-busy={generatingSku || undefined}
+                    onClick={onGenerateSku}
+                    disabled={generatingSku || pending || onGenerateSku === undefined}
+                    className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md border border-border bg-surface-raise text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {generatingSku ? (
+                      <span
+                        aria-hidden="true"
+                        className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                      />
+                    ) : (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="size-4"
+                      >
+                        <path d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89" />
+                        <path d="M13.5 1.5v3h-3" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors['sku'] ? (
+                  <p id="sku-error" role="alert" className="text-sm text-destructive">
+                    {errors['sku']}
+                  </p>
+                ) : null}
+              </div>
             </div>
             <div className="min-w-52 flex-1">
-              <Input
-                label={formMessages.slug}
-                name="slug"
-                value={values.slug}
-                hint={formMessages.slugHint}
-                error={errors['slug']}
-                onChange={(event) => {
-                  set({ slug: event.target.value });
-                }}
-              />
+              <div className="flex w-full flex-col gap-1.5">
+                <label htmlFor="slug" className="text-sm font-medium text-foreground">
+                  {formMessages.slug}
+                </label>
+                <div className="relative">
+                  <input
+                    id="slug"
+                    name="slug"
+                    value={values.slug}
+                    aria-invalid={errors['slug'] ? true : undefined}
+                    aria-describedby={errors['slug'] ? 'slug-error' : 'slug-hint'}
+                    onChange={(event) => {
+                      set({ slug: event.target.value });
+                    }}
+                    className={cn(
+                      'w-full rounded-md border bg-surface pr-11 text-foreground placeholder:text-muted-foreground',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      errors['slug'] ? 'border-destructive' : 'border-border',
+                      'h-10 px-3 text-sm',
+                    )}
+                  />
+                  <button
+                    type="button"
+                    aria-label={formMessages.generateSlug}
+                    title={formMessages.generateSlug}
+                    aria-busy={generatingSlug || undefined}
+                    onClick={onGenerateSlug}
+                    disabled={generatingSlug || pending || onGenerateSlug === undefined}
+                    className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md border border-border bg-surface-raise text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {generatingSlug ? (
+                      <span
+                        aria-hidden="true"
+                        className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                      />
+                    ) : (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="size-4"
+                      >
+                        <path d="M13.5 8a5.5 5.5 0 1 1-1.61-3.89" />
+                        <path d="M13.5 1.5v3h-3" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors['slug'] ? (
+                  <p id="slug-error" role="alert" className="text-sm text-destructive">
+                    {errors['slug']}
+                  </p>
+                ) : (
+                  <p id="slug-hint" className="text-sm text-muted-foreground">
+                    {formMessages.slugHint}
+                  </p>
+                )}
+              </div>
             </div>
           </Stack>
           <div className="flex flex-col gap-1.5">
