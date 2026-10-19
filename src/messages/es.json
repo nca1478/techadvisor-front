@@ -8,8 +8,8 @@
     "language": "Idioma",
     "currency": "Moneda",
     "techAdvisor": "TechAdvisor",
-    "themeSwitchToLight": "Cambiar a modo claro",
-    "themeSwitchToDark": "Cambiar a modo oscuro"
+    "themeSwitchToLight": "Modo claro",
+    "themeSwitchToDark": "Modo oscuro"
   },
   "nav": {
     "home": "Inicio",

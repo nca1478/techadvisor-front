@@ -8,8 +8,8 @@
     "language": "Language",
     "currency": "Currency",
     "techAdvisor": "TechAdvisor",
-    "themeSwitchToLight": "Switch to light mode",
-    "themeSwitchToDark": "Switch to dark mode"
+    "themeSwitchToLight": "Light mode",
+    "themeSwitchToDark": "Dark mode"
   },
   "nav": {
     "home": "Home",

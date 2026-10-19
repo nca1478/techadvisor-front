@@ -99,13 +99,6 @@ export default async function LocaleLayout({
                     <SearchBar locale={locale} messages={messages.search} />
                   </div>
                   <div className="hidden shrink-0 items-center gap-2 sm:gap-3 md:flex">
-                    <CartNavLink
-                      locale={locale}
-                      messages={{
-                        label: messages.nav.cart,
-                        withCount: messages.nav.cartWithCount,
-                      }}
-                    />
                     <NavSession
                       locale={locale}
                       loginLabel={messages.auth.loginLink}
@@ -113,6 +106,13 @@ export default async function LocaleLayout({
                       logoutLabel={messages.auth.logout}
                       accountShortLabel={messages.auth.accountShort}
                       adminLabel={messages.nav.admin}
+                    />
+                    <CartNavLink
+                      locale={locale}
+                      messages={{
+                        label: messages.nav.cart,
+                        withCount: messages.nav.cartWithCount,
+                      }}
                     />
                     <ThemeToggle
                       messages={{
@@ -129,14 +129,6 @@ export default async function LocaleLayout({
                     />
                   </div>
                   <MobileHeaderMenu menuLabel={messages.nav.menu}>
-                    <CartNavLink
-                      locale={locale}
-                      messages={{
-                        label: messages.nav.cart,
-                        withCount: messages.nav.cartWithCount,
-                      }}
-                      showLabel
-                    />
                     <NavSession
                       locale={locale}
                       loginLabel={messages.auth.loginLink}
@@ -144,6 +136,14 @@ export default async function LocaleLayout({
                       logoutLabel={messages.auth.logout}
                       accountShortLabel={messages.auth.accountShort}
                       adminLabel={messages.nav.admin}
+                      showLabel
+                    />
+                    <CartNavLink
+                      locale={locale}
+                      messages={{
+                        label: messages.nav.cart,
+                        withCount: messages.nav.cartWithCount,
+                      }}
                       showLabel
                     />
                     <ThemeToggle
