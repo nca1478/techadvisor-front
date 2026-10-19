@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { FormattedDate, formatLocalDate } from '@/components/ui/formatted-date';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -7,14 +8,13 @@ import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
 import { OrderStatusBadge } from './order-status-badge';
 import { OrderTimeline } from './order-timeline';
-/** Shared order-date formatting (list uses relative context; detail reuses it in the header). */
+/**
+ * Shared order-date formatting (list uses relative context; detail reuses it in the header).
+ * Timezone note: renders through `<FormattedDate>` in Server Components so the
+ * browser timezone applies after hydration (see `formatted-date.tsx`).
+ */
 export function formatOrderDate(iso: string, locale: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
+  return formatLocalDate(iso, locale, 'datetime');
 }
 
 /**
@@ -75,7 +75,7 @@ export function OrdersTable({
                 </Link>
               </th>
               <td className="px-4 py-3 text-muted-foreground">
-                {formatOrderDate(order.createdAt, locale)}
+                <FormattedDate iso={order.createdAt} locale={locale} />
               </td>
               <td className="px-4 py-3">
                 <OrderStatusBadge status={order.status} messages={messages} />

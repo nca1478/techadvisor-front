@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { FormattedDate, formatLocalDate } from '@/components/ui/formatted-date';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import type { ProductReview } from '@/lib/api/reviews';
@@ -13,15 +14,9 @@ export interface ReviewListViewProps {
   messages: Dictionary['reviews'];
 }
 
-/** Formats an ISO date in the UI locale (date only, no time). */
+/** Formats an ISO date in the UI locale (date only, no time, viewer timezone). */
 export function formatReviewDate(iso: string, locale: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  try {
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
-  } catch {
-    return iso;
-  }
+  return formatLocalDate(iso, locale, 'date');
 }
 
 /**
@@ -61,7 +56,7 @@ export function ReviewListView({ reviews, total, locale, messages }: ReviewListV
                     {review.body}
                   </Text>
                   <Text variant="caption" tone="muted">
-                    {formatReviewDate(review.createdAt, locale)}
+                    <FormattedDate iso={review.createdAt} locale={locale} format="date" />
                   </Text>
                 </Stack>
               </li>

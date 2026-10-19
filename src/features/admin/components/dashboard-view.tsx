@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { FormattedDate } from '@/components/ui/formatted-date';
 import { Link } from '@/components/ui/link';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
@@ -8,12 +9,6 @@ import type { AdminOrder } from '@/lib/api/admin';
 import type { DashboardRange, SalesBucket } from '@/features/admin/lib/dashboard-stats';
 import type { Dictionary } from '@/lib/i18n/index';
 import { formatPrice } from '@/lib/money/format';
-
-function formatDay(iso: string, locale: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
-}
 
 export interface DashboardSummary {
   recentOrders: AdminOrder[];
@@ -297,7 +292,7 @@ export function DashboardView(props: DashboardSummary) {
                         </Link>
                       </th>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        {formatDay(order.createdAt, locale)}
+                        <FormattedDate iso={order.createdAt} locale={locale} format="date" />
                       </td>
                       <td className="max-w-44 truncate px-4 py-3">
                         {order.userName ?? order.userEmail}

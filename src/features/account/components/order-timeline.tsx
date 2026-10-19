@@ -1,4 +1,5 @@
 import { cn } from '@/components/ui/cn';
+import { FormattedDate, formatLocalDate } from '@/components/ui/formatted-date';
 import type { Dictionary } from '@/lib/i18n/index';
 
 type AccountMessages = Dictionary['account'];
@@ -52,11 +53,13 @@ export function lastStatusChangeAt(history: OrderStatusHistoryEntry[] | undefine
   return history[history.length - 1].at;
 }
 
-/** Formats an ISO date/time like the order headers (medium date, short time). */
+/**
+ * Formats an ISO date/time in the viewer's local timezone (medium date, short
+ * time). Must render through `<FormattedDate>` in Server Components so the
+ * browser timezone applies after hydration (see `formatted-date.tsx`).
+ */
 export function formatTimelineDate(iso: string, locale: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+  return formatLocalDate(iso, locale, 'datetime');
 }
 
 /**
@@ -165,12 +168,11 @@ export function OrderTimeline({
                   {statusLabel(step, messages)}
                 </span>
                 {reachedAt !== null ? (
-                  <time
-                    dateTime={reachedAt}
+                  <FormattedDate
+                    iso={reachedAt}
+                    locale={locale}
                     className="block min-h-[2.75em] font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
-                  >
-                    {formatTimelineDate(reachedAt, locale)}
-                  </time>
+                  />
                 ) : (
                   // Invisible placeholder reserves the date row height so dots
                   // and connectors stay on one axis whether or not the step
@@ -212,12 +214,11 @@ export function OrderTimeline({
                 {statusLabel('CANCELLED', messages)}
               </span>
               {cancelledAt !== null ? (
-                <time
-                  dateTime={cancelledAt}
+                <FormattedDate
+                  iso={cancelledAt}
+                  locale={locale}
                   className="block min-h-[2.75em] font-mono text-xs text-muted-foreground lg:text-[11px] lg:leading-snug"
-                >
-                  {formatTimelineDate(cancelledAt, locale)}
-                </time>
+                />
               ) : (
                 <span
                   aria-hidden="true"

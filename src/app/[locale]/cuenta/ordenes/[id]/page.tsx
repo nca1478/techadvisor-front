@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { Container } from '@/components/ui/container';
+import { FormattedDate } from '@/components/ui/formatted-date';
 import { Heading } from '@/components/ui/heading';
 import { Link } from '@/components/ui/link';
 import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
-import { OrderDetail, formatOrderDate } from '@/features/account/components/orders-table';
+import { OrderDetail } from '@/features/account/components/orders-table';
 import { lastStatusChangeAt } from '@/features/account/components/order-timeline';
 import { OrderStatusBadge } from '@/features/account/components/order-status-badge';
 import { backendFetch } from '@/lib/api/backend';
@@ -88,10 +89,10 @@ export default async function AccountOrderDetailPage({ params }: OrderDetailPage
                 <Stack direction="horizontal" gap="md" align="center">
                   <OrderStatusBadge status={order.status} messages={messages.account} />
                   <Text variant="small" tone="muted">
-                    {formatOrderDate(
-                      lastStatusChangeAt(order.statusHistory) ?? order.updatedAt,
-                      locale,
-                    )}
+                    <FormattedDate
+                      iso={lastStatusChangeAt(order.statusHistory) ?? order.updatedAt}
+                      locale={locale}
+                    />
                   </Text>
                 </Stack>
               </Stack>
