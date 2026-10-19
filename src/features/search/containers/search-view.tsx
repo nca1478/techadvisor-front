@@ -10,7 +10,7 @@ import { Section } from '@/components/ui/section';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
 import { CatalogEmpty, CatalogError } from '@/features/catalog/components/catalog-states';
-import type { CatalogCategory } from '@/lib/api/catalog';
+import type { CatalogBrand, CatalogCategory, ProductSort } from '@/lib/api/catalog';
 import type { SearchResponse } from '@/lib/api/search';
 import type { Dictionary } from '@/lib/i18n/index';
 import { currencyFractionDigits } from '@/lib/money/format';
@@ -21,11 +21,15 @@ export interface SearchViewProps {
   initialData: SearchResponse | null;
   loadError: boolean;
   categories: CatalogCategory[];
+  brands: CatalogBrand[];
   locale: string;
   currency: string;
   messages: Dictionary;
   query: string;
   initialCategory: string;
+  initialBrand: string;
+  initialSort: ProductSort | '';
+  initialInStockOnly: boolean;
   /** Current max price in minor units (URL), if any. */
   initialMaxPriceMinor: number | null;
 }
@@ -43,6 +47,15 @@ function minorToInput(minor: number | null, currency: string): string {
   return String(minor / 10 ** currencyFractionDigits(currency));
 }
 
+interface ApplyFilters {
+  query: string;
+  category: string;
+  brand: string;
+  sort: ProductSort | '';
+  maxPriceMinor: number | null;
+  inStockOnly: boolean;
+}
+
 /**
  * Results view: filters rewrite the URL (server re-fetches on navigation),
  * so a reload or share preserves the search. Price input is in display
@@ -52,11 +65,15 @@ export function SearchView({
   initialData,
   loadError,
   categories,
+  brands,
   locale,
   currency,
   messages,
   query,
   initialCategory,
+  initialBrand,
+  initialSort,
+  initialInStockOnly,
   initialMaxPriceMinor,
 }: SearchViewProps) {
   const router = useRouter();
@@ -65,24 +82,42 @@ export function SearchView({
   const [isPending, startTransition] = useTransition();
   const [queryInput, setQueryInput] = useState(query);
   const [category, setCategory] = useState(initialCategory);
+  const [brand, setBrand] = useState(initialBrand);
+  const [sort, setSort] = useState<ProductSort | ''>(initialSort);
+  const [inStockOnly, setInStockOnly] = useState(initialInStockOnly);
   const [maxPriceInput, setMaxPriceInput] = useState(minorToInput(initialMaxPriceMinor, currency));
   const [maxPriceError, setMaxPriceError] = useState<string | undefined>(undefined);
 
-  function apply(nextQuery: string, nextCategory: string, nextMaxPriceMinor: number | null) {
+  function apply(next: ApplyFilters) {
     const params = new URLSearchParams(searchParams.toString());
-    const trimmedQuery = nextQuery.trim();
+    const trimmedQuery = next.query.trim();
     if (trimmedQuery) {
       params.set('q', trimmedQuery);
     } else {
       params.delete('q');
     }
-    if (nextCategory) {
-      params.set('category', nextCategory);
+    if (next.category) {
+      params.set('category', next.category);
     } else {
       params.delete('category');
     }
-    if (nextMaxPriceMinor !== null) {
-      params.set('maxPrice', String(nextMaxPriceMinor));
+    if (next.brand) {
+      params.set('brand', next.brand);
+    } else {
+      params.delete('brand');
+    }
+    if (next.sort) {
+      params.set('sort', next.sort);
+    } else {
+      params.delete('sort');
+    }
+    if (next.inStockOnly) {
+      params.set('inStock', '1');
+    } else {
+      params.delete('inStock');
+    }
+    if (next.maxPriceMinor !== null) {
+      params.set('maxPrice', String(next.maxPriceMinor));
     } else {
       params.delete('maxPrice');
     }
@@ -96,7 +131,7 @@ export function SearchView({
     const trimmed = maxPriceInput.trim();
     if (trimmed === '') {
       setMaxPriceError(undefined);
-      apply(queryInput, category, null);
+      apply({ query: queryInput, category, brand, sort, maxPriceMinor: null, inStockOnly });
       return;
     }
     const parsed = Number(trimmed);
@@ -105,17 +140,30 @@ export function SearchView({
       return;
     }
     setMaxPriceError(undefined);
-    apply(queryInput, category, Math.round(parsed * 10 ** currencyFractionDigits(currency)));
+    apply({
+      query: queryInput,
+      category,
+      brand,
+      sort,
+      maxPriceMinor: Math.round(parsed * 10 ** currencyFractionDigits(currency)),
+      inStockOnly,
+    });
   }
 
   function handleClear() {
     setQueryInput('');
     setCategory('');
+    setBrand('');
+    setSort('');
+    setInStockOnly(false);
     setMaxPriceInput('');
     setMaxPriceError(undefined);
     const params = new URLSearchParams(searchParams.toString());
     params.delete('q');
     params.delete('category');
+    params.delete('brand');
+    params.delete('sort');
+    params.delete('inStock');
     params.delete('maxPrice');
     const url = `${pathname}?${params.toString()}`;
     startTransition(() => {
@@ -126,6 +174,9 @@ export function SearchView({
   const activeFilterCount =
     (queryInput.trim() !== '' ? 1 : 0) +
     (category !== '' ? 1 : 0) +
+    (brand !== '' ? 1 : 0) +
+    (sort !== '' ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
     (maxPriceInput.trim() !== '' ? 1 : 0);
 
   return (
@@ -139,14 +190,18 @@ export function SearchView({
 
           <Disclosure title={messages.search.filtersTitle} count={activeFilterCount}>
             <SearchFilters
-              values={{ query: queryInput, category, maxPriceInput }}
+              values={{ query: queryInput, category, brand, sort, maxPriceInput, inStockOnly }}
               categories={categories}
+              brands={brands}
               messages={messages.search}
               maxPriceError={maxPriceError}
               onChange={(next) => {
                 setQueryInput(next.query);
                 setCategory(next.category);
+                setBrand(next.brand);
+                setSort(next.sort);
                 setMaxPriceInput(next.maxPriceInput);
+                setInStockOnly(next.inStockOnly);
               }}
               onApply={handleApply}
               onClear={handleClear}

@@ -28,6 +28,9 @@ describe('createSearchApi', () => {
     await createSearchApi(client).search({
       q: 'audífonos livianos',
       category: 'audio',
+      brand: 'testbrand',
+      sort: 'price_asc',
+      inStock: '1',
       maxPrice: 15000,
       currency: 'USD',
       locale: 'es',
@@ -40,6 +43,9 @@ describe('createSearchApi', () => {
     );
     for (const fragment of [
       'category=audio',
+      'brand=testbrand',
+      'sort=price_asc',
+      'inStock=1',
       'maxPrice=15000',
       'currency=USD',
       'locale=es',

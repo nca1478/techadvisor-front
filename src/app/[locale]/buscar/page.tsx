@@ -5,7 +5,7 @@ import { ListingSkeleton } from '@/features/catalog/components/listing-skeleton'
 import { firstParam, resolveCurrency } from '@/features/catalog/hooks/server-params';
 import { SearchView } from '@/features/search/containers/search-view';
 import { createApiClient } from '@/lib/api/client';
-import { createCatalogApi, visibleCategories } from '@/lib/api/catalog';
+import { createCatalogApi, visibleCategories, type ProductSort } from '@/lib/api/catalog';
 import { getPublicConfig } from '@/lib/api/index';
 import { createSearchApi } from '@/lib/api/search';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
@@ -27,6 +27,14 @@ function resolveLocale(value: unknown) {
   return isLocale(locale) ? locale : null;
 }
 
+const SORTS: ReadonlyArray<ProductSort> = [
+  'price_asc',
+  'price_desc',
+  'name_asc',
+  'name_desc',
+  'newest',
+];
+
 export async function generateMetadata({ params }: SearchPageProps): Promise<Metadata> {
   const locale = resolveLocale(await params);
   if (locale === null) return {};
@@ -41,10 +49,11 @@ export async function generateMetadata({ params }: SearchPageProps): Promise<Met
 }
 
 /**
- * Localized natural-language results page: `q`/`category`/`maxPrice` come
- * from the URL so searches survive reloads and shares. Server-fetches the
- * search response (price/stock/images from SQL) plus categories; the client
- * view only rewrites the URL (fetching happens again on navigation).
+ * Localized natural-language results page: `q`/`category`/`brand`/`sort`/
+ * `inStock`/`maxPrice` come from the URL so searches survive reloads and
+ * shares. Server-fetches the search response (price/stock/images from SQL)
+ * plus categories and brands; the client view only rewrites the URL
+ * (fetching happens again on navigation).
  */
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
   const locale = resolveLocale(await params);
@@ -59,6 +68,12 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
   const q = firstParam(query, 'q');
   const category = firstParam(query, 'category');
+  const brand = firstParam(query, 'brand');
+  const rawSort = firstParam(query, 'sort');
+  const sort: ProductSort | '' = (SORTS as readonly string[]).includes(rawSort)
+    ? (rawSort as ProductSort)
+    : '';
+  const inStockOnly = firstParam(query, 'inStock') === '1';
   const rawMaxPrice = firstParam(query, 'maxPrice');
   const parsedMaxPrice = rawMaxPrice === '' ? null : Number(rawMaxPrice);
   const maxPrice =
@@ -74,17 +89,21 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     // Fall through with the base fallback; the view shows its error state below.
   }
 
-  const [searchResult, categoriesResult] = await Promise.allSettled([
+  const [searchResult, categoriesResult, brandsResult] = await Promise.allSettled([
     q === ''
       ? Promise.resolve(null)
       : search.search({
           q,
           category: category === '' ? undefined : category,
+          brand: brand === '' ? undefined : brand,
+          sort: sort === '' ? undefined : sort,
+          inStock: inStockOnly ? '1' : undefined,
           maxPrice: maxPrice ?? undefined,
           currency,
           locale,
         }),
     catalog.listCategories(locale),
+    catalog.listBrands(),
   ]);
 
   return (
@@ -95,11 +114,15 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
         categories={
           categoriesResult.status === 'fulfilled' ? visibleCategories(categoriesResult.value) : []
         }
+        brands={brandsResult.status === 'fulfilled' ? brandsResult.value : []}
         locale={locale}
         currency={currency}
         messages={messages}
         query={q}
         initialCategory={category}
+        initialBrand={brand}
+        initialSort={sort}
+        initialInStockOnly={inStockOnly}
         initialMaxPriceMinor={maxPrice}
       />
     </Suspense>

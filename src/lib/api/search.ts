@@ -5,9 +5,15 @@ export type SearchResult = components['schemas']['SearchResultDto'];
 export type SearchResponse = components['schemas']['SearchResponseDto'];
 export type SearchProduct = SearchResult['product'];
 
+export type SearchSort = 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'newest';
+
 export interface SearchParams {
   q: string;
   category?: string;
+  brand?: string;
+  sort?: SearchSort;
+  /** Same `1` flag as the product listing: only products in stock. */
+  inStock?: string;
   maxPrice?: number;
   currency?: string;
   locale?: string;

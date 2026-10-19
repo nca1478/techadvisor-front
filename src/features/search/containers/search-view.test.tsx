@@ -28,6 +28,8 @@ const emptyCart = {
   itemCount: 0,
 };
 
+const brands = [{ id: 'b1', name: 'TestBrand', slug: 'testbrand' }];
+
 const categories: CatalogCategory[] = [
   {
     id: 'c1',
@@ -97,6 +99,9 @@ function renderView(props: {
   loadError?: boolean;
   query?: string;
   initialCategory?: string;
+  initialBrand?: string;
+  initialSort?: '' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'newest';
+  initialInStockOnly?: boolean;
   initialMaxPriceMinor?: number | null;
 }) {
   vi.stubGlobal(
@@ -111,11 +116,15 @@ function renderView(props: {
         initialData={props.initialData ?? response()}
         loadError={props.loadError ?? false}
         categories={categories}
+        brands={brands}
         locale="en"
         currency="USD"
         messages={en}
         query={props.query ?? 'headphones'}
         initialCategory={props.initialCategory ?? ''}
+        initialBrand={props.initialBrand ?? ''}
+        initialSort={props.initialSort ?? ''}
+        initialInStockOnly={props.initialInStockOnly ?? false}
         initialMaxPriceMinor={props.initialMaxPriceMinor ?? null}
       />
     </CartProvider>,
@@ -148,11 +157,15 @@ describe('SearchView', () => {
           initialData={response({ results: [] })}
           loadError={false}
           categories={categories}
+          brands={brands}
           locale="en"
           currency="USD"
           messages={en}
           query="zzz"
           initialCategory=""
+          initialBrand=""
+          initialSort=""
+          initialInStockOnly={false}
           initialMaxPriceMinor={null}
         />
       </CartProvider>,
@@ -164,19 +177,49 @@ describe('SearchView', () => {
     expect(screen.getByText(en.search.loadError)).toBeVisible();
   });
 
-  it('applies category and max-price filters through the URL in minor units', () => {
+  it('applies brand, sort, stock and max-price filters through the URL in minor units', () => {
     renderView({});
     openFilters();
 
     fireEvent.change(screen.getByLabelText(en.search.categoryLabel), {
       target: { value: 'audio' },
     });
+    fireEvent.change(screen.getByLabelText(en.search.brandLabel), {
+      target: { value: 'testbrand' },
+    });
+    fireEvent.change(screen.getByLabelText(en.search.sortLabel), {
+      target: { value: 'price_asc' },
+    });
     fireEvent.change(screen.getByLabelText(en.search.maxPriceLabel), {
       target: { value: '150' },
     });
+    fireEvent.click(screen.getByLabelText(en.search.inStockOnly));
     fireEvent.click(screen.getByRole('button', { name: en.search.applyFilters }));
 
-    expect(replace).toHaveBeenCalledWith('/en/buscar?q=headphones&category=audio&maxPrice=15000', {
+    expect(replace).toHaveBeenCalledWith(
+      '/en/buscar?q=headphones&category=audio&brand=testbrand&sort=price_asc&inStock=1&maxPrice=15000',
+      {
+        scroll: false,
+      },
+    );
+  });
+
+  it('clears brand, sort and stock filters from the URL', () => {
+    currentParams =
+      'q=headphones&category=audio&brand=testbrand&sort=price_asc&inStock=1&maxPrice=15000';
+    renderView({
+      query: 'headphones',
+      initialCategory: 'audio',
+      initialBrand: 'testbrand',
+      initialSort: 'price_asc',
+      initialInStockOnly: true,
+      initialMaxPriceMinor: 15000,
+    });
+    openFilters();
+
+    fireEvent.click(screen.getByRole('button', { name: en.search.clearFilters }));
+
+    expect(replace).toHaveBeenCalledWith('/en/buscar?', {
       scroll: false,
     });
   });
@@ -195,11 +238,15 @@ describe('SearchView', () => {
           initialData={null}
           loadError={false}
           categories={categories}
+          brands={brands}
           locale="en"
           currency="USD"
           messages={en}
           query=""
           initialCategory=""
+          initialBrand=""
+          initialSort=""
+          initialInStockOnly={false}
           initialMaxPriceMinor={null}
         />
       </CartProvider>,
