@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
@@ -16,9 +16,13 @@ import { GoogleSigninButton } from '../components/google-signin-button';
 
 /**
  * Login container: validates locally with Zod, delegates to the session
- * context (BFF + httpOnly cookies), then follows `?next=` or lands on home.
- * Google sign-in (GIS ID token via `loginWithGoogle`) sits below the local
- * form and above the register CTA; it is hidden when unconfigured.
+ * context (BFF + httpOnly cookies), then follows `?next=` or lands on
+ * account. Google sign-in is a full-tab redirect to the Google account
+ * chooser (see `GoogleSigninButton`); Google returns to a dedicated
+ * `/ingresar/callback` route (`GoogleCallbackContainer`), not this page, so
+ * this form never has to show a pending/token-exchange state itself —
+ * `googleInitialError` is set when that route redirects back here after a
+ * failed/cancelled exchange. The button is hidden when unconfigured.
  */
 export function LoginContainer({
   locale,
@@ -30,6 +34,7 @@ export function LoginContainer({
   forgotLink,
   messages,
   google,
+  googleInitialError,
 }: {
   locale: string;
   next: string;
@@ -45,6 +50,7 @@ export function LoginContainer({
     buttonLabel: string;
     error: string;
   };
+  googleInitialError?: boolean;
 }) {
   const defaultHome = `/${locale}`;
   const registerHref =
@@ -52,11 +58,16 @@ export function LoginContainer({
       ? `/${locale}/registro?next=${encodeURIComponent(next)}`
       : `/${locale}/registro`;
   const router = useRouter();
-  const { login, loginWithGoogle } = useSession();
+  const { login } = useSession();
   const [values, setValues] = useState({ email: '', password: '', name: '' });
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<FieldErrors>(
+    googleInitialError ? { form: google.error } : {},
+  );
   const [pending, setPending] = useState(false);
-  const [googlePending, setGooglePending] = useState(false);
+
+  function handleGoogleError() {
+    setErrors({ form: google.error });
+  }
 
   async function handleSubmit() {
     const parsed = loginSchema.safeParse({ email: values.email, password: values.password });
@@ -84,28 +95,6 @@ export function LoginContainer({
       setPending(false);
     }
   }
-
-  const handleGoogleCredential = useCallback(
-    async (accessToken: string) => {
-      setGooglePending(true);
-      try {
-        const result = await loginWithGoogle({ accessToken });
-        if (!result.ok) {
-          setErrors({ form: google.error });
-          return;
-        }
-        router.push(next || `/${locale}`);
-        router.refresh();
-      } finally {
-        setGooglePending(false);
-      }
-    },
-    [google.error, loginWithGoogle, locale, next, router],
-  );
-
-  const handleGoogleError = useCallback(() => {
-    setErrors({ form: google.error });
-  }, [google.error]);
 
   return (
     <Container>
@@ -142,8 +131,9 @@ export function LoginContainer({
                   <GoogleSigninButton
                     clientId={google.clientId}
                     label={google.buttonLabel}
-                    disabled={pending || googlePending}
-                    onCredential={(accessToken) => void handleGoogleCredential(accessToken)}
+                    disabled={pending}
+                    nextPath={next || `/${locale}/cuenta`}
+                    redirectPath={`/${locale}/ingresar/callback`}
                     onError={handleGoogleError}
                   />
                 </Stack>

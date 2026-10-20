@@ -330,6 +330,7 @@
     "googleDivider": "o",
     "googleButtonLabel": "Continuar con Google",
     "googleError": "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
+    "googleSigningIn": "Iniciando sesión con Google…",
     "hasAccount": "¿Ya tienes cuenta?",
     "signInCta": "Iniciar sesión",
     "forgotLink": "¿Olvidaste tu contraseña?",

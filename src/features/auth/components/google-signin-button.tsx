@@ -1,25 +1,6 @@
 'use client';
 
-import Script from 'next/script';
-import { useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        oauth2: {
-          initTokenClient: (config: {
-            client_id: string;
-            scope: string;
-            prompt?: string;
-            callback: (response: { access_token?: string; error?: string }) => void;
-          }) => { requestAccessToken: () => void };
-        };
-      };
-    };
-  }
-}
 
 /** Multicolor "G" mark shown inside the dark button (Google brand asset). */
 function GoogleMark() {
@@ -45,59 +26,56 @@ function GoogleMark() {
   );
 }
 
+const GOOGLE_SCOPE = 'openid email profile';
+
 /**
  * Google sign-in button styled with the app design system (`dark`, like the
- * "Crear cuenta" CTA). Clicking it opens the Google account chooser in a
- * popup (OAuth2 token flow) and the resulting access token goes to the
- * parent container for the BFF exchange. The popup works on mobile, where
- * the One Tap prompt is unreliable (suppressed/clipped). A closed popup
- * stays silent; a missing token surfaces `onError`. Renders nothing when
+ * "Crear cuenta" CTA). Clicking it navigates the whole tab to the Google
+ * account chooser via the plain OAuth2 implicit-flow URL (full-tab redirect,
+ * `prompt: 'select_account'`) so the chooser renders full-screen on every
+ * viewport — desktop and mobile — instead of a small One Tap bubble or a
+ * separate popup window. GIS's `oauth2.initTokenClient` does NOT support a
+ * `redirect` ux_mode (that config only exists on `initCodeClient`); passing
+ * it is silently ignored and the token client always opens a real popup
+ * window, which is the bug this works around. Google returns to `redirectPath`
+ * (a dedicated callback route, not this page — see `GoogleCallbackContainer`)
+ * with `#access_token=…&state=<next>` in the fragment. Renders nothing when
  * `clientId` is empty (Google not configured).
  */
 export function GoogleSigninButton({
   clientId,
   label,
   disabled,
-  onCredential,
+  nextPath,
+  redirectPath,
   onError,
 }: {
   clientId: string;
   label: string;
   disabled: boolean;
-  onCredential: (accessToken: string) => void;
+  nextPath: string;
+  /** Absolute path (e.g. `/en/ingresar/callback`) registered as the
+   * Authorized redirect URI for this client id in Google Cloud Console. */
+  redirectPath: string;
   onError: () => void;
 }) {
-  const scriptReady = useRef(false);
-  const callbacks = useRef({ onCredential, onError });
-
-  useEffect(() => {
-    callbacks.current = { onCredential, onError };
-  }, [onCredential, onError]);
-
-  const markReady = useCallback(() => {
-    scriptReady.current = true;
-  }, []);
-
   function handleClick() {
-    const google = window.google;
-    if (!clientId || !google) {
+    if (!clientId) {
       onError();
       return;
     }
+    const redirectUri = `${window.location.origin}${redirectPath}`;
     try {
-      const tokenClient = google.accounts.oauth2.initTokenClient({
+      const params = new URLSearchParams({
         client_id: clientId,
-        scope: 'openid email profile',
+        redirect_uri: redirectUri,
+        response_type: 'token',
+        scope: GOOGLE_SCOPE,
         prompt: 'select_account',
-        callback: (response) => {
-          if (response.access_token) {
-            callbacks.current.onCredential(response.access_token);
-          } else {
-            callbacks.current.onError();
-          }
-        },
+        state: nextPath,
+        include_granted_scopes: 'false',
       });
-      tokenClient.requestAccessToken();
+      window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
     } catch {
       onError();
     }
@@ -108,24 +86,17 @@ export function GoogleSigninButton({
   }
 
   return (
-    <>
-      <Script
-        src="https://accounts.google.com/gsi/client"
-        strategy="afterInteractive"
-        onLoad={markReady}
-      />
-      <Button
-        variant="dark"
-        size="lg"
-        className="w-full"
-        data-testid="google-signin-button"
-        aria-label={label}
-        disabled={disabled}
-        onClick={handleClick}
-      >
-        <GoogleMark />
-        {label}
-      </Button>
-    </>
+    <Button
+      variant="dark"
+      size="lg"
+      className="w-full"
+      data-testid="google-signin-button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={handleClick}
+    >
+      <GoogleMark />
+      {label}
+    </Button>
   );
 }

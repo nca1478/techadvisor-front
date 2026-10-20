@@ -13,14 +13,19 @@ interface AuthPageProps {
   searchParams: Promise<unknown>;
 }
 
-/** Only same-site paths are accepted as post-login destinations. */
+/**
+ * Only same-site paths are accepted as post-login destinations. Without an
+ * explicit `?next=` (e.g. landing on `/ingresar` directly, not bounced here
+ * from a protected page), send the user to their account profile instead of
+ * home.
+ */
 function resolveNext(value: unknown, locale: string): string {
   const raw = (value as { next?: unknown } | null)?.next;
   const candidate = Array.isArray(raw) ? (raw[0] as unknown) : raw;
   if (typeof candidate === 'string' && candidate.startsWith('/') && !candidate.startsWith('//')) {
     return candidate;
   }
-  return `/${locale}`;
+  return `/${locale}/cuenta`;
 }
 
 export async function generateMetadata({ params }: AuthPageProps): Promise<Metadata> {
@@ -37,7 +42,7 @@ export default async function LoginPage({ params, searchParams }: AuthPageProps)
     notFound();
   }
   const locale = resolved.locale;
-  const query = ((await searchParams) ?? {}) as { next?: unknown };
+  const query = ((await searchParams) ?? {}) as { next?: unknown; error?: unknown };
   const messages = await getDictionary(locale);
   return (
     <LoginContainer
@@ -61,6 +66,7 @@ export default async function LoginPage({ params, searchParams }: AuthPageProps)
         buttonLabel: messages.auth.googleButtonLabel,
         error: messages.auth.googleError,
       }}
+      googleInitialError={query.error === 'access_denied'}
     />
   );
 }

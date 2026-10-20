@@ -1,13 +1,19 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoginContainer } from './login-container';
 
+const mocks = vi.hoisted(() => ({
+  push: vi.fn(),
+  refresh: vi.fn(),
+  login: vi.fn(),
+}));
+
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: mocks.push, refresh: mocks.refresh }),
 }));
 
 vi.mock('../session-context', () => ({
-  useSession: () => ({ login: vi.fn(), loginWithGoogle: vi.fn() }),
+  useSession: () => ({ login: mocks.login }),
 }));
 
 const baseProps = {
@@ -29,6 +35,10 @@ const baseProps = {
     error: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
   },
 };
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('LoginContainer register link', () => {
   it('links to /registro without next when landing on home', () => {
@@ -56,5 +66,10 @@ describe('LoginContainer Google sign-in', () => {
       <LoginContainer {...baseProps} google={{ ...baseProps.google, clientId: '' }} next="/es" />,
     );
     expect(screen.queryByTestId('google-signin-button')).toBeNull();
+  });
+
+  it('shows the Google error when the callback route reports a failed/cancelled exchange', () => {
+    render(<LoginContainer {...baseProps} next="/es" googleInitialError />);
+    expect(screen.getByText(baseProps.google.error)).toBeDefined();
   });
 });
