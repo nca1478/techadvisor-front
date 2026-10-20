@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
@@ -18,19 +21,120 @@ export interface CategoryGridProps {
   hrefFor: (slug: string) => string;
   title: string;
   subtitle: string;
+  prevLabel?: string;
+  nextLabel?: string;
+  /** Test-only override for page size (production uses the responsive hook). */
+  pageSize?: PerPage;
 }
 
-/** Photo cards in a responsive grid (1 mobile / 2 tablet / 3 desktop), no horizontal scroll. */
-export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryGridProps) {
+type PerPage = 1 | 2 | 3;
+
+/** Responsive page size: 1 mobile / 2 tablet (md) / 3 desktop (lg). */
+function usePerPage(): PerPage {
+  const [perPage, setPerPage] = useState<PerPage>(1);
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mqDesktop = window.matchMedia('(min-width: 1024px)');
+    const mqTablet = window.matchMedia('(min-width: 768px)');
+    const update = () => {
+      setPerPage(mqDesktop.matches ? 3 : mqTablet.matches ? 2 : 1);
+    };
+    update();
+    mqDesktop.addEventListener('change', update);
+    mqTablet.addEventListener('change', update);
+    return () => {
+      mqDesktop.removeEventListener('change', update);
+      mqTablet.removeEventListener('change', update);
+    };
+  }, []);
+  return perPage;
+}
+
+/**
+ * Paged slider without scroll: grid 1/2/3 per breakpoint, prev/next buttons
+ * swap the visible page (no `overflow-x`, no scrollbar, no snap).
+ */
+export function CategoryGrid({
+  categories,
+  hrefFor,
+  title,
+  subtitle,
+  prevLabel = 'Categorías anteriores',
+  nextLabel = 'Categorías siguientes',
+  pageSize,
+}: CategoryGridProps) {
+  const responsivePerPage = usePerPage();
+  const perPage = pageSize ?? responsivePerPage;
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(categories.length / perPage));
+  const safePage = Math.min(page, pageCount - 1);
+
+  const visible = useMemo(
+    () => categories.slice(safePage * perPage, safePage * perPage + perPage),
+    [categories, safePage, perPage],
+  );
+
   if (categories.length === 0) return null;
+  const showControls = categories.length > perPage;
+
   return (
     <Stack gap="md">
-      <Stack gap="sm">
-        <Heading level={2}>{title}</Heading>
-        <Text tone="muted">{subtitle}</Text>
+      <Stack direction="horizontal" justify="between" align="end" gap="md">
+        <Stack gap="sm">
+          <Heading level={2}>{title}</Heading>
+          <Text tone="muted">{subtitle}</Text>
+        </Stack>
+        {showControls && (
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label={prevLabel}
+              disabled={safePage === 0}
+              onClick={() => {
+                setPage((current) => Math.max(0, current - 1));
+              }}
+              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-[background-color,border-color,opacity,transform] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/60 hover:bg-surface-raise focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4"
+              >
+                <path d="M10 3 5 8l5 5" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label={nextLabel}
+              disabled={safePage >= pageCount - 1}
+              onClick={() => {
+                setPage((current) => Math.min(pageCount - 1, current + 1));
+              }}
+              className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-[background-color,border-color,opacity,transform] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/60 hover:bg-surface-raise focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4"
+              >
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </button>
+          </div>
+        )}
       </Stack>
       <ul aria-label={title} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category, index) => (
+        {visible.map((category, index) => (
           <li key={category.id} className="min-w-0">
             <a
               href={hrefFor(category.slug)}
@@ -43,7 +147,7 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
                 alt=""
                 ratio="video"
                 rounded="lg"
-                priority={index === 0}
+                priority={index === 0 && safePage === 0}
                 lift
               />
               <div

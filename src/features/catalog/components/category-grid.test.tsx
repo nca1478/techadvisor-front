@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { CatalogCategory } from '@/lib/api/catalog';
 import { CategoryGrid } from './category-grid';
@@ -26,6 +26,7 @@ describe('CategoryGrid', () => {
         hrefFor={(slug) => `/es/productos?category=${slug}`}
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
+        pageSize={2}
       />,
     );
 
@@ -78,6 +79,7 @@ describe('CategoryGrid', () => {
         hrefFor={(slug) => `/es/productos?category=${slug}`}
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
+        pageSize={2}
       />,
     );
 
@@ -125,7 +127,7 @@ describe('CategoryGrid', () => {
     expect(link.querySelector('img')?.getAttribute('src')).toContain('photo-1527443224154');
   });
 
-  it('renders categories in a responsive grid without horizontal scroll', () => {
+  it('paginates without scroll: 1 card per view with prev/next buttons', () => {
     render(
       <CategoryGrid
         categories={[
@@ -136,6 +138,8 @@ describe('CategoryGrid', () => {
         hrefFor={(slug) => `/es/productos?category=${slug}`}
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
+        prevLabel="Categorías anteriores"
+        nextLabel="Categorías siguientes"
       />,
     );
 
@@ -144,9 +148,24 @@ describe('CategoryGrid', () => {
     expect(list.className).toContain('grid-cols-1');
     expect(list.className).toContain('md:grid-cols-2');
     expect(list.className).toContain('lg:grid-cols-3');
-    // No slider region and no prev/next scroll controls.
-    expect(screen.queryByRole('button', { name: 'Categorías anteriores' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Categorías siguientes' })).not.toBeInTheDocument();
+    // No scroll container anywhere.
     expect(list).not.toHaveClass('overflow-x-auto');
+    expect(document.querySelector('.overflow-x-auto')).toBeNull();
+
+    // jsdom has no matchMedia: perPage falls back to 1, so only the first card shows.
+    expect(screen.getByRole('link', { name: 'Laptops' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'GPUs' })).not.toBeInTheDocument();
+
+    const next = screen.getByRole('button', { name: 'Categorías siguientes' });
+    const prev = screen.getByRole('button', { name: 'Categorías anteriores' });
+    expect(prev).toBeDisabled();
+    expect(next).not.toBeDisabled();
+
+    fireEvent.click(next);
+    expect(screen.queryByRole('link', { name: 'Laptops' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'GPUs' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Categorías anteriores' }));
+    expect(screen.getByRole('link', { name: 'Laptops' })).toBeInTheDocument();
   });
 });

@@ -105,6 +105,8 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
                 categories={categories}
                 title={messages.catalog.homeCategoriesTitle}
                 subtitle={messages.catalog.homeCategoriesSubtitle}
+                prevLabel={messages.nav.scrollPrev}
+                nextLabel={messages.nav.scrollNext}
                 hrefFor={(slug) => `/${locale}/productos?category=${encodeURIComponent(slug)}`}
               />
             </Section>
