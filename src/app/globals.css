@@ -357,6 +357,41 @@
   .media-lift:hover img {
     transform: scale(1.045);
   }
+  /* Category slider page transition: directional slide + fade + soft blur.
+     Signal Lab motion: one exponential ease-out, 240ms base, 40ms stagger
+     applied inline per card. GPU-cheap (transform/opacity); blur resolves
+     to 0 so the resting frame is flat. Reduced-motion is handled by the
+     global reset below. */
+  @keyframes category-in-from-right {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0);
+    }
+  }
+  @keyframes category-in-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(-24px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0);
+    }
+  }
+  .category-card-enter-right {
+    animation: category-in-from-right var(--duration-base) var(--ease-lab) both;
+  }
+  .category-card-enter-left {
+    animation: category-in-from-left var(--duration-base) var(--ease-lab) both;
+  }
   /* Skeleton shimmer for loading states. */
   .skeleton {
     position: relative;

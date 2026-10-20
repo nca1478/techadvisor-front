@@ -67,8 +67,10 @@ export function CategoryGrid({
   const responsivePerPage = usePerPage();
   const perPage = pageSize ?? responsivePerPage;
   const [page, setPage] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const pageCount = Math.max(1, Math.ceil(categories.length / perPage));
   const safePage = Math.min(page, pageCount - 1);
+  const enterClass = direction === 1 ? 'category-card-enter-right' : 'category-card-enter-left';
 
   const visible = useMemo(
     () => categories.slice(safePage * perPage, safePage * perPage + perPage),
@@ -92,6 +94,7 @@ export function CategoryGrid({
               aria-label={prevLabel}
               disabled={safePage === 0}
               onClick={() => {
+                setDirection(-1);
                 setPage((current) => Math.max(0, current - 1));
               }}
               className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-[background-color,border-color,opacity,transform] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/60 hover:bg-surface-raise focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
@@ -114,6 +117,7 @@ export function CategoryGrid({
               aria-label={nextLabel}
               disabled={safePage >= pageCount - 1}
               onClick={() => {
+                setDirection(1);
                 setPage((current) => Math.min(pageCount - 1, current + 1));
               }}
               className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-foreground transition-[background-color,border-color,opacity,transform] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/60 hover:bg-surface-raise focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
@@ -134,9 +138,17 @@ export function CategoryGrid({
           </div>
         )}
       </Stack>
-      <ul aria-label={title} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <ul
+        key={`category-page-${String(safePage)}`}
+        aria-label={title}
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      >
         {visible.map((category, index) => (
-          <li key={category.id} className="min-w-0">
+          <li
+            key={category.id}
+            className={`min-w-0 ${enterClass}`}
+            style={{ animationDelay: `${String(index * 40)}ms` }}
+          >
             <a
               href={`/${locale}/productos?category=${encodeURIComponent(category.slug)}`}
               aria-label={category.name}
