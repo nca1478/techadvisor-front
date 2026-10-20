@@ -23,7 +23,7 @@ describe('CategoryGrid', () => {
     render(
       <CategoryGrid
         categories={[category(), category({ id: 'c2', name: 'GPUs', slug: 'gpus' })]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
         pageSize={2}
@@ -46,7 +46,7 @@ describe('CategoryGrid', () => {
     const { container } = render(
       <CategoryGrid
         categories={[]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
       />,
@@ -58,7 +58,7 @@ describe('CategoryGrid', () => {
     render(
       <CategoryGrid
         categories={[category()]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
       />,
@@ -76,7 +76,7 @@ describe('CategoryGrid', () => {
     render(
       <CategoryGrid
         categories={[category(), category({ id: 'c2', name: 'GPUs', slug: 'gpus' })]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
         pageSize={2}
@@ -94,7 +94,7 @@ describe('CategoryGrid', () => {
     render(
       <CategoryGrid
         categories={[category({ id: 'c9', name: 'Drones', slug: 'drones' })]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
       />,
@@ -117,7 +117,7 @@ describe('CategoryGrid', () => {
             imageUrl: backendCover as unknown as CatalogCategory['imageUrl'],
           }),
         ]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
       />,
@@ -135,7 +135,7 @@ describe('CategoryGrid', () => {
           category({ id: 'c2', name: 'GPUs', slug: 'gpus' }),
           category({ id: 'c3', name: 'RAM', slug: 'ram' }),
         ]}
-        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        locale="es"
         title="Compra por categoría"
         subtitle="Explora el catálogo por categoría."
         prevLabel="Categorías anteriores"

@@ -18,7 +18,8 @@ export function categoryCardImage(
 
 export interface CategoryGridProps {
   categories: CatalogCategory[];
-  hrefFor: (slug: string) => string;
+  /** Locale prefix used to build `/[locale]/productos?category=` links (no function props to Client Components). */
+  locale: string;
   title: string;
   subtitle: string;
   prevLabel?: string;
@@ -56,7 +57,7 @@ function usePerPage(): PerPage {
  */
 export function CategoryGrid({
   categories,
-  hrefFor,
+  locale,
   title,
   subtitle,
   prevLabel = 'Categorías anteriores',
@@ -137,7 +138,7 @@ export function CategoryGrid({
         {visible.map((category, index) => (
           <li key={category.id} className="min-w-0">
             <a
-              href={hrefFor(category.slug)}
+              href={`/${locale}/productos?category=${encodeURIComponent(category.slug)}`}
               aria-label={category.name}
               className="group relative block w-full overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
             >
