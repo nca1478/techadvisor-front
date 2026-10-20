@@ -10,6 +10,7 @@ import type { Locale } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n/index';
 import { CategoryGrid } from '../components/category-grid';
 import { CatalogError } from '../components/catalog-states';
+import { HomeAdvisorBand } from '../components/home-editorial';
 import { HomeAdvisorHero } from '../components/home-advisor-hero';
 import { ProductCardGrid } from '../components/product-card-grid';
 
@@ -46,13 +47,22 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
   const products = featuredResult.value.data.filter((product) => product.inStock).slice(0, 8);
   const categories = visibleCategories(categoriesResult.value);
   const listHref = `/${locale}/productos`;
+  const advisorHref = `/${locale}/asesor`;
   const coverMessages = {
     badge: messages.catalog.homeCoverBadge,
     title: messages.catalog.homeCoverTitle,
     subtitle: messages.catalog.homeCoverSubtitle,
     cta: messages.catalog.homeCoverCta,
   };
-
+  const advisorBandMessages = {
+    badge: messages.catalog.homeAdvisorBadge,
+    title: messages.catalog.homeAdvisorTitle,
+    question: messages.catalog.homeAdvisorQuestion,
+    answerIntro: messages.catalog.homeAdvisorAnswerIntro,
+    citationLabel: messages.catalog.homeAdvisorCitationLabel,
+    disclaimer: messages.catalog.homeAdvisorDisclaimer,
+    cta: messages.catalog.homeAdvisorTrySearch,
+  };
   return (
     <>
       <HomeAdvisorHero catalogHref={listHref} messages={coverMessages} />
@@ -84,6 +94,8 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
           </Stack>
         </Section>
       </Container>
+
+      <HomeAdvisorBand locale={locale} advisorHref={advisorHref} messages={advisorBandMessages} />
 
       {categories.length > 0 && (
         <div className="border-y border-border bg-surface">

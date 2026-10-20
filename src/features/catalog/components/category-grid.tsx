@@ -1,4 +1,3 @@
-import { Grid } from '@/components/ui/grid';
 import { Heading } from '@/components/ui/heading';
 import { MediaFrame } from '@/components/ui/media-frame';
 import { Stack } from '@/components/ui/stack';
@@ -21,7 +20,7 @@ export interface CategoryGridProps {
   subtitle: string;
 }
 
-/** Photo cards linking to the pre-filtered listing (title kept over the image). */
+/** Photo cards in a responsive grid (1 mobile / 2 tablet / 3 desktop), no horizontal scroll. */
 export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryGridProps) {
   if (categories.length === 0) return null;
   return (
@@ -30,37 +29,38 @@ export function CategoryGrid({ categories, hrefFor, title, subtitle }: CategoryG
         <Heading level={2}>{title}</Heading>
         <Text tone="muted">{subtitle}</Text>
       </Stack>
-      <Grid columns="three" gap="md">
+      <ul aria-label={title} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {categories.map((category, index) => (
-          <a
-            key={category.id}
-            href={hrefFor(category.slug)}
-            aria-label={category.name}
-            className="group relative block overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
-          >
-            {/* Decorative photo: the link already exposes the category name. */}
-            <MediaFrame
-              src={categoryCardImage(category)}
-              alt=""
-              ratio="video"
-              rounded="lg"
-              priority={index === 0}
-              lift
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-header/85 via-header/25 to-transparent"
-            />
-            <Text
-              variant="body"
-              as="span"
-              className="pointer-events-none absolute bottom-0 left-0 p-4 font-medium text-header-foreground"
+          <li key={category.id} className="min-w-0">
+            <a
+              href={hrefFor(category.slug)}
+              aria-label={category.name}
+              className="group relative block w-full overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
             >
-              {category.name}
-            </Text>
-          </a>
+              {/* Decorative photo: the link already exposes the category name. */}
+              <MediaFrame
+                src={categoryCardImage(category)}
+                alt=""
+                ratio="video"
+                rounded="lg"
+                priority={index === 0}
+                lift
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-header/85 via-header/25 to-transparent"
+              />
+              <Text
+                variant="body"
+                as="span"
+                className="pointer-events-none absolute bottom-0 left-0 p-4 font-medium text-header-foreground"
+              >
+                {category.name}
+              </Text>
+            </a>
+          </li>
         ))}
-      </Grid>
+      </ul>
     </Stack>
   );
 }

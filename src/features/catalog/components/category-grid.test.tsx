@@ -124,4 +124,29 @@ describe('CategoryGrid', () => {
     const link = screen.getByRole('link', { name: 'Monitors' });
     expect(link.querySelector('img')?.getAttribute('src')).toContain('photo-1527443224154');
   });
+
+  it('renders categories in a responsive grid without horizontal scroll', () => {
+    render(
+      <CategoryGrid
+        categories={[
+          category(),
+          category({ id: 'c2', name: 'GPUs', slug: 'gpus' }),
+          category({ id: 'c3', name: 'RAM', slug: 'ram' }),
+        ]}
+        hrefFor={(slug) => `/es/productos?category=${slug}`}
+        title="Compra por categoría"
+        subtitle="Explora el catálogo por categoría."
+      />,
+    );
+
+    const list = screen.getByRole('list', { name: 'Compra por categoría' });
+    expect(list).toBeInTheDocument();
+    expect(list.className).toContain('grid-cols-1');
+    expect(list.className).toContain('md:grid-cols-2');
+    expect(list.className).toContain('lg:grid-cols-3');
+    // No slider region and no prev/next scroll controls.
+    expect(screen.queryByRole('button', { name: 'Categorías anteriores' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Categorías siguientes' })).not.toBeInTheDocument();
+    expect(list).not.toHaveClass('overflow-x-auto');
+  });
 });
