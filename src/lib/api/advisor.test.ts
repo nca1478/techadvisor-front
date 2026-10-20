@@ -458,6 +458,7 @@ describe('createAdvisorApi', () => {
     expect(classifyAdvisorError(429, null)).toBe('rate-limit');
     expect(classifyAdvisorError(500, { code: 'TOO_MANY_REQUESTS' })).toBe('rate-limit');
     expect(classifyAdvisorError(404, null)).toBe('not-found');
+    expect(classifyAdvisorError(403, null)).toBe('disabled');
     expect(classifyAdvisorError(503, null)).toBe('provider');
     expect(classifyAdvisorError(0, null)).toBe('network');
     expect(classifyAdvisorError(500, null)).toBe('generic');

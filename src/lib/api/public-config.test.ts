@@ -15,11 +15,22 @@ describe('getPublicConfig', () => {
     );
     const client = createApiClient({ baseUrl: 'http://api.test/api/v1', fetchFn });
 
-    await expect(getPublicConfig(client)).resolves.toEqual(backendConfig);
+    await expect(getPublicConfig(client)).resolves.toEqual({ ...backendConfig, aiEnabled: true });
     expect(fetchFn).toHaveBeenCalledWith(
       'http://api.test/api/v1/config/public',
       expect.objectContaining({ method: 'GET' }),
     );
+  });
+
+  it('reads the AI kill-switch when the backend exposes it', async () => {
+    const fetchFn = vi.fn((): Promise<Response> =>
+      Promise.resolve(
+        new Response(JSON.stringify({ ...backendConfig, aiEnabled: false }), { status: 200 }),
+      ),
+    );
+    const client = createApiClient({ baseUrl: 'http://api.test/api/v1', fetchFn });
+
+    await expect(getPublicConfig(client)).resolves.toEqual({ ...backendConfig, aiEnabled: false });
   });
 
   it('rejects when the backend returns an invalid shape', async () => {
