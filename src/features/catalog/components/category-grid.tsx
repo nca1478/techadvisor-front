@@ -82,8 +82,8 @@ export function CategoryGrid({
 
   return (
     <Stack gap="md">
-      <Stack direction="horizontal" justify="between" align="end" gap="md">
-        <Stack gap="sm">
+      <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-end md:justify-between md:text-left">
+        <Stack gap="sm" className="items-center text-center md:items-start md:text-left">
           <Heading level={2}>{title}</Heading>
           <Text tone="muted">{subtitle}</Text>
         </Stack>
@@ -137,7 +137,7 @@ export function CategoryGrid({
             </button>
           </div>
         )}
-      </Stack>
+      </div>
       <ul
         key={`category-page-${String(safePage)}`}
         aria-label={title}

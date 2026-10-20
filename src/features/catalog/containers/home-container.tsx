@@ -70,15 +70,15 @@ export async function HomeContainer({ locale, currency, messages }: HomeContaine
       <Container>
         <Section spacing="tight">
           <Stack gap="md">
-            <Stack direction="horizontal" justify="between" align="end" gap="md">
-              <Stack gap="sm">
+            <div className="flex flex-col items-center gap-4 text-center md:flex-row md:items-end md:justify-between md:text-left">
+              <Stack gap="sm" className="items-center text-center md:items-start md:text-left">
                 <Heading level={2}>{messages.catalog.homeFeaturedTitle}</Heading>
                 <Text tone="muted">{messages.catalog.homeFeaturedSubtitle}</Text>
               </Stack>
               <Link href={listHref} className="shrink-0">
                 {messages.nav.viewAll}
               </Link>
-            </Stack>
+            </div>
             {products.length === 0 ? (
               <Text tone="muted">{messages.catalog.homeEmpty}</Text>
             ) : (
