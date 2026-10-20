@@ -23,6 +23,8 @@ function friendlyError(status: number, body: unknown, messages: Dictionary['advi
   const code = body !== null && typeof body === 'object' ? (body as ErrorBody).code : undefined;
   if (status === 429 || code === 'TOO_MANY_REQUESTS') return messages.rateLimitError;
   if (status === 404) return messages.notFoundError;
+  // Storefront AI kill-switch (backend AI_ENABLED=false answers 403).
+  if (status === 403) return messages.disabled;
   if (status === 503 || code === 'SERVICE_UNAVAILABLE') return messages.providerError;
   if (status === 0) return messages.networkError;
   return messages.genericError;

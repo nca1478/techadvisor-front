@@ -29,6 +29,8 @@ export interface SupportViewProps {
   onFeedback: (value: FeedbackValue) => void;
   locale: string;
   messages: Dictionary['support'];
+  /** When false, the title block is omitted (the page renders it above). */
+  showHeader?: boolean;
 }
 
 /**
@@ -52,6 +54,7 @@ export function SupportView({
   onFeedback,
   locale,
   messages,
+  showHeader = true,
 }: SupportViewProps) {
   const loading = status === 'loading';
   const showResult = (status === 'answered' || status === 'abstained') && result !== null;
@@ -59,12 +62,14 @@ export function SupportView({
   return (
     <Card>
       <Stack gap="md">
-        <Stack gap="sm">
-          <Heading level={2}>{messages.assistantTitle}</Heading>
-          <Text variant="small" tone="muted">
-            {messages.assistantSubtitle}
-          </Text>
-        </Stack>
+        {showHeader ? (
+          <Stack gap="sm">
+            <Heading level={2}>{messages.assistantTitle}</Heading>
+            <Text variant="small" tone="muted">
+              {messages.assistantSubtitle}
+            </Text>
+          </Stack>
+        ) : null}
 
         <form
           onSubmit={(event) => {

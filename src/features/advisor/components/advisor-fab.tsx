@@ -6,15 +6,20 @@ import { Button } from '@/components/ui/button';
 export interface AdvisorFabProps {
   locale: string;
   label: string;
+  enabled?: boolean;
 }
 
 /**
  * Floating entry point to the conversational advisor, rendered from the
  * localized layout. Hidden on the `/asesor` page itself (it would link to
- * the page being viewed). The glyph is a drawn chat mark (no emoji).
+ * the page being viewed) and when the storefront AI kill-switch
+ * (`AI_ENABLED=false`) is off.
  */
-export function AdvisorFab({ locale, label }: AdvisorFabProps) {
+export function AdvisorFab({ locale, label, enabled = true }: AdvisorFabProps) {
   const pathname = usePathname();
+  if (!enabled) {
+    return null;
+  }
   if (pathname.endsWith('/asesor')) {
     return null;
   }

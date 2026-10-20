@@ -90,9 +90,11 @@ export default async function DetailPage({ params, searchParams }: DetailPagePro
   const messages = await getDictionary(locale);
 
   let currency = 'USD';
+  let aiEnabled = true;
   try {
     const config = await getPublicConfig(createApiClient());
     currency = resolveCurrency(query, config);
+    aiEnabled = config.aiEnabled;
   } catch {
     // Detail container renders its own error state; keep the fallback.
   }
@@ -100,7 +102,13 @@ export default async function DetailPage({ params, searchParams }: DetailPagePro
   // Unknown slugs surface as the locale not-found page in the container.
   return (
     <Suspense fallback={<DetailSkeleton loadingLabel={messages.common.loading} />}>
-      <ProductDetailContainer slug={slug} locale={locale} currency={currency} messages={messages} />
+      <ProductDetailContainer
+        slug={slug}
+        locale={locale}
+        currency={currency}
+        messages={messages}
+        advisorEnabled={aiEnabled}
+      />
     </Suspense>
   );
 }

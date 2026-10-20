@@ -54,9 +54,11 @@ export default async function LocaleLayout({
 
   let currencies = ['USD'];
   let categories: CatalogCategory[] = [];
+  let aiEnabled = true;
   try {
     const config = await getPublicConfig(createApiClient());
     currencies = config.supportedCurrencies;
+    aiEnabled = config.aiEnabled;
   } catch {
     // Header still renders with the base fallback; pages show their own error state.
   }
@@ -185,7 +187,7 @@ export default async function LocaleLayout({
             <main id="main-content" className="flex flex-1 flex-col">
               {children}
             </main>
-            <AdvisorFab locale={locale} label={messages.nav.asesor} />
+            <AdvisorFab locale={locale} label={messages.nav.asesor} enabled={aiEnabled} />
             <footer className="border-t border-border bg-header text-header-foreground">
               <Container>
                 <div className="grid grid-cols-1 gap-8 py-10 lg:grid-cols-4 lg:gap-8 lg:py-12">

@@ -470,6 +470,7 @@ async function handler(req, res) {
       supportedCurrencies: ['USD', 'EUR'],
       defaultLocale: 'en',
       supportedLocales: ['en', 'es'],
+      aiEnabled: true,
     });
     return;
   }

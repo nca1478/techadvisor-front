@@ -8,12 +8,20 @@ import { Stack } from '@/components/ui/stack';
 import { Tabs } from '@/components/ui/tabs';
 import { Text } from '@/components/ui/text';
 import { SupportAssistant } from '@/features/support';
+import { getPublicConfig } from '@/lib/api/index';
+import { createApiClient } from '@/lib/api/client';
 import { isLocale, LOCALES } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/index';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
+
+// Always rendered on demand (`force-dynamic`): the AI kill-switch
+// (`aiEnabled` from `GET /config/public`) must be read per request, otherwise
+// a static prerender would bake in the build-time value and toggling
+// AI_ENABLED would have no effect until the next build.
+export const dynamic = 'force-dynamic';
 
 interface SupportPageProps {
   params: Promise<unknown>;
@@ -45,17 +53,33 @@ export default async function SupportPage({ params }: SupportPageProps) {
   const locale = resolved.locale;
   const messages = await getDictionary(locale);
 
+  let aiEnabled = true;
+  try {
+    aiEnabled = (await getPublicConfig(createApiClient())).aiEnabled;
+  } catch {
+    // The assistant renders its own error state; keep the default.
+  }
+
   return (
     <Container className="flex flex-1 flex-col gap-8 py-6">
       <Stack gap="sm">
-        {/* Título oculto visualmente (sin utilidad para el usuario): se conserva en el DOM para SEO/a11y, no se elimina. */}
-        <Heading level={1} className="hidden">
-          {messages.support.title}
+        <Heading level={1} visual={2}>
+          {messages.support.assistantTitle}
         </Heading>
-        <Text tone="muted">{messages.support.subtitle}</Text>
+        <Text variant="small" tone="muted">
+          {messages.support.assistantSubtitle}
+        </Text>
       </Stack>
 
-      <SupportAssistant locale={locale} messages={messages.support} />
+      {aiEnabled ? (
+        <SupportAssistant locale={locale} messages={messages.support} showHeader={false} />
+      ) : (
+        <Card>
+          <Stack gap="sm" className="px-6 py-12 text-center" align="center">
+            <Text tone="muted">{messages.support.disabled}</Text>
+          </Stack>
+        </Card>
+      )}
 
       <section aria-labelledby="policies-heading">
         <Stack gap="md">
@@ -65,7 +89,7 @@ export default async function SupportPage({ params }: SupportPageProps) {
             </span>
             <Heading level={2}>{messages.support.policiesTitle}</Heading>
             <Text variant="small" tone="muted">
-              {messages.support.policiesSubtitle}
+              {messages.support.subtitle}
             </Text>
           </Stack>
 

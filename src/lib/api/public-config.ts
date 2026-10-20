@@ -9,6 +9,9 @@ const publicConfigSchema = z.object({
   supportedCurrencies: z.array(z.string().regex(/^[A-Z]{3}$/)).min(1),
   defaultLocale: z.string().min(2).max(10),
   supportedLocales: z.array(z.string().min(2).max(10)).min(1),
+  // Storefront AI kill-switch (backend AI_ENABLED, default true so older
+  // backends without the field keep the advisor visible).
+  aiEnabled: z.boolean().default(true),
 });
 
 /**

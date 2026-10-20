@@ -407,12 +407,15 @@ interface ErrorBody {
   message?: unknown;
 }
 
-export type AdvisorErrorKind = 'rate-limit' | 'not-found' | 'provider' | 'network' | 'generic';
+export type AdvisorErrorKind =
+  'rate-limit' | 'not-found' | 'provider' | 'network' | 'disabled' | 'generic';
 
 export function classifyAdvisorError(status: number, body: unknown): AdvisorErrorKind {
   const code = body !== null && typeof body === 'object' ? (body as ErrorBody).code : undefined;
   if (status === 429 || code === 'TOO_MANY_REQUESTS') return 'rate-limit';
   if (status === 404) return 'not-found';
+  // Storefront AI kill-switch (backend AI_ENABLED=false answers 403).
+  if (status === 403) return 'disabled';
   if (status === 503 || code === 'SERVICE_UNAVAILABLE') return 'provider';
   if (status === 0) return 'network';
   return 'generic';

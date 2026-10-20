@@ -8,6 +8,8 @@ import { SupportView, type SupportStatus } from '../components/support-view';
 export interface SupportAssistantProps {
   locale: string;
   messages: Dictionary['support'];
+  /** When false, the title block stays out of the card (the page shows it above). */
+  showHeader?: boolean;
 }
 
 interface ErrorBody {
@@ -23,6 +25,8 @@ function friendlyError(
 ): string {
   const code = body !== null && typeof body === 'object' ? (body as ErrorBody).code : undefined;
   if (status === 429 || code === 'TOO_MANY_REQUESTS') return messages.rateLimitError;
+  // Storefront AI kill-switch (backend AI_ENABLED=false answers 403).
+  if (status === 403) return messages.disabled;
   // On this endpoint 404 only happens for order lookups (other users' or
   // unknown ids); general policy questions never 404.
   if (status === 404) return messages.orderNotFoundError;
@@ -72,7 +76,7 @@ function isSupportResponse(value: unknown): value is SupportResponse {
  * The order number is optional and sent only when non-empty; order-scoped
  * 404s map to the "order not found in your account" message.
  */
-export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
+export function SupportAssistant({ locale, messages, showHeader = true }: SupportAssistantProps) {
   const [question, setQuestion] = useState('');
   const [orderId, setOrderId] = useState('');
   const [status, setStatus] = useState<SupportStatus>('idle');
@@ -174,6 +178,7 @@ export function SupportAssistant({ locale, messages }: SupportAssistantProps) {
         onFeedback={handleFeedback}
         locale={locale}
         messages={messages}
+        showHeader={showHeader}
       />
     </section>
   );

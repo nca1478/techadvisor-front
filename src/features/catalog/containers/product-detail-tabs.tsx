@@ -1,6 +1,9 @@
 'use client';
 
 import { Tabs } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
+import { Stack } from '@/components/ui/stack';
+import { Text } from '@/components/ui/text';
 import { ProductAdvisor } from '@/features/advisor';
 import { ProductReviewsList, ReviewFormCard } from '@/features/reviews';
 import type { Dictionary } from '@/lib/i18n/index';
@@ -13,6 +16,7 @@ export interface ProductDetailTabsProps {
   loginHref: string;
   loginLabel: string;
   messages: Dictionary;
+  advisorEnabled?: boolean;
 }
 
 /**
@@ -29,6 +33,7 @@ export function ProductDetailTabs({
   loginHref,
   loginLabel,
   messages,
+  advisorEnabled = true,
 }: ProductDetailTabsProps) {
   return (
     <Tabs
@@ -57,7 +62,7 @@ export function ProductDetailTabs({
         {
           id: 'advisor',
           label: messages.advisor.title,
-          content: (
+          content: advisorEnabled ? (
             <ProductAdvisor
               key={productId}
               productId={productId}
@@ -66,6 +71,12 @@ export function ProductDetailTabs({
               supportHref={supportHref}
               messages={messages.advisor}
             />
+          ) : (
+            <Card>
+              <Stack gap="sm" className="px-6 py-12 text-center" align="center">
+                <Text tone="muted">{messages.advisor.disabled}</Text>
+              </Stack>
+            </Card>
           ),
         },
       ]}

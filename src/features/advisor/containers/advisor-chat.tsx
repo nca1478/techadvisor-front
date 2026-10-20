@@ -44,6 +44,8 @@ function errorTextFor(kind: ReturnType<typeof classifyAdvisorError>, messages: D
       return messages.advisor.providerError;
     case 'network':
       return messages.advisor.networkError;
+    case 'disabled':
+      return messages.chat.disabled;
     default:
       return messages.advisor.genericError;
   }

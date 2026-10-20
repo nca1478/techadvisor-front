@@ -19,6 +19,7 @@ export interface ProductDetailContainerProps {
   locale: Locale;
   currency: string;
   messages: Dictionary;
+  advisorEnabled?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export async function ProductDetailContainer({
   locale,
   currency,
   messages,
+  advisorEnabled = true,
 }: ProductDetailContainerProps) {
   const catalog = createCatalogApi(createApiClient());
 
@@ -74,6 +76,7 @@ export async function ProductDetailContainer({
             loginHref={`/${locale}/ingresar?next=${encodeURIComponent(`/${locale}/productos/${slug}`)}`}
             loginLabel={messages.auth.loginLink}
             messages={messages}
+            advisorEnabled={advisorEnabled}
           />
         </Stack>
       </Section>
