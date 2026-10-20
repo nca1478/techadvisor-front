@@ -25,3 +25,32 @@ export const registerSchema = z.object({
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+
+/**
+ * Password-reset schemas (mirror the backend contract without importing it).
+ * The OTP is a 6-digit string; the new password follows the register policy.
+ */
+export const passwordResetRequestSchema = z.object({
+  email: z.email(),
+});
+
+export type PasswordResetRequestValues = z.infer<typeof passwordResetRequestSchema>;
+
+export const passwordResetVerifySchema = z.object({
+  email: z.email(),
+  code: z.string().regex(/^\d{6}$/, 'invalidCode'),
+});
+
+export type PasswordResetVerifyValues = z.infer<typeof passwordResetVerifySchema>;
+
+export const passwordResetNewSchema = z
+  .object({
+    password: z.string().min(10, 'min10'),
+    confirmPassword: z.string().min(1, 'required'),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    message: 'mismatch',
+    path: ['confirmPassword'],
+  });
+
+export type PasswordResetNewValues = z.infer<typeof passwordResetNewSchema>;

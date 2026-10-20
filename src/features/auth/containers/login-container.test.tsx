@@ -16,6 +16,7 @@ const baseProps = {
   subtitle: 'Bienvenido de nuevo.',
   noAccountPrompt: '¿No tienes cuenta?',
   registerCta: 'Crear cuenta',
+  forgotLink: '¿Olvidaste tu contraseña?',
   messages: {
     email: 'Correo electrónico',
     password: 'Contraseña',

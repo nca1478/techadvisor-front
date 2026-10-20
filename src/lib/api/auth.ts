@@ -25,6 +25,11 @@ export interface AuthPayload {
   tokens: TokenPair;
 }
 
+export interface PasswordResetVerifyResult {
+  resetToken: string;
+  expiresIn: number;
+}
+
 /**
  * Auth reads/writes against the generated OpenAPI contract. The frontend
  * never stores these tokens in browser-readable storage: the Next.js BFF
@@ -37,6 +42,16 @@ export function createAuthApi(client: ApiClient = createApiClient()) {
     googleLogin: (body: GoogleLoginRequest) => client.post<AuthPayload>('/auth/google', body),
     refresh: (body: RefreshRequest) => client.post<{ tokens: TokenPair }>('/auth/refresh', body),
     logout: (body: RefreshRequest) => client.post<{ ok: boolean }>('/auth/logout', body),
+    requestPasswordReset: (body: { email: string }) =>
+      client.post<{ ok: boolean }>('/auth/password/request', body),
+    verifyPasswordResetCode: (body: { email: string; code: string }) =>
+      client.post<PasswordResetVerifyResult>('/auth/password/verify', body),
+    confirmPasswordReset: (body: {
+      email: string;
+      resetToken: string;
+      password: string;
+      confirmPassword: string;
+    }) => client.post<{ ok: boolean }>('/auth/password/reset', body),
     me: (accessToken: string) =>
       client.get<AuthUser>('/users/me', {
         headers: { authorization: `Bearer ${accessToken}` },

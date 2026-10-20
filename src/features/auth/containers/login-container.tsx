@@ -27,6 +27,7 @@ export function LoginContainer({
   subtitle,
   noAccountPrompt,
   registerCta,
+  forgotLink,
   messages,
   google,
 }: {
@@ -36,6 +37,7 @@ export function LoginContainer({
   subtitle: string;
   noAccountPrompt: string;
   registerCta: string;
+  forgotLink: string;
   messages: AuthFormMessages;
   google: {
     clientId: string;
@@ -126,6 +128,12 @@ export function LoginContainer({
                 }}
                 onSubmit={() => void handleSubmit()}
               />
+              <a
+                href={`/${locale}/recuperar`}
+                className="text-center text-sm font-medium text-link hover:text-link-hover"
+              >
+                {forgotLink}
+              </a>
               {google.clientId ? (
                 <Stack gap="sm" className="items-center">
                   <Text tone="muted" variant="small" className="w-full text-center">
