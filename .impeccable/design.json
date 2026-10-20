@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T20:05:00Z",
+  "generatedAt": "2026-10-20T00:00:00Z",
   "title": "Design System: TechAdvisor Signal Lab",
   "extensions": {
     "colorMeta": {
@@ -217,8 +217,8 @@
     "shadows": [
       {
         "name": "volt-glow",
-        "value": "0 8px 24px -8px rgb(201 242 75 / 0.55)",
-        "purpose": "Primary CTA at rest; intensifies on hover."
+        "value": "0 0 0 1px rgb(201 242 75 / 0.35), 0 8px 24px -8px rgb(201 242 75 / 0.55)",
+        "purpose": "Primary CTA at rest; hover intensifies to ring 0.5 plus 0 10px 32px glow."
       },
       {
         "name": "panel-lift",
@@ -263,7 +263,7 @@
       "refersTo": "button-primary",
       "description": "The single conversion action: volt ground, volt-ink text, glow and press-down.",
       "html": "<button class=\"ds-btn-primary\">Browse available products</button>",
-      "css": ".ds-btn-primary { background: #c9f24b; color: #0c1106; font-weight: 600; padding: 0 24px; height: 48px; border: none; border-radius: 10px; box-shadow: 0 8px 24px -8px rgb(201 242 75 / 0.55); transition: background-color 150ms cubic-bezier(0.22,1,0.36,1), box-shadow 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { background: #d9f973; box-shadow: 0 10px 32px -8px rgb(201 242 75 / 0.7); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
+      "css": ".ds-btn-primary { background: #c9f24b; color: #0c1106; font-weight: 600; padding: 0 24px; height: 48px; border: none; border-radius: 14px; box-shadow: 0 0 0 1px rgb(201 242 75 / 0.35), 0 8px 24px -8px rgb(201 242 75 / 0.55); transition: background-color 150ms cubic-bezier(0.22,1,0.36,1), box-shadow 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { background: #d9f973; box-shadow: 0 0 0 1px rgb(201 242 75 / 0.5), 0 10px 32px -8px rgb(201 242 75 / 0.7); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
     },
     {
       "name": "Secondary Button",
@@ -271,7 +271,7 @@
       "refersTo": "button-secondary",
       "description": "Quiet actions on panel ground with a strong-line border.",
       "html": "<button class=\"ds-btn-secondary\">Continue shopping</button>",
-      "css": ".ds-btn-secondary { background: #11161d; color: #edf1f5; padding: 0 16px; height: 40px; border: 1px solid #324052; border-radius: 10px; transition: border-color 150ms cubic-bezier(0.22,1,0.36,1), background-color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-secondary:hover { border-color: rgb(201 242 75 / 0.6); background: #182029; } .ds-btn-secondary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
+      "css": ".ds-btn-secondary { background: #11161d; color: #edf1f5; padding: 0 16px; height: 40px; border: 1px solid #324052; border-radius: 14px; transition: border-color 150ms cubic-bezier(0.22,1,0.36,1), background-color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-secondary:hover { border-color: rgb(201 242 75 / 0.6); background: #182029; } .ds-btn-secondary:focus-visible { outline: 2px solid #c9f24b; outline-offset: 3px; }"
     },
     {
       "name": "Status Badge",
@@ -279,7 +279,7 @@
       "refersTo": "badge",
       "description": "Mono uppercase readout with tone border, tint and signal dot.",
       "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>In stock</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; background: #0f2a1c; color: #4ade80; border: 1px solid rgb(74 222 128 / 0.3); border-radius: 6px; padding: 4px 10px; font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: #4ade80; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; background: #0f2a1c; color: #4ade80; border: 1px solid rgb(74 222 128 / 0.3); border-radius: 10px; padding: 4px 10px; font-family: monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: #4ade80; }"
     },
     {
       "name": "Panel Card",

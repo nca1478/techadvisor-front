@@ -79,7 +79,7 @@ components:
   badge:
     backgroundColor: "{colors.volt-subtle}"
     textColor: "{colors.volt}"
-    rounded: "{rounded.sm}"
+    rounded: "{rounded.md}"
   card:
     backgroundColor: "{colors.panel}"
     rounded: "{rounded.xl}"
@@ -97,7 +97,7 @@ components:
 
 **Creative North Star: "Signal Lab"**
 
-A deep-ink laboratory bench for buying tech fast. The ground is near-black ink, panels lift one tonal step, and a single volt-lime signal marks everything that converts: price, primary action, focus. A second signal, cyan, belongs exclusively to the RAG advisor — citations, assistant identity, links — so shoppers learn that cyan means cited evidence and volt means buy. Typography pairs a squared technical display voice with a quiet body workhorse and a tabular mono reserved for data. Motion is one exponential ease-out, never bounce; empty states are first-class panels, not afterthoughts.
+A deep-ink laboratory bench for buying tech fast. The ground is near-black ink, panels lift one tonal step, and a single volt-lime signal marks everything that converts: price, primary action, focus. A second signal, cyan, belongs exclusively to the RAG advisor — citations, assistant identity, links — so shoppers learn that cyan means cited evidence and volt means buy. Typography pairs a squared technical display voice with a quiet body workhorse and a tabular mono reserved for data. Motion is one exponential ease-out, never bounce; empty states are first-class panels, not afterthoughts. A light lab variant replays the same world on paper for daylight, switched at runtime via [data-theme].
 
 **Key Characteristics:**
 - Dark-first ink ground, never pure black; muted tones tinted from the ink hue.
@@ -108,7 +108,7 @@ A deep-ink laboratory bench for buying tech fast. The ground is near-black ink, 
 
 ## Colors
 
-Restrained strategy: tinted ink neutrals plus volt for conversion and cyan for the advisor.
+Restrained strategy: tinted ink neutrals plus volt for conversion and cyan for the advisor. A light lab theme mirrors the same signal semantics on a paper ground (#f2f4f6) for daylight reading — volt deepened for contrast, header/footer keeping the ink shell; dark remains canonical.
 
 ### Primary
 - **Volt Signal** (#c9f24b): price figures, primary CTA, focus rings, winning comparison cells. Hover (#d9f973), active (#aecf35), subtle ground (#1d2612), ink text (#0c1106).
@@ -158,7 +158,7 @@ Centered container with a tight/loose section rhythm: dense groups separated gen
 Hybrid: tonal layering by default, glow on state. Panels rest flat on ink; the primary CTA carries a volt glow, winning comparison cells sit on volt ground, and the active gallery thumb glows volt. Motion (140/240/480ms, exponential ease-out) is the second depth cue: image zoom, add-to-cart pop, skeleton shimmer — all disabled under reduced-motion.
 
 ### Shadow Vocabulary (if applicable)
-- **Volt glow** (`box-shadow: 0 8px 24px -8px rgb(201 242 75 / 0.55)`): primary CTA at rest, intensified on hover.
+- **Volt glow** (`box-shadow: 0 0 0 1px rgb(201 242 75 / 0.35), 0 8px 24px -8px rgb(201 242 75 / 0.55)`): primary CTA at rest, intensified on hover (ring 0.5, 0 10px 32px glow).
 - **Panel lift** (`box-shadow: 0 6px 18px rgb(0 0 0 / 0.45)`): raised cards and dialogs.
 - **Deep** (`box-shadow: 0 18px 48px rgb(0 0 0 / 0.5)`): floating advisor entry, overlays.
 
@@ -172,7 +172,7 @@ Softly squared lab geometry: small controls (8–10px radius), panels (14–20px
 ## Components
 
 ### Buttons
-- **Shape:** softly squared (10px radius), three sizes (32/40/48px height).
+- **Shape:** softly squared (14px radius — rounded-lg), three sizes (32/40/48px height).
 - **Primary:** volt ground with volt-ink text and glow; hover brightens, active presses to 0.98 scale.
 - **Hover / Focus:** 150ms lab ease on color, border, shadow and transform; 2px volt focus ring with 3px offset.
 - **Secondary:** panel ground with strong-line border, brightens toward raise on hover. **Danger / Ghost / Link** follow status and text roles.
