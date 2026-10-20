@@ -102,6 +102,8 @@ export function ProfileEditContainer({
         newPasswordHint: messages.newPasswordHint,
         googlePasswordHint: messages.googlePasswordHint,
         confirmPasswordLabel: messages.confirmPasswordLabel,
+        showPassword: messages.showPassword,
+        hidePassword: messages.hidePassword,
         submit: messages.saveAction,
         required: messages.required,
         passwordMin: messages.passwordMin,

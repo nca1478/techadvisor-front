@@ -3,6 +3,7 @@ import { Grid } from '@/components/ui/grid';
 import { Input } from '@/components/ui/input';
 import { Stack } from '@/components/ui/stack';
 import { Text } from '@/components/ui/text';
+import { PasswordInput } from '@/features/auth/components/password-input';
 
 export interface ProfileFormMessages {
   emailLabel: string;
@@ -12,6 +13,8 @@ export interface ProfileFormMessages {
   newPasswordHint: string;
   googlePasswordHint?: string;
   confirmPasswordLabel: string;
+  showPassword: string;
+  hidePassword: string;
   submit: string;
   submitting?: string;
   required?: string;
@@ -88,11 +91,9 @@ export function ProfileForm({
           />
         </Grid>
         <Grid columns="two" gap="md" className="w-full">
-          <Input
+          <PasswordInput
             label={messages.newPasswordLabel}
             name="new-password"
-            type="password"
-            autoComplete="new-password"
             value={values.password}
             error={errors.password}
             hint={
@@ -100,23 +101,23 @@ export function ProfileForm({
                 ? (messages.googlePasswordHint ?? messages.newPasswordHint)
                 : messages.newPasswordHint
             }
+            showLabel={messages.showPassword}
+            hideLabel={messages.hidePassword}
             disabled={passwordDisabled}
-            readOnly={passwordDisabled}
-            onChange={(event) => {
-              onChange('password', event.target.value);
+            onChange={(value) => {
+              onChange('password', value);
             }}
           />
-          <Input
+          <PasswordInput
             label={messages.confirmPasswordLabel}
             name="confirm-password"
-            type="password"
-            autoComplete="new-password"
             value={values.confirmPassword}
             error={errors.confirmPassword}
+            showLabel={messages.showPassword}
+            hideLabel={messages.hidePassword}
             disabled={passwordDisabled}
-            readOnly={passwordDisabled}
-            onChange={(event) => {
-              onChange('confirmPassword', event.target.value);
+            onChange={(value) => {
+              onChange('confirmPassword', value);
             }}
           />
         </Grid>
